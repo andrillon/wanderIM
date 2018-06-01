@@ -3,7 +3,7 @@
 
 ## Overview
 
-####Includes:
+#### Includes:
 
 1. R Project
 
@@ -49,4 +49,6 @@
 ## How-to
 
 Files are set to load and write to the same directory. The script should run locally on any machine if all files are kept in same root directory.
+
+See the R Script for more information about the processing of scales and data included in the raw and processed files.
 
