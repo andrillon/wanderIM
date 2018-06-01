@@ -5,9 +5,9 @@ clear all
 addpath(genpath('/Users/Thomas/Work/local/toolbox/spm12/'));
 eeg_path='/Users/Thomas/temp_data/WanderIM/';
 
-files={'WIM101_03_05_18.eeg'};
+files={'MWI301_DB.eeg'};
 
-save_names={{'WIM101','1'}};
+save_names={{'MWI001','1'}};
 %% Loop on files
 n=1;
 fprintf('... importing %s - %s\n',save_names{n}{1},save_names{n}{2})
@@ -31,7 +31,35 @@ S.units='uV'; % it will be lost at montage anyway...
 D = spm_eeg_convert(S);
 
 %%
-[faxis, pow]=get_PowerSpec(D(30,:,1),D.fsample,1,1); xlim([0.5 30])
+[faxis, pow]=get_PowerSpec(D(17,:,1),D.fsample,1,1); xlim([0.5 30])
+
+%%
+trialonset=[myev(match_str({myev.type},'T')).time];
+erp_diode1=nan(length(trialonset),length((-0.2*D.fsample:1.5*D.fsample)));
+erp_pow=nan(length(trialonset),2501);
+for nTr=1:length(trialonset)
+    erp_diode1(nTr,:)=squeeze(D(17,D.indsample(trialonset(nTr))+(-0.2*D.fsample:1.5*D.fsample),1))-mean(squeeze(D(17,D.indsample(trialonset(nTr))+(-0.1*D.fsample:0),1)));
+    
+
+end
+
+%%
+data=D(1:63,:,1);
+data=data-repmat(mean(data,1),[size(data,1) 1 1]);
+%%
+trialonset=[myev(match_str({myev.type},'P')).time];
+erp_diode2=[];
+erp_pow2=nan(length(trialonset),2501);
+erp_pow3=nan(length(trialonset),2501);
+
+for nTr=1:length(trialonset)
+%     erp_diode2=[erp_diode2 ; squeeze(D(66,D.indsample(trialonset(nTr))+(-0.2*D.fsample:1.5*D.fsample),1))-mean(squeeze(D(66,D.indsample(trialonset(nTr))+(-0.1*D.fsample:0),1)))];
+
+    [faxis, pow]=get_PowerSpec(data(17,D.indsample(trialonset(1))+(-10*D.fsample:-1))-mean(data(17,D.indsample(trialonset(1))+(-10*D.fsample:-1))),D.fsample,0,0);
+    erp_pow2(nTr,:)=(pow);
+    [faxis, pow]=get_PowerSpec(data(17,D.indsample(trialonset(1))+(1:10*D.fsample))-mean(data(17,D.indsample(trialonset(1))+(1:10*D.fsample))),D.fsample,0,0);
+    erp_pow3(nTr,:)=(pow);
+end
 
 %% find triggers
 clear din_*
