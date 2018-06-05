@@ -35,6 +35,8 @@
 
 - WDQ
 
+- EES
+
 #### R script does not process:
 
 - Alternate Uses Task
