@@ -298,7 +298,7 @@ for n=1:length(files)
         S.trl=trl;
         S.conditionlabels=trllabels;
         S.save=1;
-        D_trials=spm_eeg_epochs(S);
+        D_hb=spm_eeg_epochs(S);
     end
 end
 
