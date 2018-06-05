@@ -2,21 +2,21 @@
 clear all
 close all
 
-localdef_wanderIM;
+run ../localdef_wanderIM;
 
 addpath(genpath(lscpTools_path));
+addpath(genpath(sleepTools_path));
 addpath(genpath(spm12_path));
 preproc_path=[root_path filesep 'preproc_eeg'];
 behav_path=[root_path filesep 'behav'];
-
-
 files=dir([preproc_path filesep 'EEG_S*.mat']);
 
 %% General parameters
 trial_window=[-0.2 1.3];
+hb_window=[-0.1 0.4];
 probe_window=[-15 15];
 %% Loop on files
-redo=0;
+redo=1;
 for n=1:length(files)
     %%% LOAD
     filename=files(n).name;
@@ -31,7 +31,42 @@ for n=1:length(files)
     D = chantype(D, match_str(D.chanlabels,'ECG'), 'ECG');
     D.save;
     
+    %%% High-pass filter
+    if exist([preproc_path filesep 'f' D.fname])==0 || redo==1
+        type = 'butterworth';
+        order = 5;
+        dirfilt = 'twopass';
+        S = [];
+        S.D = D;
+        S.band = 'high';
+        S.type = type;
+        S.order = order;
+        S.dir = dirfilt;
+        S.freq = 0.1;
+        S.save=1;
+        D = spm_eeg_filter(S);
+    else
+        D=spm_eeg_load([preproc_path filesep 'f' D.fname]);
+    end
     
+    %%% NOTCH FILTERS
+    if exist([preproc_path filesep 'n' D.fname])==0 || redo==1
+        type = 'fir';
+        order = 5;
+        dirfilt = 'twopass';
+        S = [];
+        S.prefix='n';
+        S.D = D;
+        S.band = 'stop';
+        S.type = type;
+        S.order = order;
+        S.dir = dirfilt;
+        S.freq = [49.1 50.1];
+        S.save=1;
+        D = spm_eeg_filter(S);
+    else
+        D=spm_eeg_load([preproc_path filesep 'n' D.fname]);
+    end
     
     %%% Find Triggers
     clear din_*
@@ -230,6 +265,34 @@ for n=1:length(files)
         %     erp_try=erp_try-repmat(mean(erp_try(:,erp_time>-0.1 & erp_time<0,:),2),[1 size(erp_try,2) 1]);
         S=[];
         S.prefix = 'trial_';
+        S.D=D;
+        S.bc=1;
+        S.trl=trl;
+        S.conditionlabels=trllabels;
+        S.save=1;
+        D_trials=spm_eeg_epochs(S);
+    end
+    
+    %%%%% Epoch HeartBeat
+    if exist([preproc_path filesep 'hb_' D.fname])==0 || redo==1
+        hb_times=detect_heartbeat(D,0);
+        
+        pretrig  =  hb_window(1) * D.fsample;
+        posttrig =  hb_window(2) * D.fsample;
+        trllabels=[];
+        trl=[];
+        fprintf('... ... %3.0f\n',0)
+        for ntr=1:length(hb_times)
+            fprintf('\b\b\b\b\b\b\b\b\b\b\b\b... ... %3.0f\n',round(ntr/length(hb_times)*100))
+            trlbegin = hb_times(ntr) + pretrig;
+            trlend   = hb_times(ntr) + posttrig;
+            offset   = pretrig;
+            newtrl   = [trlbegin trlend offset];
+            trl      = [trl; newtrl];
+            trllabels{ntr}='HB';
+        end
+        S=[];
+        S.prefix = 'hb_';
         S.D=D;
         S.bc=1;
         S.trl=trl;
