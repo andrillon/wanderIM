@@ -25,9 +25,11 @@ parambatch.hb_window=hb_window;
 parambatch.probe_window=probe_window;
 
 %% Loop on files
-redo=1;
+parambatch.redo.hp=0;
+parambatch.redo.notch=1;
 parpool(12);
 parfor n=1:length(files)
+% for n=1:length(files)
     %%% LOAD
     filename=files(n).name;
     subID=filename(findstr(filename,'_')+2:findstr(filename,'.')-1);

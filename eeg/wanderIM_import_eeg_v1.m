@@ -13,10 +13,11 @@ behav_path=[root_path filesep 'eeg'];
 files=dir([eeg_path filesep 'MWI3*.eeg']);
 
 %% Loop on files
+redo=1;
 for n=1:length(files)
     subID=files(n).name;
     subID=subID(4:6);
-    if exist([preproc_path filesep 'EEG_S' subID '.mat'])==0
+    if exist([preproc_path filesep 'EEG_S' subID '.mat'])==0 || redo==1
         fprintf('... importing in SPM format %s \n',subID)
         %%% Get headers and events
         S = [];

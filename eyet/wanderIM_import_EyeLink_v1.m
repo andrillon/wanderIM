@@ -2,7 +2,7 @@
 clear all
 close all
 
-localdef_wanderIM;
+run ../localdef_wanderIM;
 
 addpath(genpath(lscpTools_path));
 addpath(edf2mat_path);
@@ -19,7 +19,7 @@ for n=1:length(files)
     savename=['wanderIM_eyelink_S' subID];
     
     if exist([eyet_path filesep savename '.mat'])==0 || redo==1
-        fprintf('... converting %s from EDF to .mat file\n',SubID)
+        fprintf('... converting %s from EDF to .mat file\n',subID)
         % import into matlab
         filename=files(n).name;
         myedf=Edf2Mat([eyet_path filesep filename]);
@@ -68,7 +68,7 @@ for n=1:length(files)
         
         save([eyet_path filesep savename],'EL_headers','EL_data','EL_events');
     else
-        fprintf('... %s already imported\n',SubID)
+        fprintf('... %s already imported\n',subID)
     end
 end
 
