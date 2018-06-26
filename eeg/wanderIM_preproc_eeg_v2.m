@@ -16,7 +16,7 @@ trial_window=[-0.2 1.3];
 hb_window=[-0.1 0.4];
 probe_window=[-15 15];
 %% Loop on files
-redo=1;
+redo=0;
 for n=1:length(files)
     %%% LOAD
     filename=files(n).name;
@@ -274,7 +274,7 @@ for n=1:length(files)
     end
     
     %%%%% Epoch HeartBeat
-    if exist([preproc_path filesep 'hb_' D.fname])==0 || redo==1
+%     if exist([preproc_path filesep 'hb_' D.fname])==0 || redo==1
         hb_times=detect_heartbeat(D,0);
         
         pretrig  =  hb_window(1) * D.fsample;
@@ -299,7 +299,7 @@ for n=1:length(files)
         S.conditionlabels=trllabels;
         S.save=1;
         D_hb=spm_eeg_epochs(S);
-    end
+% %     end
 end
 
 %%

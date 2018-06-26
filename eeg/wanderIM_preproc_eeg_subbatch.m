@@ -6,7 +6,7 @@ behav_path=parambatch.behav_path;
 trial_window=parambatch.trial_window;
 hb_window=parambatch.hb_window;
 probe_window=parambatch.probe_window;
-
+redo=parambatch.redo;
 % trial_window=[-0.2 1.3];
 % hb_window=[-0.1 0.4];
 % probe_window=[-15 15];
