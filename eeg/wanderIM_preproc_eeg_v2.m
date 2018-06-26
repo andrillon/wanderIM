@@ -15,8 +15,9 @@ files=dir([preproc_path filesep 'EEG_S*.mat']);
 trial_window=[-0.2 1.3];
 hb_window=[-0.1 0.4];
 probe_window=[-15 15];
+
 %% Loop on files
-redo=1;
+redo=0;
 for n=1:length(files)
     %%% LOAD
     filename=files(n).name;
@@ -27,12 +28,14 @@ for n=1:length(files)
     Behav=load([behav_path filesep filebehav.name]);
     D=spm_eeg_load([preproc_path filesep filename]);
     
-    % update channel type for ECG
-    D = chantype(D, match_str(D.chanlabels,'ECG'), 'ECG');
-    D.save;
-    
+   
     %%% High-pass filter
     if exist([preproc_path filesep 'f' D.fname])==0 || redo==1
+        % update channel type for ECG
+        D = chantype(D, match_str(D.chanlabels,'ECG'), 'ECG');
+        D.save;
+        
+        
         type = 'butterworth';
         order = 5;
         dirfilt = 'twopass';
@@ -51,7 +54,6 @@ for n=1:length(files)
     
     %%% NOTCH FILTERS
     if exist([preproc_path filesep 'n' D.fname])==0 || redo==1
-        type = 'fir';
         order = 5;
         dirfilt = 'twopass';
         S = [];
@@ -61,7 +63,7 @@ for n=1:length(files)
         S.type = type;
         S.order = order;
         S.dir = dirfilt;
-        S.freq = [49.1 50.1];
+        S.freq = [45 55];
         S.save=1;
         D = spm_eeg_filter(S);
     else
