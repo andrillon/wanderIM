@@ -279,7 +279,7 @@ for n=1:length(files)
     
     %%%%% Epoch HeartBeat
     if exist([preproc_path filesep 'hb_' D.fname])==0 || redo==1
-        hb_times=detect_heartbeat(D,0);
+        hb_times=detect_heartbeat(D,2,0);
         
         pretrig  =  hb_window(1) * D.fsample;
         posttrig =  hb_window(2) * D.fsample;
