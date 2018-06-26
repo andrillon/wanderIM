@@ -16,7 +16,7 @@ D = chantype(D, match_str(D.chanlabels,'ECG'), 'ECG');
 D.save;
 
 %%% High-pass filter
-if exist([preproc_path filesep 'f' D.fname])==0 || redo==1
+if exist([preproc_path filesep 'f' D.fname])==0 || redo.hp==1
     type = 'butterworth';
     order = 5;
     dirfilt = 'twopass';
@@ -34,9 +34,9 @@ else
 end
 
 %%% NOTCH FILTERS
-if exist([preproc_path filesep 'n' D.fname])==0 || redo==1
-    type = 'fir';
-    order = 5;
+if exist([preproc_path filesep 'n' D.fname])==0 || redo.notch==1
+    type='butterworth';
+    order = 4;
     dirfilt = 'twopass';
     S = [];
     S.prefix='n';
@@ -45,7 +45,7 @@ if exist([preproc_path filesep 'n' D.fname])==0 || redo==1
     S.type = type;
     S.order = order;
     S.dir = dirfilt;
-    S.freq = [49.1 50.1];
+    S.freq = [45 55];
     S.save=1;
     D = spm_eeg_filter(S);
 else
@@ -259,7 +259,7 @@ end
 
 %%%%% Epoch HeartBeat
 if exist([preproc_path filesep 'hb_' D.fname])==0 || redo==1
-    hb_times=detect_heartbeat(D,0);
+    hb_times=detect_heartbeat(D,2,0);
     
     pretrig  =  hb_window(1) * D.fsample;
     posttrig =  hb_window(2) * D.fsample;

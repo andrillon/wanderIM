@@ -56,7 +56,8 @@ for n=1:length(files)
     
     %%% NOTCH FILTERS
     if exist([preproc_path filesep 'n' D.fname])==0 || redo.notch==1
-        order = 5;
+        type = 'butterworth';
+        order = 4;
         dirfilt = 'twopass';
         S = [];
         S.prefix='n';
