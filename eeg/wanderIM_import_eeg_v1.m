@@ -2,7 +2,7 @@
 clear all
 close all
 
-localdef_wanderIM;
+run ../localdef_wanderIM;
 
 addpath(genpath(lscpTools_path));
 addpath(genpath(spm12_path));
