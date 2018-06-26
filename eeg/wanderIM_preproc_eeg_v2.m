@@ -17,7 +17,9 @@ hb_window=[-0.1 0.4];
 probe_window=[-15 15];
 
 %% Loop on files
-redo=0;
+redo.hp=0;
+redo.notch=1;
+
 for n=1:length(files)
     %%% LOAD
     filename=files(n).name;
@@ -30,7 +32,7 @@ for n=1:length(files)
     
    
     %%% High-pass filter
-    if exist([preproc_path filesep 'f' D.fname])==0 || redo==1
+    if exist([preproc_path filesep 'f' D.fname])==0 || redo.hp==1
         % update channel type for ECG
         D = chantype(D, match_str(D.chanlabels,'ECG'), 'ECG');
         D.save;
@@ -53,7 +55,7 @@ for n=1:length(files)
     end
     
     %%% NOTCH FILTERS
-    if exist([preproc_path filesep 'n' D.fname])==0 || redo==1
+    if exist([preproc_path filesep 'n' D.fname])==0 || redo.notch==1
         order = 5;
         dirfilt = 'twopass';
         S = [];
