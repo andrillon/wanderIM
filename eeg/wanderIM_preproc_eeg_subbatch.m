@@ -45,7 +45,7 @@ if exist([preproc_path filesep 'n' D.fname])==0 || redo.notch==1
     S.type = type;
     S.order = order;
     S.dir = dirfilt;
-    S.freq = [45 55];
+    S.freq = [49 51];
     S.save=1;
     D = spm_eeg_filter(S);
 else
@@ -163,7 +163,7 @@ fprintf('... ... max lag for probes: start %g (in samples)\n',max(abs(lag_probe)
 
 
 %%%%% Epoch baseline
-if exist([preproc_path filesep 'basel_' D.fname])==0 || redo==1
+if exist([preproc_path filesep 'basel_' D.fname])==0 || redo.epoch.bsl==1
     pretrig  =  -5 * D.fsample;
     posttrig =  30 * D.fsample;
     trl=[];
@@ -188,7 +188,7 @@ if exist([preproc_path filesep 'basel_' D.fname])==0 || redo==1
 end
 
 %%%%% Epoch probes
-if exist([preproc_path filesep 'probe_' D.fname])==0 || redo==1
+if exist([preproc_path filesep 'probe_' D.fname])==0 || redo.epoch.pr==1
     pretrig  =  probe_window(1) * D.fsample;
     posttrig =  probe_window(2) * D.fsample;
     trl=[];
@@ -216,7 +216,7 @@ if exist([preproc_path filesep 'probe_' D.fname])==0 || redo==1
 end
 
 %%%%% Epoch trials
-if exist([preproc_path filesep 'trial_' D.fname])==0 || redo==1
+if exist([preproc_path filesep 'trial_' D.fname])==0 || redo.epoch.trl==1
     pretrig  =  trial_window(1) * D.fsample;
     posttrig =  trial_window(2) * D.fsample;
     trllabels=[];
@@ -258,7 +258,7 @@ if exist([preproc_path filesep 'trial_' D.fname])==0 || redo==1
 end
 
 %%%%% Epoch HeartBeat
-if exist([preproc_path filesep 'hb_' D.fname])==0 || redo==1
+if exist([preproc_path filesep 'hb_' D.fname])==0 || redo.epoch.hb==1
     hb_times=detect_heartbeat(D,2,0);
     
     pretrig  =  hb_window(1) * D.fsample;
