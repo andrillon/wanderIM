@@ -27,7 +27,11 @@ parambatch.probe_window=probe_window;
 %% Loop on files
 parambatch.redo.hp=0;
 parambatch.redo.notch=1;
-parpool(12);
+parambatch.redo.epoch.bsl=1;
+parambatch.redo.epoch.pr=1;
+parambatch.redo.epoch.trl=1;
+parambatch.redo.epoch.hb=1;
+parpool(8);
 parfor n=1:length(files)
 % for n=1:length(files)
     %%% LOAD
