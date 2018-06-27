@@ -20,7 +20,7 @@ probe_window=[-15 15];
 redo.hp=0;
 redo.notch=1;
 
-for n=1:length(files)
+for n=1 %:length(files)
     %%% LOAD
     filename=files(n).name;
     subID=filename(findstr(filename,'_')+2:findstr(filename,'.')-1);
@@ -55,7 +55,7 @@ for n=1:length(files)
     end
     
     %%% NOTCH FILTERS
-    if exist([preproc_path filesep 'n' D.fname])==0 || redo.notch==1
+    if exist([preproc_path filesep 'n' D.fname])==0 || redo.notch==1 
         type = 'butterworth';
         order = 4;
         dirfilt = 'twopass';
