@@ -54,13 +54,24 @@ for n=1:length(bsl_files)
     onprobe_erp(n,:,:,:)=squeeze(mean(temp_data,3));
     
     these_trials=find(~cellfun(@isempty,regexp(D.conditions,'MW')));
-    onprobe_erp_MW(n,:,:,:)=squeeze(mean(temp_data(:,:,these_trials),3));
+    if length(these_trials)>=4
+        onprobe_erp_MW(n,:,:)=squeeze(mean(temp_data(:,:,these_trials),3));
+    else
+        onprobe_erp_MW(n,:,:)=nan(1,63,length(these_times2));
+    end
     
     these_trials=find(~cellfun(@isempty,regexp(D.conditions,'ON')));
-    onprobe_erp_ON(n,:,:,:)=squeeze(mean(temp_data(:,:,these_trials),3));
-    
+    if length(these_trials)>=4
+        onprobe_erp_ON(n,:,:)=squeeze(mean(temp_data(:,:,these_trials),3));
+    else
+        onprobe_erp_ON(n,:,:)=nan(1,63,length(these_times2));
+    end
     these_trials=find(~cellfun(@isempty,regexp(D.conditions,'MB')));
-    onprobe_erp_MB(n,:,:,:)=squeeze(mean(temp_data(:,:,these_trials),3));
+    if length(these_trials)>=4
+        onprobe_erp_MB(n,:,:)=squeeze(mean(temp_data(:,:,these_trials),3));
+    else
+        onprobe_erp_MB(n,:,:)=nan(1,63,length(these_times2));
+    end
 end
 
 %%
@@ -76,7 +87,7 @@ simpleTplot(xTime,my_ERP,0,'b',0,'-',0.5,1,0,1,1);
 figure; format_fig;
 xTime=-0.2:1/D.fsample:1;
 % average ERP across conditions and use only Oz
-this_ch=match_str(D.chanlabels,'Oz');
+this_ch=match_str(D.chanlabels,'Cz');
 my_ERP=squeeze(mean(onprobe_erp_MW(:,this_ch,:),2));
 simpleTplot(xTime,my_ERP,0,'b',0,'-',0.5,1,0,1,1);
 my_ERP=squeeze(mean(onprobe_erp_ON(:,this_ch,:),2));
