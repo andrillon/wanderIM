@@ -53,7 +53,7 @@ for n=1:length(bsl_files)
     temp_data=temp_data-repmat(mean(temp_data,1),[size(temp_data,1) 1 1]); % re-reference the data to the average
     onprobe_erp(n,:,:,:)=squeeze(mean(temp_data,3));
     
-    these_trials=find(~cellfun(@isempty,regexp(D.conditions,'MW')));
+    these_trials=find(probe_res(:,32)==2); %find(~cellfun(@isempty,regexp(D.conditions,'MW')));
     if length(these_trials)>=4
         onprobe_erp_MW(n,:,:)=squeeze(mean(temp_data(:,:,these_trials),3));
         onprobe_logSNR_MW(n,:,:)=squeeze(mean(logSNR(:,:,these_trials),3));
@@ -64,7 +64,7 @@ for n=1:length(bsl_files)
         onprobe_logPow_MW(n,:,:)=nan(1,63,2501);
     end
     
-    these_trials=find(~cellfun(@isempty,regexp(D.conditions,'ON')));
+    these_trials=find(probe_res(:,32)==1); %find(~cellfun(@isempty,regexp(D.conditions,'ON')));
     if length(these_trials)>=4
         onprobe_erp_ON(n,:,:)=squeeze(mean(temp_data(:,:,these_trials),3));
         onprobe_logSNR_ON(n,:,:)=squeeze(mean(logSNR(:,:,these_trials),3));
@@ -74,7 +74,7 @@ for n=1:length(bsl_files)
         onprobe_logSNR_ON(n,:,:)=nan(1,63,2501);
         onprobe_logSNR_ON(n,:,:)=nan(1,63,2501);
     end
-    these_trials=find(~cellfun(@isempty,regexp(D.conditions,'MB')));
+    these_trials=find(probe_res(:,32)==3); %find(~cellfun(@isempty,regexp(D.conditions,'MB')));
     if length(these_trials)>=4
         onprobe_erp_MB(n,:,:)=squeeze(mean(temp_data(:,:,these_trials),3));
         onprobe_logSNR_MB(n,:,:)=squeeze(mean(logSNR(:,:,these_trials),3));
@@ -129,3 +129,49 @@ xlim([1 30])
 subplot(2,2,4)
 plot(faxis,squeeze(nanmean(onprobe_logPow_ON(:,match_str(D.chanlabels,'Oz'),:)-onprobe_logPow_MW(:,match_str(D.chanlabels,'Oz'),:),1)),'b')
 xlim([1 30])
+
+%%
+load('../BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
+
+[~,f1_idx]=findclosest(faxis,6);
+[~,f2_idx]=findclosest(faxis,7.5);
+[~,harm1_idx]=findclosest(faxis,6*2);
+[~,harm2_idx]=findclosest(faxis,7.5*2);
+[~,IM1_idx]=findclosest(faxis,10.5);
+[~,IM2_idx]=findclosest(faxis,13.5);
+
+topo=figure;
+bar=figure;
+for row=1:3
+    for line=1:3
+        switch row
+            case 1
+                temp_SNR=onprobe_logSNR_ON; condname='ON';
+            case 2
+                temp_SNR=onprobe_logSNR_MW; condname='MW';
+            case 3
+                temp_SNR=onprobe_logSNR_MB; condname='MB';
+        end
+        switch line
+            case 1
+                temp_freq=[f1_idx f2_idx]; freqname='Fond';
+            case 2
+                temp_freq=[harm1_idx harm2_idx]; freqname='2ndH';
+            case 3
+                temp_freq=[ IM2_idx]; freqname='IM';
+        end
+        temp_topo=squeeze(nanmean(mean(temp_SNR(:,:,temp_freq),3),1));
+        
+        figure(topo);
+        subplot(3,3,(row-1)*3+line); format_fig
+        simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
+        caxis([-1 1])
+        title(sprintf('%s-%s',condname,freqname))
+        
+        figure(bar);
+        temp_bar=squeeze(nanmean(mean(temp_SNR(:,match_str(D.chanlabels,'Oz'),temp_freq),3),2));
+        subplot(1,3,line)
+        simpleBarPlot(row,temp_bar,'k',0.9,'r');
+        set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
+    end
+end

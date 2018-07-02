@@ -19,8 +19,12 @@ probe_window=[-15 15];
 %% Loop on files
 redo.hp=0;
 redo.notch=0;
+redo.epoch.bsl=0;
+redo.epoch.trial=0;
+redo.epoch.probe=0;
+redo.epoch.hb=0;
 
-for n=1 %:length(files)
+for n=1:length(files)
     %%% LOAD
     filename=files(n).name;
     subID=filename(findstr(filename,'_')+2:findstr(filename,'.')-1);
@@ -184,7 +188,7 @@ for n=1 %:length(files)
     
     
     %%%%% Epoch baseline
-    if exist([preproc_path filesep 'basel_' D.fname])==0 || redo==1
+    if exist([preproc_path filesep 'basel_' D.fname])==0 || redo.epoch.bsl==1
         pretrig  =  -5 * D.fsample;
         posttrig =  30 * D.fsample;
         trl=[];
@@ -209,7 +213,7 @@ for n=1 %:length(files)
     end
     
     %%%%% Epoch probes
-    if exist([preproc_path filesep 'probe_' D.fname])==0 || redo==1
+    if exist([preproc_path filesep 'probe_' D.fname])==0 || redo.epoch.probe==1
         pretrig  =  probe_window(1) * D.fsample;
         posttrig =  probe_window(2) * D.fsample;
         trl=[];
@@ -237,7 +241,7 @@ for n=1 %:length(files)
     end
     
     %%%%% Epoch trials
-    if exist([preproc_path filesep 'trial_' D.fname])==0 || redo==1
+    if exist([preproc_path filesep 'trial_' D.fname])==0 && redo.epoch.trial==1
         pretrig  =  trial_window(1) * D.fsample;
         posttrig =  trial_window(2) * D.fsample;
         trllabels=[];
@@ -279,7 +283,7 @@ for n=1 %:length(files)
     end
     
     %%%%% Epoch HeartBeat
-    if exist([preproc_path filesep 'hb_' D.fname])==0 || redo==1
+    if exist([preproc_path filesep 'hb_' D.fname])==0 && redo.epoch.hb~=0
         hb_times=detect_heartbeat(D,2,0);
         
         pretrig  =  hb_window(1) * D.fsample;

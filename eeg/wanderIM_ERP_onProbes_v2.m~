@@ -129,3 +129,41 @@ xlim([1 30])
 subplot(2,2,4)
 plot(faxis,squeeze(nanmean(onprobe_logPow_ON(:,match_str(D.chanlabels,'Oz'),:)-onprobe_logPow_MW(:,match_str(D.chanlabels,'Oz'),:),1)),'b')
 xlim([1 30])
+
+%%
+load('../BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
+
+[~,f1_idx]=findclosest(faxis,6);
+[~,f2_idx]=findclosest(faxis,7.5);
+[~,harm1_idx]=findclosest(faxis,6*2);
+[~,harm2_idx]=findclosest(faxis,7.5*2);
+[~,IM1_idx]=findclosest(faxis,10.5);
+[~,IM2_idx]=findclosest(faxis,13.5);
+
+for row=1:3
+    for line=1:3
+        switch row
+            case 1
+                temp_SNR=onprobe_logSNR_ON; condname='ON';
+            case 2
+                temp_SNR=onprobe_logSNR_MW; condname='MW';
+            case 3
+                temp_SNR=onprobe_logSNR_MB; condname='MB';
+        end
+        switch line
+            case 1
+                temp_freq=[f1_idx f2_idx]; condname='Fond';
+            case 2
+                temp_freq=[harm1_idx harm2_id]; condname='2ndH';
+            case 3
+                temp_freq=[IM1_idx IM2_idx]; condname='ON';
+        end
+        temp_topo=squeeze(mean(mean(temp_SNR(:,:,temp_freq),3),1));
+        
+        figure;
+        subplot(3,3,(row-1)*3+line); format_fig
+        simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
+        caxis([-1 1])
+        title(sprintf('%s-%s',condname,freqname))
+    end
+end

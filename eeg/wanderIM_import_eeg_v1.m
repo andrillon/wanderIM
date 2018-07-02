@@ -13,7 +13,7 @@ behav_path=[root_path filesep 'eeg'];
 files=dir([eeg_path filesep 'MWI3*.eeg']);
 
 %% Loop on files
-redo=1;
+redo=0;
 for n=1:length(files)
     subID=files(n).name;
     subID=subID(4:6);
