@@ -13,7 +13,7 @@ files=dir([data_path filesep 'wanderIM_behavres_s3*.mat']);
 state_colours=[0 146 146 ; 182 109 255; 219 209 0]/255;
 cond_colours=[0.9 0.55 0.2 ; 0.2 0.55 0.9];
 
-load([data_path filesep 'CARS_quest'])
+% load([data_path filesep 'CARS_quest'])
 %%
 all_test_res=[];
 all_probes_mat=[];
@@ -23,7 +23,7 @@ for n=1:length(files)
     load([data_path filesep files(n).name]);
     SubID=SubjectInfo.subID;
     fprintf('... %s\n',SubID)
-    CARS_flag(n)=CARS_bool(CARS_bool(:,1)==str2num(SubID),2);
+%     CARS_flag(n)=CARS_bool(CARS_bool(:,1)==str2num(SubID),2);
     % SART
     %  1: num block
     %  2: block cond (1: Faces / 2: Squares)
@@ -53,7 +53,7 @@ for n=1:length(files)
     temp_perf=min(test_res(:,11:12),[],2);
     temp_cat=(test_res(:,5)==test_res(:,6));
     temp_RT=(test_res(:,10)-test_res(:,8));
-    all_test_res=[all_test_res ; [n*ones(size(test_res,1),1) test_res(:,[1 2 4 5]) temp_perf temp_RT temp_cat]];
+    all_test_res=[all_test_res ; [str2num(SubID)*ones(size(test_res,1),1) test_res(:,[1 2 4 5]) temp_perf temp_RT temp_cat]];
     all_test_headers={'SubID','nBlock','Task','nTrial','StimID','Corr','RT','TrCat'};
 
     % probe
@@ -136,7 +136,7 @@ for n=1:length(files)
             tcorr_distPr=-size(temp_testres,1):1:-1;
             % Colum order:
             all_probes_headers={'SubID','nBlock','Task','nTrial','Look','State','Orig','Awa','Int','Eng','Perf','Vig','Corr','RT','TrCat','DistProbe'};
-            all_probes_mat=[all_probes_mat ; [repmat([n nbl these_probes(npr,5) this_pr_tridx probe_details],size(temp_testres,1),1) tcorr_perf tcorr_RT tcorr_catTr tcorr_distPr']];
+            all_probes_mat=[all_probes_mat ; [repmat([str2num(SubID) nbl these_probes(npr,5) this_pr_tridx probe_details],size(temp_testres,1),1) tcorr_perf tcorr_RT tcorr_catTr tcorr_distPr']];
         end
     end
 end
@@ -167,8 +167,8 @@ writetable(tbl_probe,[data_path filesep 'WanderIM_ProbeResults.txt']);
 lme_0= fitlme(tbl_probe,'Corr~1+(1|SubID)');
 lme_1= fitlme(tbl_probe,'Corr~1+(1|SubID)');
 
-lme_full= fitlme(tbl_probe,'Corr~Task+nBlock+nTrial+TrCat+DistProbe+State+(1|SubID)');
-lme_full2= fitlme(tbl_probe,'Corr~Task+nBlock+nTrial+TrCat+DistProbe+State+Task*State+(1|SubID)');
+lme_full= fitlme(tbl_probe,'Corr~Task+nBlock+nTrial+TrCat+DistProbe+State+Task*State+(1|SubID)');
+lme_full2= fitlme(tbl_probe,'Corr~Task+nBlock+nTrial+TrCat+DistProbe+State+DistProbe*State+Task*State+(1|SubID)');
 
 [v] = compare(lme_full,lme_full2);
 if v.pValue(end)<0.05
