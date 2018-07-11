@@ -12,16 +12,20 @@ files=dir([data_path filesep 'wanderIM_behavres_s3*.mat']);
 
 state_colours=[0 146 146 ; 182 109 255; 219 209 0]/255;
 cond_colours=[0.9 0.55 0.2 ; 0.2 0.55 0.9];
+
+load([data_path filesep 'CARS_quest'])
 %%
 all_test_resprobes_perblock=[];
 all_test_res=[];
 all_probes_timing=[];
 all_probes_mat=[];
+RTs=[];
 for n=1:length(files)
     % load
     load([data_path filesep files(n).name]);
     SubID=SubjectInfo.subID;
     fprintf('... %s\n',SubID)
+    CARS_flag(n)=CARS_bool(CARS_bool(:,1)==str2num(SubID),2);
     % SART
     %  1: num block
     %  2: block cond (1: Faces / 2: Squares)
@@ -35,6 +39,12 @@ for n=1:length(files)
     % 10: resp onset
     % 11: nogo
     % 12: go
+    
+    %%% cleaning too fast RTs
+    RTs=[RTs; test_res(:,10)-test_res(:,8)];
+%     findFalseStarts=find(test_res(:,10)-test_res(:,8)<0.1);
+%     test_res(findFalseStarts,[10 11 12])=NaN;
+%     warning('correcting for false starts')
     for nbt=1:2
         tp_nogos=test_res(test_res(:,2)==nbt & ~isnan(test_res(:,11)),11);
         tp_gos=test_res(test_res(:,2)==nbt & ~isnan(test_res(:,12)),12);
@@ -67,7 +77,7 @@ for n=1:length(files)
         clear pption pption2
         for nstate=1:4
             pption(nstate)=mean(temp(:,3)==nstate);
-            pption2(nstate)=mean(temp(:,4)==nstate);
+            pption2(nstate)=mean(temp(temp(:,3)==2,4)==nstate);
         end
         pption_MS(n,nbt,:)=pption;
         pption_Ori(n,nbt,:)=pption2;
@@ -266,7 +276,8 @@ lme_0= fitlme(tbl2,'Go~1+(1|SubID)');
 lme_1= fitlme(tbl2,'Go~Task+(1|SubID)');
 
 %%
-tblPr=array2table(all_probes_mat,'VariableNames',{'SubID','nBlock','Task','State','nProbe','Go','NoGo','nGo','nNoGo','dprime'});
+tblPr=array2table(all_probes_mat,'VariableNames',{'SubID','nBlock','Task','State','nProbe','Go','NoGo','nGo','nNoGo','dprime','PerfEst'});
+tblPr(tblPr.State==4,:)=[];
 tblPr.SubID=categorical(tblPr.SubID);
 tblPr.State=categorical(tblPr.State);
 tblPr.Task=categorical(tblPr.Task);
@@ -284,7 +295,7 @@ addpath(genpath(gramm_path))
 
 clear g
 
-g(1,1)=gramm('x',double(tblPr.Task),'y',tblPr.dprime,'color',double(tblPr.State),'subset',double(tblPr.State)~=4);
+g(1,1)=gramm('x',double(tblPr.Task),'y',tblPr.Go,'color',double(tblPr.State),'subset',double(tblPr.State)~=4);
 g(1,2)=copy(g(1));
 g(2,1)=copy(g(1));
 g(2,2)=copy(g(1));

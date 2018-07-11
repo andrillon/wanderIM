@@ -161,8 +161,8 @@ for n=1 %:length(files)
     clean_start_trial=start_trial(~training_trials);
     
     % eliminate end block trials
-    clean_lag_trial(clean_durdin_trial>2)=[];
-    clean_start_trial(clean_durdin_trial>2)=[];
+    clean_lag_trial(abs(clean_durdin_trial)>2.5)=[];
+    clean_start_trial(abs(clean_durdin_trial)>2.5)=[];
     
     if length(clean_start_trial)~=size(Behav.test_res,1)
         warning('Problem with din and number of trials!')

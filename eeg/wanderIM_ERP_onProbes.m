@@ -17,6 +17,22 @@ behav_path=[root_path filesep 'behav'];
 bsl_files=dir([eeg_path filesep 'probe_nfEEG_S3*.mat']);
 
 %% loop across trials for baseline blocks
+onprobe_erp_MB=nan(length(bsl_files),63,601);
+onprobe_logSNR_MB=nan(length(bsl_files),63,5001);
+onprobe_logPow_MB=nan(length(bsl_files),63,5001);
+
+onprobe_erp_MW=nan(length(bsl_files),63,601);
+onprobe_logSNR_MW=nan(length(bsl_files),63,5001);
+onprobe_logPow_MW=nan(length(bsl_files),63,5001);
+
+onprobe_erp_ON=nan(length(bsl_files),63,601);
+onprobe_logSNR_ON=nan(length(bsl_files),63,5001);
+onprobe_logPow_ON=nan(length(bsl_files),63,5001);
+
+onprobe_logSNR=nan(length(bsl_files),63,5001,60);
+onprobe_logPow=nan(length(bsl_files),63,5001,60);
+onprobe_erp=nan(length(bsl_files),63,601);
+
 for n=1:length(bsl_files)
     % load file with spm
     filename=bsl_files(n).name;
@@ -35,8 +51,8 @@ for n=1:length(bsl_files)
     
     param=[];
     param.method='fft'; % fast fourier transform
-    param.mindist=1; % we want to be able to separate peaks separated by at least 1 Hz
-    these_times=D.indsample(-10):D.indsample(0);
+    param.mindist=0.5; % we want to be able to separate peaks separated by at least 1 Hz
+    these_times=D.indsample(-20):D.indsample(0);
     temp_data=D(1:63,these_times,:); % D contains the data with channels * time * trials
     temp_data=temp_data-repmat(mean(temp_data,1),[size(temp_data,1) 1 1]); % re-reference the data to the average
     
@@ -51,38 +67,38 @@ for n=1:length(bsl_files)
     these_timesbs=D.indsample(-0.2):D.indsample(0);
     temp_data=D(1:63,these_times2,:)-repmat(mean(D(1:63,these_timesbs,:),2),[1 length(these_times2) 1]);
     temp_data=temp_data-repmat(mean(temp_data,1),[size(temp_data,1) 1 1]); % re-reference the data to the average
-    onprobe_erp(n,:,:,:)=squeeze(mean(temp_data,3));
+    onprobe_erp(n,:,:)=squeeze(mean(temp_data,3));
     
     these_trials=find(~cellfun(@isempty,regexp(D.conditions,'MW')));
-    if length(these_trials)>=4
+    if length(these_trials)>=6
         onprobe_erp_MW(n,:,:)=squeeze(mean(temp_data(:,:,these_trials),3));
         onprobe_logSNR_MW(n,:,:)=squeeze(mean(logSNR(:,:,these_trials),3));
         onprobe_logPow_MW(n,:,:)=squeeze(mean(logpow(:,:,these_trials),3));
-    else
-        onprobe_erp_MW(n,:,:)=nan(1,63,length(these_times2));
-        onprobe_logSNR_MW(n,:,:)=nan(1,63,2501);
-        onprobe_logPow_MW(n,:,:)=nan(1,63,2501);
+%     else
+%         onprobe_erp_MW(n,:,:)=nan(1,63,length(these_times2));
+%         onprobe_logSNR_MW(n,:,:)=nan(1,63,length(faxis));
+%         onprobe_logPow_MW(n,:,:)=nan(1,63,length(faxis));
     end
     
     these_trials=find(~cellfun(@isempty,regexp(D.conditions,'ON')));
-    if length(these_trials)>=4
+    if length(these_trials)>=6
         onprobe_erp_ON(n,:,:)=squeeze(mean(temp_data(:,:,these_trials),3));
         onprobe_logSNR_ON(n,:,:)=squeeze(mean(logSNR(:,:,these_trials),3));
         onprobe_logPow_ON(n,:,:)=squeeze(mean(logpow(:,:,these_trials),3));
-    else
-        onprobe_erp_ON(n,:,:)=nan(1,63,length(these_times2));
-        onprobe_logSNR_ON(n,:,:)=nan(1,63,2501);
-        onprobe_logSNR_ON(n,:,:)=nan(1,63,2501);
+%     else
+%         onprobe_erp_ON(n,:,:)=nan(1,63,length(these_times2));
+%         onprobe_logSNR_ON(n,:,:)=nan(1,63,length(faxis));
+%         onprobe_logSNR_ON(n,:,:)=nan(1,63,length(faxis));
     end
     these_trials=find(~cellfun(@isempty,regexp(D.conditions,'MB')));
-    if length(these_trials)>=4
+    if length(these_trials)>=6
         onprobe_erp_MB(n,:,:)=squeeze(mean(temp_data(:,:,these_trials),3));
         onprobe_logSNR_MB(n,:,:)=squeeze(mean(logSNR(:,:,these_trials),3));
         onprobe_logPow_MB(n,:,:)=squeeze(mean(logpow(:,:,these_trials),3));
-    else
-        onprobe_erp_MB(n,:,:)=nan(1,63,length(these_times2));
-        onprobe_logSNR_MB(n,:,:)=nan(1,63,2501);
-        onprobe_logPow_MB(n,:,:)=nan(1,63,2501);
+%     else
+%         onprobe_erp_MB(n,:,:)=nan(1,63,length(these_times2));
+%         onprobe_logSNR_MB(n,:,:)=nan(1,63,length(faxis));
+%         onprobe_logPow_MB(n,:,:)=nan(1,63,length(faxis));
     end
 end
 
@@ -108,24 +124,29 @@ my_ERP=squeeze(mean(onprobe_erp_MB(:,this_ch,:),2));
 simpleTplot(xTime,my_ERP,0,'r',0,'-',0.5,1,0,1,1);
 
 %%
+myChanLabel='Cz';
 figure;
 subplot(2,2,1)
-plot(faxis,squeeze(nanmean(onprobe_logSNR_MW(:,match_str(D.chanlabels,'Oz'),:),1)),'b')
+plot(faxis,squeeze(nanmean(onprobe_logSNR_MW(:,match_str(D.chanlabels,myChanLabel),:),1)),'b')
 xlim([1 30])
-hold on; plot(faxis,squeeze(nanmean(onprobe_logSNR_MB(:,match_str(D.chanlabels,'Oz'),:),1)),'r')
-hold on; plot(faxis,squeeze(nanmean(onprobe_logSNR_ON(:,match_str(D.chanlabels,'Oz'),:),1)),'k')
+hold on; plot(faxis,squeeze(nanmean(onprobe_logSNR_MB(:,match_str(D.chanlabels,myChanLabel),:),1)),'r')
+hold on; plot(faxis,squeeze(nanmean(onprobe_logSNR_ON(:,match_str(D.chanlabels,myChanLabel),:),1)),'k')
 
 
 subplot(2,2,2)
-plot(faxis,squeeze(nanmean(onprobe_logPow_MW(:,match_str(D.chanlabels,'Oz'),:),1)),'b')
+plot(faxis,squeeze(nanmean(onprobe_logPow_MW(:,match_str(D.chanlabels,myChanLabel),:),1)),'b')
 xlim([1 30])
-hold on; plot(faxis,squeeze(nanmean(onprobe_logPow_MB(:,match_str(D.chanlabels,'Oz'),:),1)),'r')
-hold on; plot(faxis,squeeze(nanmean(onprobe_logPow_ON(:,match_str(D.chanlabels,'Oz'),:),1)),'k')
+hold on; plot(faxis,squeeze(nanmean(onprobe_logPow_MB(:,match_str(D.chanlabels,myChanLabel),:),1)),'r')
+hold on; plot(faxis,squeeze(nanmean(onprobe_logPow_ON(:,match_str(D.chanlabels,myChanLabel),:),1)),'k')
 
 subplot(2,2,3)
-plot(faxis,squeeze(nanmean(onprobe_logSNR_ON(:,match_str(D.chanlabels,'Oz'),:)-onprobe_logSNR_MW(:,match_str(D.chanlabels,'Oz'),:),1)),'b')
+plot(faxis,squeeze(nanmean(onprobe_logSNR_ON(:,match_str(D.chanlabels,myChanLabel),:)-onprobe_logSNR_MW(:,match_str(D.chanlabels,myChanLabel),:),1)),'b')
+hold on
+plot(faxis,squeeze(nanmean(onprobe_logSNR_ON(:,match_str(D.chanlabels,myChanLabel),:)-onprobe_logSNR_MB(:,match_str(D.chanlabels,myChanLabel),:),1)),'g')
 xlim([1 30])
 
 subplot(2,2,4)
-plot(faxis,squeeze(nanmean(onprobe_logPow_ON(:,match_str(D.chanlabels,'Oz'),:)-onprobe_logPow_MW(:,match_str(D.chanlabels,'Oz'),:),1)),'b')
+plot(faxis,squeeze(nanmean(onprobe_logPow_ON(:,match_str(D.chanlabels,myChanLabel),:)-onprobe_logPow_MW(:,match_str(D.chanlabels,myChanLabel),:),1)),'b')
+hold on
+plot(faxis,squeeze(nanmean(onprobe_logPow_ON(:,match_str(D.chanlabels,myChanLabel),:)-onprobe_logPow_MB(:,match_str(D.chanlabels,myChanLabel),:),1)),'g')
 xlim([1 30])

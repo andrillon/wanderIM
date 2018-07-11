@@ -149,8 +149,8 @@ xlabel('Freq (Hz)')
 %% Where are the tags on the scalp ?
 % retrieve the channels position
 load('../BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
-% pos=D.coor2D';
-% labels=D.chanlabels(1:63);
+pos=D.coor2D';
+labels=D.chanlabels(1:63);
 figure;
 subplot(3,2,1); format_fig; % left fondamental
 temp_topo=[];
@@ -197,7 +197,7 @@ title('Right 2*F')
 subplot(3,2,5); format_fig; % IM (10.5 Hz)
 [~,this_f]=findclosest(faxis2,10.5);
 temp_topo=[];
-temp_topo=squeeze(mean(mean(mean(baseline_logSNR2(:,:,:,:,this_f),1),2),3));
+temp_topo=squeeze(mean(mean(mean(baseline_logSNR2(:,1,:,:,this_f),1),2),3));
 simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
 caxis([-1 1]*0.5)
 title('IM 10.5')
@@ -205,7 +205,7 @@ title('IM 10.5')
 subplot(3,2,6); format_fig; % IM (13.5 Hz)
 [~,this_f]=findclosest(faxis2,13.5);
 temp_topo=[];
-temp_topo=squeeze(mean(mean(mean(baseline_logSNR2(:,:,:,:,this_f),1),2),3));
+temp_topo=squeeze(mean(mean(mean(baseline_logSNR2(:,1,:,:,this_f),1),2),3));
 simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
 caxis([-1 1]*0.5)
 title('IM 13.5')

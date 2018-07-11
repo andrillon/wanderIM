@@ -224,7 +224,7 @@ tbl.MBMW(tbl.State=="3")=0;
 % tbl.On=categorical(tbl.On);
 
 lme_0= fitlme(tbl,'Perf~1+(1|SubID)');
-lme_1= fitlme(tbl,'Perf~Task+(1|SubID)');
+lme_1= fitlme(tbl,'Perf~State+(1|SubID)');
 
 %%
 tbl2=array2table(all_test_res,'VariableNames',{'SubID','nBlock','Task','nTrial','Go','NoGo'});
@@ -237,4 +237,5 @@ lme_0= fitlme(tbl2,'Go~1+(1|SubID)');
 lme_1= fitlme(tbl2,'Go~Task+(1|SubID)');
 lme_2= fitlme(tbl2,'Go~Task+nTrial+(1|SubID)');
 lme_3= fitlme(tbl2,'Go~Task+nTrial+nBlock+(1|SubID)');
+lme_4= fitlme(tbl2,'Go~Task*nBlock+Task*nTrial+(1|SubID)');
 
