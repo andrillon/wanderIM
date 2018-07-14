@@ -5,7 +5,7 @@ close all
 run ../localdef_wanderIM;
 
 addpath(genpath(lscpTools_path));
-addpath(genpath(sleepTools_path));
+% addpath(genpath(sleepTools_path));
 addpath(genpath(spm12_path));
 preproc_path=[root_path filesep 'preproc_eeg'];
 behav_path=[root_path filesep 'behav'];
@@ -18,9 +18,9 @@ probe_window=[-15 15];
 
 %% Loop on files
 redo.hp=0;
-redo.notch=1;
+redo.notch=0;
 
-for n=1:length(files)
+for n=1 %:length(files)
     %%% LOAD
     filename=files(n).name;
     subID=filename(findstr(filename,'_')+2:findstr(filename,'.')-1);
@@ -55,7 +55,7 @@ for n=1:length(files)
     end
     
     %%% NOTCH FILTERS
-    if exist([preproc_path filesep 'n' D.fname])==0 || redo.notch==1
+    if exist([preproc_path filesep 'n' D.fname])==0 || redo.notch==1 
         type = 'butterworth';
         order = 4;
         dirfilt = 'twopass';
@@ -161,8 +161,8 @@ for n=1:length(files)
     clean_start_trial=start_trial(~training_trials);
     
     % eliminate end block trials
-    clean_lag_trial(clean_durdin_trial>2)=[];
-    clean_start_trial(clean_durdin_trial>2)=[];
+    clean_lag_trial(abs(clean_durdin_trial)>2.5)=[];
+    clean_start_trial(abs(clean_durdin_trial)>2.5)=[];
     
     if length(clean_start_trial)~=size(Behav.test_res,1)
         warning('Problem with din and number of trials!')
