@@ -38,17 +38,8 @@ redo.epoching.hb=0;
 redo.ica=0;
 redo.laplacian=0;
 
-if do.laplacian==1
-    filename=files(1).name;
-    D=spm_eeg_load([preproc_path filesep filename]);
-    
-    myLabels=D.chanlabels(1:63);
-    [M] = ExtractMontage ([path_CSD filesep 'resource' filesep '10-5-System_Mastoids_EGI129.csd'], myLabels');
-    [G,H] = GetGH(M);
-end
-
-parpool(10);
-parfor n=1:length(files)
+% parpool(10);
+for n=1:length(files)
     %%% LOAD
     filename=files(n).name;
     subID=filename(findstr(filename,'_')+2:findstr(filename,'.')-1);
@@ -58,7 +49,12 @@ parfor n=1:length(files)
     Behav=load([behav_path filesep filebehav.name]);
     D=spm_eeg_load([preproc_path filesep filename]);
     
-
+    if do.laplacian==1
+        myLabels=D.chanlabels(1:63);
+        [M] = ExtractMontage ([path_CSD filesep 'resource' filesep '10-5-System_Mastoids_EGI129.csd'], myLabels');
+        [G,H] = GetGH(M);
+    end
+    
     %%% High-pass filter
     if do.hp==1 && (exist([preproc_path filesep 'f' D.fname],'file')==0 || redo.hp==1)
         paramFilt=[];
@@ -438,9 +434,9 @@ for i = 1:Dold.ntrials
     Dnew(1:63, :, i) =  CSD(Dold(1:63, :,i),param.G, param.H);
 end
 Dnew = conditions(Dnew, ':', conditions(Dold, 1:Dold.ntrials));
-Dnew = repl(Dnew, ':', repl(Dold, 1:Dold.ntrials));
-Dnew = events(Dnew, ':', events(Dold, 1:Dold.ntrials));
-Dnew = trialonset(Dnew, ':', trialonset(Dold, 1:Dold.ntrials));
+Dnew = repl(Dnew, ':', repl(Dnormref, 1:Dold.ntrials));
+Dnew = events(Dnew, ':', events(Dnormref, 1:Dold.ntrials));
+Dnew = trialonset(Dnew, ':', trialonset(Dnormref, 1:Dold.ntrials));
 Dnew = trialtag(Dnew, ':', trialtag(Dold, 1:Dold.ntrials));
 save(Dnew);
 end

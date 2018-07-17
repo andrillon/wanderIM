@@ -26,6 +26,8 @@ for n=1:length(files)
     
     %%%%% Epoch HeartBeat
     hb_times=detect_heartbeat(D,2,0);
+    save(sprintf('%s%shb_detection_S%s',preproc_path,filesep,subID),'hb_times')
+    
     all_hb_times{n}=hb_times;
 %             pretrig  =  hb_window(1) * D.fsample;
 %             posttrig =  hb_window(2) * D.fsample;
