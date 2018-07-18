@@ -3,7 +3,7 @@
 
 %% Init
 clear all;
-close all;
+% close all;
 run ../localdef_wanderIM
 
 % adding relevant toolboxes to the path
@@ -30,13 +30,13 @@ for n=1:length(bsl_files)
     behav_file=dir([behav_path filesep 'wanderIM_behavres_s' SubID '_*.mat']);
     load([behav_path filesep behav_file.name]);
     
-    left_freq(n)=SubjectInfo.FlickerL;
-    right_freq(n)=SubjectInfo.FlickerR;
+    left_freq(n)=SubjectInfo.FlickerR; % CAREFUL this is inverted
+    right_freq(n)=SubjectInfo.FlickerL;
     
     param=[];
     param.method='fft'; % fast fourier transform
     param.mindist=1; % we want to be able to separate peaks separated by at least 1 Hz
-    these_times=D.indsample(-30):D.indsample(0)-1;
+    these_times=D.indsample(-10):D.indsample(0)-1;
     temp_data=D(1:63,these_times,:); % D contains the data with channels * time * trials
     
     [logSNR, faxis, logpow]=get_logSNR(temp_data,D.fsample,param);
