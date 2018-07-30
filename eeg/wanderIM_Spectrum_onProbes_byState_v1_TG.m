@@ -77,42 +77,88 @@ for n=1:length(bsl_files)
     onprobe_logSNR(n,:,:)=mean(logSNR,3);
     onprobe_logPow(n,:,:)=mean(logpow,3);
     
-    % Split between Face and Digit
-    idx_trials=find_trials(D.conditions,'FA');
-    onprobe_logSNR_FA(n,:,:)=mean(logSNR(:,:,idx_trials),3);
-    onprobe_logPow_FA(n,:,:)=mean(logpow(:,:,idx_trials),3);
+    % Split between attention state AND stimulus type - face condition
+    idx_trials=find_trials(D.conditions,'FA_ON');
+    onprobe_logSNR_ON_FA(n,:,:)=mean(logSNR(:,:,idx_trials),3);
+    onprobe_logPow_ON_FA(n,:,:)=mean(logpow(:,:,idx_trials),3);
     
-    idx_trials=find_trials(D.conditions,'DT');
-    onprobe_logSNR_DG(n,:,:)=mean(logSNR(:,:,idx_trials),3);
-    onprobe_logPow_DG(n,:,:)=mean(logpow(:,:,idx_trials),3);
+    idx_trials=find_trials(D.conditions,'FA_MW');
+    onprobe_logSNR_MW_FA(n,:,:)=mean(logSNR(:,:,idx_trials),3);
+    onprobe_logPow_MW_FA(n,:,:)=mean(logpow(:,:,idx_trials),3);
 
+    idx_trials=find_trials(D.conditions,'FA_MB');
+    onprobe_logSNR_MB_FA(n,:,:)=mean(logSNR(:,:,idx_trials),3);
+    onprobe_logPow_MB_FA(n,:,:)=mean(logpow(:,:,idx_trials),3);
+    
+    % Split between attention state AND stimulus type - digit condition
+    idx_trials=find_trials(D.conditions,'DT_ON');
+    onprobe_logSNR_ON_DT(n,:,:)=mean(logSNR(:,:,idx_trials),3);
+    onprobe_logPow_ON_DT(n,:,:)=mean(logpow(:,:,idx_trials),3);
+    
+    idx_trials=find_trials(D.conditions,'DT_MW');
+    onprobe_logSNR_MW_DT(n,:,:)=mean(logSNR(:,:,idx_trials),3);
+    onprobe_logPow_MW_DT(n,:,:)=mean(logpow(:,:,idx_trials),3);
+
+    idx_trials=find_trials(D.conditions,'DT_MB');
+    onprobe_logSNR_MB_DT(n,:,:)=mean(logSNR(:,:,idx_trials),3);
+    onprobe_logPow_MB_DT(n,:,:)=mean(logpow(:,:,idx_trials),3);
 end
 %% Plot the LogSNR and the Log Power (currently set to Oz channel)
 % across both conditions
 figure;
 subplot(1,2,1)
-plot(faxis,squeeze(mean(onprobe_logSNR(:,match_str(D.chanlabels,'POz'),:),1)),'b')
+plot(faxis,squeeze(mean(onprobe_logSNR(:,match_str(D.chanlabels,'Oz'),:),1)),'b')
 xlim([1 30])
 
 subplot(1,2,2)
-plot(faxis,squeeze(nanmean(onprobe_logPow(:,match_str(D.chanlabels,'POz'),:),1)),'r')
+plot(faxis,squeeze(nanmean(onprobe_logPow(:,match_str(D.chanlabels,'Oz'),:),1)),'r')
 xlim([1 30])
 
-%% Split the LogSNR and LogPower plots by face and digit task
+%% Split the LogSNR and LogPower plots by attention state - face condition
 figure;
-subplot(1,2,1)
-plot(faxis,squeeze(mean(onprobe_logSNR_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
+plot(faxis,squeeze(mean(onprobe_logSNR_ON_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
 hold on;
-plot(faxis,squeeze(mean(onprobe_logSNR_DG(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','r')
+plot(faxis,squeeze(mean(onprobe_logSNR_MW_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','r')
 xlim([1 30])
-legend({'Face','Digit'})
+hold on;
+plot(faxis,squeeze(mean(onprobe_logSNR_MB_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','g')
+xlim([1 30])
+legend({'On-task','Mind-wandering','Mind-blanking'})
+title('LogSNR by attention state - Face Stimulus Condition')
 
-subplot(1,2,2)
-plot(faxis,squeeze(mean(onprobe_logPow_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
+figure;
+plot(faxis,squeeze(mean(onprobe_logPow_ON_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
 hold on;
-plot(faxis,squeeze(mean(onprobe_logPow_DG(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','r')
+plot(faxis,squeeze(mean(onprobe_logPow_MW_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','r')
 xlim([1 30])
-legend({'Face','Digit'})
+hold on;
+plot(faxis,squeeze(mean(onprobe_logPow_MB_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','g')
+xlim([1 30])
+legend({'On-task','Mind-wandering','Mind-blanking'})
+title('Log Power by attention state - Face Stimulus Condition')
+
+%% Split the LogSNR and LogPower plots by attention state - digit condition
+figure;
+plot(faxis,squeeze(mean(onprobe_logSNR_ON_DT(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
+hold on;
+plot(faxis,squeeze(mean(onprobe_logSNR_MW_DT(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','r')
+xlim([1 30])
+hold on;
+plot(faxis,squeeze(mean(onprobe_logSNR_MB_DT(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','g')
+xlim([1 30])
+legend({'On-task','Mind-wandering','Mind-blanking'})
+title('LogSNR by attention state - Kanisza Square Stimulus Condition')
+
+figure;
+plot(faxis,squeeze(mean(onprobe_logPow_ON_DT(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
+hold on;
+plot(faxis,squeeze(mean(onprobe_logPow_MW_DT(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','r')
+xlim([1 30])
+hold on;
+plot(faxis,squeeze(mean(onprobe_logPow_MB_DT(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','g')
+xlim([1 30])
+legend({'On-task','Mind-wandering','Mind-blanking'})
+title('Log Power by attention state - Kanisza Square Condition')
 
 %% Compute topographic plots for frequencies of interest across all channels
 load('BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
