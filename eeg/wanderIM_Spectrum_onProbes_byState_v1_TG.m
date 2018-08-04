@@ -15,7 +15,7 @@
 %% Init
 clear all;
 close all;
-run localdef_wanderIM
+run ../localdef_wanderIM
 
 % adding relevant toolboxes to the path
 % spm12 and LSCPtools
@@ -116,23 +116,23 @@ xlim([1 30])
 
 %% Split the LogSNR and LogPower plots by attention state - face condition
 figure;
-plot(faxis,squeeze(mean(onprobe_logSNR_ON_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
+plot(faxis,squeeze(nanmean(onprobe_logSNR_ON_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
 hold on;
-plot(faxis,squeeze(mean(onprobe_logSNR_MW_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','r')
+plot(faxis,squeeze(nanmean(onprobe_logSNR_MW_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','r')
 xlim([1 30])
 hold on;
-plot(faxis,squeeze(mean(onprobe_logSNR_MB_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','g')
+plot(faxis,squeeze(nanmean(onprobe_logSNR_MB_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','g')
 xlim([1 30])
 legend({'On-task','Mind-wandering','Mind-blanking'})
 title('LogSNR by attention state - Face Stimulus Condition')
 
 figure;
-plot(faxis,squeeze(mean(onprobe_logPow_ON_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
+plot(faxis,squeeze(nanmean(onprobe_logPow_ON_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
 hold on;
-plot(faxis,squeeze(mean(onprobe_logPow_MW_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','r')
+plot(faxis,squeeze(nanmean(onprobe_logPow_MW_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','r')
 xlim([1 30])
 hold on;
-plot(faxis,squeeze(mean(onprobe_logPow_MB_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','g')
+plot(faxis,squeeze(nanmean(onprobe_logPow_MB_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','g')
 xlim([1 30])
 legend({'On-task','Mind-wandering','Mind-blanking'})
 title('Log Power by attention state - Face Stimulus Condition')
