@@ -42,15 +42,18 @@ for n=1:length(files)
     
     %%% cleaning too fast RTs
     RTs=[RTs; test_res(:,10)-test_res(:,8)];
-%     findFalseStarts=find(test_res(:,10)-test_res(:,8)<0.1);
-%     test_res(findFalseStarts,[10 11 12])=NaN;
-%     warning('correcting for false starts')
+    %     findFalseStarts=find(test_res(:,10)-test_res(:,8)<0.1);
+    %     test_res(findFalseStarts,[10 11 12])=NaN;
+    %     warning('correcting for false starts')
     for nbt=1:2
         tp_nogos=test_res(test_res(:,2)==nbt & ~isnan(test_res(:,11)),11);
         tp_gos=test_res(test_res(:,2)==nbt & ~isnan(test_res(:,12)),12);
         [dprime_test(n,nbt), crit_test(n,nbt)]=calc_dprime((tp_gos==1),(tp_nogos==0));
         corr_go(n,nbt)=nanmean(tp_gos);
         corr_nogo(n,nbt)=nanmean(tp_nogos);
+        
+        rt_gos(n,nbt)=nanmean(RTs(test_res(:,2)==nbt & ~isnan(test_res(:,12))));
+        rt_nogos(n,nbt)=nanmean(RTs(test_res(:,2)==nbt & ~isnan(test_res(:,11))));
     end
     all_test_res=[all_test_res ; [n*ones(size(test_res,1),1) test_res(:,[1 2 4 11 12])]];
     
@@ -95,15 +98,15 @@ for n=1:length(files)
     end
     for nbt=1:2
         tp_probes=probe_res(probe_res(:,5)==nbt,31:38);
-                        mean_bytask_prf(n,nbt)=nanmean(tp_probes(:,7));
-
-
+        mean_bytask_prf(n,nbt)=nanmean(tp_probes(:,7));
+        
+        
         for nstate=1:3
             mean_count_mindstates(n,nbt,nstate)=sum(tp_probes(:,2)==(nstate));
             mean_count_ori(n,nbt,nstate)=sum(tp_probes(:,3)==(nstate));
             
             if sum(tp_probes(:,2)==(nstate))~=0
-
+                
                 mean_byprobe_awa(n,nbt,nstate)=5-nanmean(tp_probes(tp_probes(:,2)==(nstate),4));
                 mean_byprobe_wil(n,nbt,nstate)=5-nanmean(tp_probes(tp_probes(:,2)==(nstate),5));
                 mean_byprobe_eng(n,nbt,nstate)=nanmean(tp_probes(tp_probes(:,2)==(nstate),6));
@@ -125,27 +128,66 @@ for n=1:length(files)
         these_trials=test_res(test_res(:,1)==nbl,:);
         for npr=1:10
             this_pr_tridx=these_probes(npr,6);
-%             if npr==1
-%                 last_pr_tridx=0;
-%             else
-%                 last_pr_tridx=these_probes(npr-1,6);
-%             end
-last_pr_tridx=20;
+            %             if npr==1
+            %                 last_pr_tridx=0;
+            %             else
+            %                 last_pr_tridx=these_probes(npr-1,6);
+            %             end
+            last_pr_tridx=20;
             number_STD(n,nbl,npr)=sum(these_trials(these_trials(:,4)>last_pr_tridx & these_trials(:,4)<this_pr_tridx,5)~=3);
             number_DEV(n,nbl,npr)=sum(these_trials(these_trials(:,4)>last_pr_tridx & these_trials(:,4)<this_pr_tridx,5)==3);
             
             temp_testres=these_trials(these_trials(:,4)>last_pr_tridx & these_trials(:,4)<this_pr_tridx,:);
-%             temp_testres(1:round(size(temp_testres,1)/2),:)=[];
+            %             temp_testres(1:round(size(temp_testres,1)/2),:)=[];
             tcorr_go=nanmean(temp_testres(:,12));
             tcorr_nogo=nanmean(temp_testres(:,11));
             num_go=sum(~isnan(temp_testres(:,12)));
             num_nogo=sum(~isnan(temp_testres(:,11)));
+            rt_go=nanmean(temp_testres(~isnan(temp_testres(:,12)),10)-temp_testres(~isnan(temp_testres(:,12)),8));
+            rt_nogo=nanmean(temp_testres(~isnan(temp_testres(:,11)),10)-temp_testres(~isnan(temp_testres(:,11)),8));
+            
             tdp=calc_dprime((temp_testres(~isnan(temp_testres(:,12)),12)==1),(temp_testres(~isnan(temp_testres(:,11)),11)==0));
-            all_probes_mat=[all_probes_mat ; [n nbl these_probes(npr,5) these_probes(npr,32) npr tcorr_go tcorr_nogo num_go num_nogo tdp (these_probes(npr,37))]];
+            all_probes_mat=[all_probes_mat ; [n nbl these_probes(npr,5) these_probes(npr,32) npr tcorr_go tcorr_nogo num_go num_nogo tdp (these_probes(npr,37)) rt_go rt_nogo]];
         end
     end
 end
 
+%% Average probe results across subjects
+mysub=unique(all_probes_mat(:,1));
+for ns=1:length(mysub)
+    tp_probes_mat=all_probes_mat(all_probes_mat(:,1)==mysub(ns),:);
+    
+    % by taks
+    for nt=1:2
+        % by probe type
+        for npr=1:3
+            tp_probes_thistype=tp_probes_mat(tp_probes_mat(:,4)==npr & tp_probes_mat(:,3)==nt,:);
+            corr_GO_byprobe_bysubj(ns,nt,npr)=nanmean(tp_probes_thistype(:,6));
+            corr_NOGO_byprobe_bysubj(ns,nt,npr)=nanmean(tp_probes_thistype(:,7));
+            
+            rt_GO_byprobe_bysubj(ns,nt,npr)=nanmean(tp_probes_thistype(:,12));
+            rt_NOGO_byprobe_bysubj(ns,nt,npr)=nanmean(tp_probes_thistype(:,13));
+            
+            n_GO_byprobe_bysubj(ns,nt,npr)=length(tp_probes_thistype(:,6));
+            n_NOGO_byprobe_bysubj(ns,nt,npr)=length(tp_probes_thistype(:,7));
+        end
+    end
+end
+
+%% Average probe results across probes
+% by taks
+for nt=1:2
+    % by probe type
+    for npr=1:3
+        tp_probes_thistype=all_probes_mat(all_probes_mat(:,4)==npr & all_probes_mat(:,3)==nt,:);
+        
+        corr_GO_byprobe{npr,nt}=(tp_probes_thistype(:,6));
+        corr_NOGO_byprobe{npr,nt}=(tp_probes_thistype(:,7));
+        
+        rt_GO_byprobe{npr,nt}=(tp_probes_thistype(:,12));
+        rt_NOGO_byprobe{npr,nt}=(tp_probes_thistype(:,13));
+    end
+end
 %% Behaviour - Performance on SART
 figure; set(gcf,'Position',[529   943   615   750]);
 subplot(2,2,1); format_fig;
@@ -239,12 +281,12 @@ for nsta=1:3
     set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
     title('Vigilance')
     
-%      subplot(2,3,6)
-%     temp=squeeze(mean(mean_byprobe_look(:,:,nsta),2));
-%     simpleBarPlot(nsta,temp,state_colours(nsta,:),0.9,'k');
-%     xlim([0.2 3.8])
-%     set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
-%     title('Looking')
+    %      subplot(2,3,6)
+    %     temp=squeeze(mean(mean_byprobe_look(:,:,nsta),2));
+    %     simpleBarPlot(nsta,temp,state_colours(nsta,:),0.9,'k');
+    %     xlim([0.2 3.8])
+    %     set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
+    %     title('Looking')
     
 end
 

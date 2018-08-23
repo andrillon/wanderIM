@@ -1,4 +1,5 @@
-library('lme4')
+#library('lme4')
+library('lmerTest')
 
 t<-read.delim("/Users/tand0009/Data/WanderIM/behav/WanderIM_TestResults.txt",sep = ",")
 t$SubID<-as.factor(t$SubID)
@@ -33,4 +34,4 @@ mdl_4 <- lmer(Corr ~ TrCat*Task+DistProbe + (1| SubID), data=p)
 mdl_5 <- lmer(Corr ~ TrCat*Task+DistProbe+State + (1| SubID), data=p)
 mdl_6 <- lmer(Corr ~ TrCat*Task*State+DistProbe + (1| SubID), data=p)
 
-mdl_6 <- lmer(Corr ~ TrCat*Task*State+DistProbe + (1| SubID), data=p)
+mdl_7 <- lmer(Corr ~ TrCat*Task*State*DistProbe + (1| SubID), data=p)
