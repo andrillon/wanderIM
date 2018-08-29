@@ -149,7 +149,7 @@ tbl_probe.State=removecats(tbl_probe.State);
 tbl_probe.State=reordercats(tbl_probe.State,{'1','2','3'});
 
 % model comparison
-mdl_Full= fitlme(tbl_probe,'SNR~Task * Chan * State * Vig * Freq + (1| SubID)');
+% mdl_Full= fitlme(tbl_probe,'SNR~Task * Chan * State * Vig * Freq + (1| SubID)');
 
 %%
 pF=tbl_probe(tbl_probe.Freq == "1" | tbl_probe.Freq == "2",:);
