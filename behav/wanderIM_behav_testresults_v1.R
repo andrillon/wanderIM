@@ -33,3 +33,5 @@ mdl_4 <- lmer(Corr ~ TrCat*Task+DistProbe + (1| SubID), data=p)
 mdl_5 <- lmer(Corr ~ TrCat*Task+DistProbe+State + (1| SubID), data=p)
 mdl_6 <- lmer(Corr ~ TrCat*Task*State+DistProbe + (1| SubID), data=p)
 
+library('coda')
+summary(mdl_6)

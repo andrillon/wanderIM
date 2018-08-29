@@ -36,8 +36,8 @@ for n=1:length(bsl_files)
     param=[];
     param.method='fft'; % fast fourier transform
     param.mindist=1; % we want to be able to separate peaks separated by at least 1 Hz
-    these_times=D.indsample(-20):D.indsample(0)-1;
-%     these_times=D.indsample(0)+1:D.indsample(20);
+%     these_times=D.indsample(-20):D.indsample(0)-1;
+    these_times=D.indsample(0)+1:D.indsample(20);
     temp_data=D(1:63,these_times,:); % D contains the data with channels * time * trials
     
     [logSNR, faxis, logpow]=get_logSNR(temp_data,D.fsample,param);
@@ -163,3 +163,14 @@ end
 simpleTopoPlot2(mean(temp_topo,1), pos', labels,0,[],0,lay,[]);
 caxis([-2 2])
 title('Right 2F')
+
+%%
+figure;
+format_fig;
+
+temp_topo=zscore(squeeze(mean(mean(onprobe_logPow(:,:,faxis>8 & faxis<11 & (faxis~=9 | faxis~=10.5)),3),1)));
+
+simpleTopoPlot2(mean(temp_topo,1), pos', labels,0,[],0,lay,[]);
+% caxis([-2 2])
+title('Alpha')
+
