@@ -15,7 +15,7 @@
 %% Init
 clear all;
 close all;
-run localdef_wanderIM
+run ../localdef_wanderIM
 
 % adding relevant toolboxes to the path
 % spm12 and LSCPtools
@@ -76,7 +76,7 @@ for n=1:length(bsl_files)
         end
         
         these_times=D.indsample(0):D.indsample(30);
-%         temp_data=lapD(1:63,these_times,these_trials); % D contains the data with channels * time * trials
+        temp_data=D(1:63,these_times,these_trials); % D contains the data with channels * time * trials
 %         temp_data=temp_data; %-repmat(mean(temp_data,1),[size(temp_data,1) 1 1]); % re-reference the data to the average
         
         [logSNR, faxis2, logpow]=get_logSNR(temp_data,D.fsample,param);
@@ -87,9 +87,16 @@ for n=1:length(bsl_files)
         % sanity check: computer ERP on block onset
         these_times2=D.indsample(-0.2+0.3):D.indsample(1.5+0.3);
         these_timesbs=D.indsample(-0.2+0.3):D.indsample(0+0.3);
-        temp=lapD(:,these_times2,these_trials)-repmat(mean(lapD(:,these_timesbs,these_trials),2),[1 length(these_times2) 1]);
+        temp=D(:,these_times2,these_trials)-repmat(mean(D(:,these_timesbs,these_trials),2),[1 length(these_times2) 1]);
         baseline_erp(n,nC,:,:)=squeeze(mean(temp,3));
+        
     end
+    
+    [logSNR, faxis2, logpow]=get_logSNR(D(1:63,D.indsample(0):D.indsample(30),:),D.fsample,param);
+    [logSNR3, faxis2, logpow3]=get_logSNR(mean(D(1:63,D.indsample(0):D.indsample(30),:),3),D.fsample,param);
+    baseline_logSNR_byTrial(n,:,:)=squeeze(mean(logSNR,3));
+    baseline_logSNR_avTrial(n,:,:)=logSNR3;
+    
 end
 %% Power spectrum and log SNR - do we have signal?
 this_ch=match_str(D.chanlabels,'Oz');
