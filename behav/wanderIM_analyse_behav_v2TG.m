@@ -2,7 +2,7 @@
 clear all
 close all
 
-run localdef_wanderIM
+run ../localdef_wanderIM
 
 addpath(genpath(lscpTools_path))
 
@@ -40,15 +40,11 @@ for n=1:length(files)
     % 11: nogo
     % 12: go
     for nbt=1:2
-         tp_RT_Go=test_res(test_res(:,2)==nbt & ~isnan(test_res(:,12)),10)-test_res(test_res(:,2)==nbt & ~isnan(test_res(:,12)),8);
-         tp_RT_NoGo=test_res(test_res(:,2)==nbt & ~isnan(test_res(:,11)),10)-test_res(test_res(:,2)==nbt & ~isnan(test_res(:,11)),8);
-       tp_nogos=test_res(test_res(:,2)==nbt & ~isnan(test_res(:,11)),11);
+        tp_nogos=test_res(test_res(:,2)==nbt & ~isnan(test_res(:,11)),11);
         tp_gos=test_res(test_res(:,2)==nbt & ~isnan(test_res(:,12)),12);
         [dprime_test(n,nbt), crit_test(n,nbt)]=calc_dprime((tp_gos==1),(tp_nogos==0));
         corr_go(n,nbt)=nanmean(tp_gos);
         corr_nogo(n,nbt)=nanmean(tp_nogos);
-        rt_go(n,nbt)=nanmean(tp_RT_Go);
-        rt_nogo(n,nbt)=nanmean(tp_RT_NoGo);
     end
     all_test_res=[all_test_res ; [n*ones(size(test_res,1),1) test_res(:,[1 2 4 11 12])]];
     
@@ -127,13 +123,11 @@ for n=1:length(files)
         these_trials=test_res(test_res(:,1)==nbl,:);
         for npr=1:10
             this_pr_tridx=these_probes(npr,6);
-%             if npr==1
-%                 last_pr_tridx=0;
-%             else
-%                 last_pr_tridx=these_probes(npr-1,6);
-%             end
-last_pr_tridx=this_pr_tridx-20;
-
+            if npr==1
+                last_pr_tridx=0;
+            else
+                last_pr_tridx=these_probes(npr-1,6);
+            end
             number_STD(n,nbl,npr)=sum(these_trials(these_trials(:,4)>last_pr_tridx & these_trials(:,4)<this_pr_tridx,5)~=3);
             number_DEV(n,nbl,npr)=sum(these_trials(these_trials(:,4)>last_pr_tridx & these_trials(:,4)<this_pr_tridx,5)==3);
             
@@ -148,7 +142,7 @@ last_pr_tridx=this_pr_tridx-20;
             
             % taking the 30 go blocks and 3 nogo blocks prior to probe
             % onset
-            Go_windowSize=10;
+            Go_windowSize=30;
             NoGo_windowSize=3;
             temp_testres_Go=temp_testres(~isnan(temp_testres(:,12)),:);
             temp_testres_NoGo=temp_testres(~isnan(temp_testres(:,11)),:);
@@ -189,21 +183,21 @@ plot(mean(matcorr_beforeProbes_NoGo(all_probes_mat(:,4)==3,:),1))
 
 %% Behaviour - Performance on SART
 figure; set(gcf,'Position',[529   943   615   750]);
-subplot(3,2,1); format_fig;
+subplot(2,2,1); format_fig;
 simpleBarPlot(1,dprime_test(:,1),cond_colours(1,:),0.9,'k');
 simpleBarPlot(2,dprime_test(:,2),cond_colours(2,:),0.9,'k');
 set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
 ylabel('d-prime')
 xlim([0.2 2.8])
 
-subplot(3,2,2); format_fig;
+subplot(2,2,2); format_fig;
 simpleBarPlot(1,crit_test(:,1),cond_colours(1,:),0.9,'k');
 simpleBarPlot(2,crit_test(:,2),cond_colours(2,:),0.9,'k');
 set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
 ylabel('criterion')
 xlim([0.2 2.8])
 
-subplot(3,2,3); format_fig;
+subplot(2,2,3); format_fig;
 simpleBarPlot(1,100*corr_go(:,1),cond_colours(1,:),0.9,'k');
 simpleBarPlot(2,100*corr_go(:,2),cond_colours(2,:),0.9,'k');
 set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
@@ -211,29 +205,13 @@ ylabel('Perf. GO')
 xlim([0.2 2.8])
 ylim([40 100])
 
-subplot(3,2,4); format_fig;
+subplot(2,2,4); format_fig;
 simpleBarPlot(1,100*corr_nogo(:,1),cond_colours(1,:),0.9,'k');
 simpleBarPlot(2,100*corr_nogo(:,2),cond_colours(2,:),0.9,'k');
 set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
 ylabel('Perf. NO-GO')
 xlim([0.2 2.8])
 ylim([40 100])
-
-subplot(3,2,5); format_fig;
-simpleBarPlot(1,rt_go(:,1),cond_colours(1,:),0.9,'k');
-simpleBarPlot(2,rt_go(:,2),cond_colours(2,:),0.9,'k');
-set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
-ylabel('RT. GO')
-xlim([0.2 2.8])
-ylim([0.3 0.6])
-
-subplot(3,2,6); format_fig;
-simpleBarPlot(1,rt_nogo(:,1),cond_colours(1,:),0.9,'k');
-simpleBarPlot(2,rt_nogo(:,2),cond_colours(2,:),0.9,'k');
-set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
-ylabel('RT. NO-GO')
-xlim([0.2 2.8])
-ylim([0.3 0.6])
 
 %% Probes - % mind-state
 figure;  set(gcf,'Position',[-29        1275        1218         412]);

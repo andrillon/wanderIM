@@ -2,7 +2,7 @@
 clear all
 close all
 
-run localdef_wanderIM
+run ../localdef_wanderIM
 
 addpath(genpath(lscpTools_path))
 
@@ -13,7 +13,7 @@ files=dir([data_path filesep 'wanderIM_behavres_s3*.mat']);
 state_colours=[0 146 146 ; 182 109 255; 219 209 0]/255;
 cond_colours=[0.9 0.55 0.2 ; 0.2 0.55 0.9];
 
-% load([data_path filesep 'CARS_quest'])
+load([data_path filesep 'CARS_quest'])
 %%
 all_test_resprobes_perblock=[];
 all_test_res=[];
@@ -25,7 +25,7 @@ for n=1:length(files)
     load([data_path filesep files(n).name]);
     SubID=SubjectInfo.subID;
     fprintf('... %s\n',SubID)
-%     CARS_flag(n)=CARS_bool(CARS_bool(:,1)==str2num(SubID),2);
+    CARS_flag(n)=CARS_bool(CARS_bool(:,1)==str2num(SubID),2);
     % SART
     %  1: num block
     %  2: block cond (1: Faces / 2: Squares)

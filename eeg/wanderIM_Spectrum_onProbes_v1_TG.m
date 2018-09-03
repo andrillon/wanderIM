@@ -15,7 +15,7 @@
 %% Init
 clear all;
 close all;
-run localdef_wanderIM
+run ../localdef_wanderIM
 
 % adding relevant toolboxes to the path
 % spm12 and LSCPtools

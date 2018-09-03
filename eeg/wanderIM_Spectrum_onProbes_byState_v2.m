@@ -15,7 +15,7 @@
 %% Init
 clear all;
 close all;
-run localdef_wanderIM
+run ../localdef_wanderIM
 
 % adding relevant toolboxes to the path
 % spm12 and LSCPtools
@@ -77,7 +77,7 @@ for n=1:length(bsl_files)
     onprobe_logSNR(n,:,:)=mean(logSNR,3);
     onprobe_logPow(n,:,:)=mean(logpow,3);
     
-    % Split between attention state
+    % Split between attention state AND stimulus type - face condition
     idx_trials=find_trials(D.conditions,'ON');
     onprobe_logSNR_ON(n,:,:)=mean(logSNR(:,:,idx_trials),3);
     onprobe_logPow_ON(n,:,:)=mean(logpow(:,:,idx_trials),3);

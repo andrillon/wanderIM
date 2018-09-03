@@ -258,7 +258,7 @@ end
 
 figure
 for k=1:3
-    subplot(3,2,2*(k-1)+1);     format_fig
+    subplot(3,2,2*(k-1)+1); format_fig
     switch k
         case 1
             temp_topo=squeeze(mean(logSNR_fond(:,1,:)-logSNR_fond(:,2,:),1));
