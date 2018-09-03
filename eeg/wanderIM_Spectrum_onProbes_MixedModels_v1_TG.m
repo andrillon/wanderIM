@@ -15,8 +15,11 @@
 %% Init
 clear all;
 close all;
-run localdef_wanderIM
-
+try
+    run localdef_wanderIM
+catch
+    run ../localdef_wanderIM
+end
 % adding relevant toolboxes to the path
 % spm12 and LSCPtools
 addpath(genpath(spm12_path))
@@ -156,13 +159,13 @@ pF=tbl_probe(tbl_probe.Freq == "1" | tbl_probe.Freq == "2",:);
 p2F=tbl_probe(tbl_probe.Freq == "3" | tbl_probe.Freq == "4",:);
 pIM=tbl_probe(tbl_probe.Freq == "5",:);
 
-pF_F=tbl_probe(tbl_probe.Task == "1" | tbl_probe.Freq == "1" | tbl_probe.Freq == "2",:);
-p2F_F=tbl_probe(tbl_probe.Task == "1" | tbl_probe.Freq == "3" | tbl_probe.Freq == "4",:);
-pIM_F=tbl_probe(tbl_probe.Task == "1" | tbl_probe.Freq == "5",:);
+pF_F=tbl_probe(tbl_probe.Task == "1" & (tbl_probe.Freq == "1" | tbl_probe.Freq == "2"),:);
+p2F_F=tbl_probe(tbl_probe.Task == "1" & (tbl_probe.Freq == "3" | tbl_probe.Freq == "4"),:);
+pIM_F=tbl_probe(tbl_probe.Task == "1" & tbl_probe.Freq == "5",:);
 
-pF_D=tbl_probe(tbl_probe.Task == "2" | tbl_probe.Freq == "1" | tbl_probe.Freq == "2",:);
-p2F_D=tbl_probe(tbl_probe.Task == "2" | tbl_probe.Freq == "3" | tbl_probe.Freq == "4",:);
-pIM_D=tbl_probe(tbl_probe.Task == "2" | tbl_probe.Freq == "5",:);
+pF_D=tbl_probe(tbl_probe.Task == "2" & (tbl_probe.Freq == "1" | tbl_probe.Freq == "2"),:);
+p2F_D=tbl_probe(tbl_probe.Task == "2" & (tbl_probe.Freq == "3" | tbl_probe.Freq == "4"),:);
+pIM_D=tbl_probe(tbl_probe.Task == "2" & tbl_probe.Freq == "5",:);
 
 
 pF.Freq=removecats(pF.Freq);
@@ -277,9 +280,9 @@ beta=double(mdl_F.Coefficients(:,2));
 MWvsONidx=find_trials(mdl_F.CoefficientNames,'State_2:');
 MBvsONidx=find_trials(mdl_F.CoefficientNames,'State_3:');
 
-pVal2=double(mdl_F.Coefficients(:,6));
-beta2=double(mdl_F.Coefficients(:,2));
-MWvsMBidx2=find_trials(mdl_F.CoefficientNames,'State_3:');
+pVal2=double(mdl2_F.Coefficients(:,6));
+beta2=double(mdl2_F.Coefficients(:,2));
+MWvsMBidx2=find_trials(mdl2_F.CoefficientNames,'State_3:');
 
 load('BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
 figure;
@@ -323,9 +326,9 @@ beta=double(mdl_2F.Coefficients(:,2));
 MWvsONidx=find_trials(mdl_2F.CoefficientNames,'State_2:');
 MBvsONidx=find_trials(mdl_2F.CoefficientNames,'State_3:');
 
-pVal2=double(mdl_2F.Coefficients(:,6));
-beta2=double(mdl_2F.Coefficients(:,2));
-MWvsMBidx2=find_trials(mdl_2F.CoefficientNames,'State_3:');
+pVal2=double(mdl2_2F.Coefficients(:,6));
+beta2=double(mdl2_2F.Coefficients(:,2));
+MWvsMBidx2=find_trials(mdl2_2F.CoefficientNames,'State_3:');
 
 load('BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
 figure;
@@ -412,9 +415,9 @@ beta=double(mdl_F_F.Coefficients(:,2));
 MWvsONidx=find_trials(mdl_F_F.CoefficientNames,'State_2:');
 MBvsONidx=find_trials(mdl_F_F.CoefficientNames,'State_3:');
 
-pVal2=double(mdl_F_F.Coefficients(:,6));
-beta2=double(mdl_F_F.Coefficients(:,2));
-MWvsMBidx2=find_trials(mdl_F_F.CoefficientNames,'State_3:');
+pVal2=double(mdl2_F_F.Coefficients(:,6));
+beta2=double(mdl2_F_F.Coefficients(:,2));
+MWvsMBidx2=find_trials(mdl2_F_F.CoefficientNames,'State_3:');
 
 load('BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
 figure;
@@ -458,9 +461,9 @@ beta=double(mdl_2F_F.Coefficients(:,2));
 MWvsONidx=find_trials(mdl_2F_F.CoefficientNames,'State_2:');
 MBvsONidx=find_trials(mdl_2F_F.CoefficientNames,'State_3:');
 
-pVal2=double(mdl_2F_F.Coefficients(:,6));
-beta2=double(mdl_2F_F.Coefficients(:,2));
-MWvsMBidx2=find_trials(mdl_2F_F.CoefficientNames,'State_3:');
+pVal2=double(mdl2_2F_F.Coefficients(:,6));
+beta2=double(mdl2_2F_F.Coefficients(:,2));
+MWvsMBidx2=find_trials(mdl2_2F_F.CoefficientNames,'State_3:');
 
 load('BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
 figure;
@@ -547,9 +550,9 @@ beta=double(mdl_F_D.Coefficients(:,2));
 MWvsONidx=find_trials(mdl_F_D.CoefficientNames,'State_2:');
 MBvsONidx=find_trials(mdl_F_D.CoefficientNames,'State_3:');
 
-pVal2=double(mdl_F_D.Coefficients(:,6));
-beta2=double(mdl_F_D.Coefficients(:,2));
-MWvsMBidx2=find_trials(mdl_F_D.CoefficientNames,'State_3:');
+pVal2=double(mdl2_F_D.Coefficients(:,6));
+beta2=double(mdl2_F_D.Coefficients(:,2));
+MWvsMBidx2=find_trials(mdl2_F_D.CoefficientNames,'State_3:');
 
 load('BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
 figure;
@@ -593,9 +596,9 @@ beta=double(mdl_2F_D.Coefficients(:,2));
 MWvsONidx=find_trials(mdl_2F_D.CoefficientNames,'State_2:');
 MBvsONidx=find_trials(mdl_2F_D.CoefficientNames,'State_3:');
 
-pVal2=double(mdl_2F_D.Coefficients(:,6));
-beta2=double(mdl_2F_D.Coefficients(:,2));
-MWvsMBidx2=find_trials(mdl_2F_D.CoefficientNames,'State_3:');
+pVal2=double(mdl2_2F_D.Coefficients(:,6));
+beta2=double(mdl2_2F_D.Coefficients(:,2));
+MWvsMBidx2=find_trials(mdl2_2F_D.CoefficientNames,'State_3:');
 
 load('BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
 figure;
