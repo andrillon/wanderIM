@@ -13,7 +13,7 @@ files=dir([data_path filesep 'wanderIM_behavres_s3*.mat']);
 state_colours=[0 146 146 ; 182 109 255; 219 209 0]/255;
 cond_colours=[0.9 0.55 0.2 ; 0.2 0.55 0.9];
 
-% load([data_path filesep 'CARS_quest'])
+%load([data_path filesep 'CARS_quest'])
 %%
 all_test_resprobes_perblock=[];
 all_test_res=[];
@@ -25,7 +25,7 @@ for n=1:length(files)
     load([data_path filesep files(n).name]);
     SubID=SubjectInfo.subID;
     fprintf('... %s\n',SubID)
-%     CARS_flag(n)=CARS_bool(CARS_bool(:,1)==str2num(SubID),2);
+%    CARS_flag(n)=CARS_bool(CARS_bool(:,1)==str2num(SubID),2);
     % SART
     %  1: num block
     %  2: block cond (1: Faces / 2: Squares)
@@ -188,37 +188,247 @@ for nt=1:2
         rt_NOGO_byprobe{npr,nt}=(tp_probes_thistype(:,13));
     end
 end
-%% Behaviour - Performance on SART
-figure; set(gcf,'Position',[529   943   615   750]);
+%% Behaviour - Performance on SART - BY MIND-STATE AVGD ACROSS PROBES & PARTICIPANTS
+% 
+% figure;  set(gcf,'Position',[-29        1275        1218         412]);
+% subplot(2,2,1); format_fig;
+% for nst=1:3
+%     hb(1)=simpleBarPlot(nst-0.2,100*squeeze(corr_GO_byprobe_bysubj(:,1,nst)),state_colours(nst,:),0.35,'k');
+%     hb(2)=simpleBarPlot(nst+0.2,100*squeeze(corr_GO_byprobe_bysubj(:,2,nst)),[1 1 1 ; state_colours(nst,:)],0.35,'k');
+% end
+% set(gca,'XTick',1:3,'XTickLabel',{'On','MW','MB'})
+% ylabel('Corr Go')
+% title('Correctness by Mind-State')
+% xlim([0.2 3.8])
+% ylim([50 100])
+% legend(hb,{'Face','Square'})
+% 
+% subplot(2,2,2); format_fig;
+% for nst=1:3
+%     hb(1)=simpleBarPlot(nst-0.2,100*squeeze(corr_NOGO_byprobe_bysubj(:,1,nst)),state_colours(nst,:),0.35,'k');
+%     hb(2)=simpleBarPlot(nst+0.2,100*squeeze(corr_NOGO_byprobe_bysubj(:,2,nst)),[1 1 1 ; state_colours(nst,:)],0.35,'k');
+% end
+% set(gca,'XTick',1:3,'XTickLabel',{'On','MW','MB'})
+% ylabel('Corr No-Go')
+% title('Correctness by Mind-State')
+% xlim([0.2 3.8])
+% ylim([50 100])
+% legend(hb,{'Face','Square'})
+% 
+% subplot(2,2,3); format_fig;
+% for nst=1:3
+%     hb(1)=simpleBarPlot(nst-0.2,squeeze(rt_GO_byprobe_bysubj(:,1,nst)),state_colours(nst,:),0.35,'k');
+%     hb(2)=simpleBarPlot(nst+0.2,squeeze(rt_GO_byprobe_bysubj(:,2,nst)),[1 1 1 ; state_colours(nst,:)],0.35,'k');
+% end
+% set(gca,'XTick',1:3,'XTickLabel',{'On','MW','MB'})
+% ylabel('RT Go')
+% title('Reaction Time by Mind-State')
+% xlim([0.2 3.8])
+% ylim([0.2 0.6])
+% legend(hb,{'Face','Square'})
+% 
+% subplot(2,2,4); format_fig;
+% for nst=1:3
+%     hb(1)=simpleBarPlot(nst-0.2,squeeze(rt_NOGO_byprobe_bysubj(:,1,nst)),state_colours(nst,:),0.35,'k');
+%     hb(2)=simpleBarPlot(nst+0.2,squeeze(rt_NOGO_byprobe_bysubj(:,2,nst)),[1 1 1 ; state_colours(nst,:)],0.35,'k');
+% end
+% set(gca,'XTick',1:3,'XTickLabel',{'On','MW','MB'})
+% ylabel('RT No-Go')
+% title('Reaction Time by Mind-State')
+% xlim([0.2 3.8])
+% ylim([0.2 0.6])
+% legend(hb,{'Face','Square'})
+
+
+%cond_colours
+
+
+% figure;  set(gcf,'Position',[-29        1275        1218         412]);
+% subplot(2,2,1); format_fig;
+% for nst=1:3
+%     hb(1)=simpleBarPlot(nst-0.2,100*squeeze(corr_GO_byprobe_bysubj(:,1,nst)),state_colours(nst,:),0.35,'k');
+%     hb(2)=simpleBarPlot(nst+0.2,100*squeeze(corr_GO_byprobe_bysubj(:,2,nst)),[1 1 1 ; state_colours(nst,:)],0.35,'k');
+% end
+% set(gca,'XTick',1:3,'XTickLabel',{'On','MW','MB'})
+% ylabel('Corr Go')
+% title('Correctness by Mind-State')
+% xlim([0.2 3.8])
+% ylim([50 100])
+% legend(hb,{'Face','Square'})
+
+figure;  set(gcf,'Position',[-29        1275        1218         412]);
 subplot(2,2,1); format_fig;
+hb(1)=simpleBarPlot(0.6,100*squeeze(corr_GO_byprobe_bysubj(:,1,1)),state_colours(1,:),0.35,'k');
+hb(2)=simpleBarPlot(1.0,100*squeeze(corr_GO_byprobe_bysubj(:,1,2)),state_colours(2,:),0.35,'k');
+hb(3)=simpleBarPlot(1.4,100*squeeze(corr_GO_byprobe_bysubj(:,1,3)),state_colours(3,:),0.35,'k');
+hb(1)=simpleBarPlot(2.0,100*squeeze(corr_GO_byprobe_bysubj(:,2,1)),[1 1 1 ; state_colours(1,:)],0.35,'k');
+hb(2)=simpleBarPlot(2.4,100*squeeze(corr_GO_byprobe_bysubj(:,2,2)),[1 1 1 ; state_colours(2,:)],0.35,'k');
+hb(3)=simpleBarPlot(2.8,100*squeeze(corr_GO_byprobe_bysubj(:,2,3)),[1 1 1 ; state_colours(3,:)],0.35,'k');
+set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
+ylabel('Corr Go')
+title('Correctness by Task')
+xlim([0.2 4.4])
+ylim([90 100])
+legend(hb,{'ON','MW', 'MB'})
+
+subplot(2,2,2); format_fig;
+hb(1)=simpleBarPlot(0.6,100*squeeze(corr_NOGO_byprobe_bysubj(:,1,1)),state_colours(1,:),0.35,'k');
+hb(2)=simpleBarPlot(1.0,100*squeeze(corr_NOGO_byprobe_bysubj(:,1,2)),state_colours(2,:),0.35,'k');
+hb(3)=simpleBarPlot(1.4,100*squeeze(corr_NOGO_byprobe_bysubj(:,1,3)),state_colours(3,:),0.35,'k');
+hb(1)=simpleBarPlot(2.0,100*squeeze(corr_NOGO_byprobe_bysubj(:,2,1)),[1 1 1 ; state_colours(1,:)],0.35,'k');
+hb(2)=simpleBarPlot(2.4,100*squeeze(corr_NOGO_byprobe_bysubj(:,2,2)),[1 1 1 ; state_colours(2,:)],0.35,'k');
+hb(3)=simpleBarPlot(2.8,100*squeeze(corr_NOGO_byprobe_bysubj(:,2,3)),[1 1 1 ; state_colours(3,:)],0.35,'k');
+set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
+ylabel('Corr No-Go')
+title('Correctness by Task')
+xlim([0.2 4.4])
+ylim([50 80])
+legend(hb,{'ON','MW', 'MB'})
+
+subplot(2,2,3); format_fig;
+hb(1)=simpleBarPlot(0.6,100*squeeze(rt_GO_byprobe_bysubj(:,1,1)),state_colours(1,:),0.35,'k');
+hb(2)=simpleBarPlot(1.0,100*squeeze(rt_GO_byprobe_bysubj(:,1,2)),state_colours(2,:),0.35,'k');
+hb(3)=simpleBarPlot(1.4,100*squeeze(rt_GO_byprobe_bysubj(:,1,3)),state_colours(3,:),0.35,'k');
+hb(1)=simpleBarPlot(2.0,100*squeeze(rt_GO_byprobe_bysubj(:,2,1)),[1 1 1 ; state_colours(1,:)],0.35,'k');
+hb(2)=simpleBarPlot(2.4,100*squeeze(rt_GO_byprobe_bysubj(:,2,2)),[1 1 1 ; state_colours(2,:)],0.35,'k');
+hb(3)=simpleBarPlot(2.8,100*squeeze(rt_GO_byprobe_bysubj(:,2,3)),[1 1 1 ; state_colours(3,:)],0.35,'k');
+set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
+ylabel('RT Go')
+title('Reaction Time by Task')
+xlim([0.2 4.4])
+ylim([40 60])
+legend(hb,{'ON','MW', 'MB'})
+
+subplot(2,2,4); format_fig;
+hb(1)=simpleBarPlot(0.6,100*squeeze(rt_NOGO_byprobe_bysubj(:,1,1)),state_colours(1,:),0.35,'k');
+hb(2)=simpleBarPlot(1.0,100*squeeze(rt_NOGO_byprobe_bysubj(:,1,2)),state_colours(2,:),0.35,'k');
+hb(3)=simpleBarPlot(1.4,100*squeeze(rt_NOGO_byprobe_bysubj(:,1,3)),state_colours(3,:),0.35,'k');
+hb(1)=simpleBarPlot(2.0,100*squeeze(rt_NOGO_byprobe_bysubj(:,2,1)),[1 1 1 ; state_colours(1,:)],0.35,'k');
+hb(2)=simpleBarPlot(2.4,100*squeeze(rt_NOGO_byprobe_bysubj(:,2,2)),[1 1 1 ; state_colours(2,:)],0.35,'k');
+hb(3)=simpleBarPlot(2.8,100*squeeze(rt_NOGO_byprobe_bysubj(:,2,3)),[1 1 1 ; state_colours(3,:)],0.35,'k');
+set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
+ylabel('RT No-Go')
+title('Reaction Time by Task')
+xlim([0.2 4.4])
+ylim([30 50])
+legend(hb,{'ON','MW', 'MB'})
+
+
+% figure; set(gcf,'Position',[529   943   615   750]);
+% subplot(2,2,1); format_fig;
+% simpleBarPlot(1,100*corr_GO_byprobe_bysubj(:,1,1),state_colours(:,1),0.35,'k');
+% simpleBarPlot(2,100*corr_GO_byprobe_bysubj(:,1,2),state_colours(:,2),0.35,'k');
+% simpleBarPlot(3,100*corr_GO_byprobe_bysubj(:,1,3),state_colours(:,3),0.35,'k');
+% set(gca,'XTick',1:2,'XTickLabel',{'ON','MW','MB'})
+% ylabel('Perf. GO')
+% xlim([0.2 6])
+% ylim([40 100])
+% 
+% subplot(2,2,2); format_fig;
+% simpleBarPlot(1,100*corr_NOGO_byprobe_bysubj(:,1),cond_colours(1,:),0.9,'k');
+% simpleBarPlot(2,100*corr_NOGO_byprobe_bysubj(:,2),cond_colours(2,:),0.9,'k');
+% set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
+% ylabel('Perf. NO-GO')
+% xlim([0.2 2.8])
+% ylim([40 100])
+% 
+% subplot(2,2,3); format_fig;
+% simpleBarPlot(1,rt_GO_byprobe_bysubj(:,1),cond_colours(1,:),0.9,'k');
+% simpleBarPlot(2,rt_GO_byprobe_bysubj(:,2),cond_colours(2,:),0.9,'k');
+% set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
+% ylabel('Perf. GO')
+% xlim([0.2 2.8])
+% ylim([0 1])
+% 
+% subplot(2,2,4); format_fig;
+% simpleBarPlot(1,rt_NOGO_byprobe_bysubj(:,1),cond_colours(1,:),0.9,'k');
+% simpleBarPlot(2,rt_NOGO_byprobe_bysubj(:,2),cond_colours(2,:),0.9,'k');
+% set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
+% ylabel('Perf. NO-GO')
+% xlim([0.2 2.8])
+% ylim([0 1])
+
+
+
+%% Behaviour - Performance on SART
+
+figure; set(gcf,'Position',[529   943   615   750]);
+subplot(3,2,1); format_fig;
 simpleBarPlot(1,dprime_test(:,1),cond_colours(1,:),0.9,'k');
 simpleBarPlot(2,dprime_test(:,2),cond_colours(2,:),0.9,'k');
 set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
 ylabel('d-prime')
 xlim([0.2 2.8])
 
-subplot(2,2,2); format_fig;
+subplot(3,2,2); format_fig;
 simpleBarPlot(1,crit_test(:,1),cond_colours(1,:),0.9,'k');
 simpleBarPlot(2,crit_test(:,2),cond_colours(2,:),0.9,'k');
 set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
 ylabel('criterion')
 xlim([0.2 2.8])
 
-subplot(2,2,3); format_fig;
+subplot(3,2,3); format_fig;
 simpleBarPlot(1,100*corr_go(:,1),cond_colours(1,:),0.9,'k');
 simpleBarPlot(2,100*corr_go(:,2),cond_colours(2,:),0.9,'k');
 set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
 ylabel('Perf. GO')
 xlim([0.2 2.8])
-ylim([40 100])
+ylim([90 100])
 
-subplot(2,2,4); format_fig;
+subplot(3,2,4); format_fig;
 simpleBarPlot(1,100*corr_nogo(:,1),cond_colours(1,:),0.9,'k');
 simpleBarPlot(2,100*corr_nogo(:,2),cond_colours(2,:),0.9,'k');
 set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
 ylabel('Perf. NO-GO')
 xlim([0.2 2.8])
-ylim([40 100])
+ylim([50 80])
+
+subplot(3,2,5); format_fig;
+simpleBarPlot(1,rt_gos(:,1),cond_colours(1,:),0.9,'k');
+simpleBarPlot(2,rt_gos(:,2),cond_colours(2,:),0.9,'k');
+set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
+ylabel('RT. GO')
+xlim([0.2 2.8])
+ylim([0.5 0.6])
+
+subplot(3,2,6); format_fig;
+simpleBarPlot(1,rt_nogos(:,1),cond_colours(1,:),0.9,'k');
+simpleBarPlot(2,rt_nogos(:,2),cond_colours(2,:),0.9,'k');
+set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
+ylabel('RT. NO-GO')
+xlim([0.2 2.8])
+ylim([0.5 0.6])
+% 
+% figure; set(gcf,'Position',[529   943   615   750]);
+% subplot(2,2,1); format_fig;
+% simpleBarPlot(1,dprime_test(:,1),cond_colours(1,:),0.9,'k');
+% simpleBarPlot(2,dprime_test(:,2),cond_colours(2,:),0.9,'k');
+% set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
+% ylabel('d-prime')
+% xlim([0.2 2.8])
+% 
+% subplot(2,2,2); format_fig;
+% simpleBarPlot(1,crit_test(:,1),cond_colours(1,:),0.9,'k');
+% simpleBarPlot(2,crit_test(:,2),cond_colours(2,:),0.9,'k');
+% set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
+% ylabel('criterion')
+% xlim([0.2 2.8])
+% 
+% subplot(2,2,3); format_fig;
+% simpleBarPlot(1,100*corr_go(:,1),cond_colours(1,:),0.9,'k');
+% simpleBarPlot(2,100*corr_go(:,2),cond_colours(2,:),0.9,'k');
+% set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
+% ylabel('Perf. GO')
+% xlim([0.2 2.8])
+% ylim([40 100])
+% 
+% subplot(2,2,4); format_fig;
+% simpleBarPlot(1,100*corr_nogo(:,1),cond_colours(1,:),0.9,'k');
+% simpleBarPlot(2,100*corr_nogo(:,2),cond_colours(2,:),0.9,'k');
+% set(gca,'XTick',1:2,'XTickLabel',{'FACE','DIGIT'})
+% ylabel('Perf. NO-GO')
+% xlim([0.2 2.8])
+% ylim([40 100])
 
 %% Probes - % mind-state
 figure;  set(gcf,'Position',[-29        1275        1218         412]);
@@ -289,6 +499,14 @@ for nsta=1:3
     %     title('Looking')
     
 end
+
+%%
+figure; format_fig;
+radar_data=[nanmean(squeeze(mean(mean_byprobe_awa(:,:,:),2))); nanmean(squeeze(mean(mean_byprobe_wil(:,:,:),2))); nanmean(squeeze(mean(mean_byprobe_eng(:,:,:),2))); nanmean(squeeze(mean(mean_byprobe_prf(:,:,:),2))); nanmean(squeeze(mean(mean_byprobe_vig(:,:,:),2)))];
+%radar_colors={'r', 'g', 'b'};
+radar_colors={state_colours(1, :), state_colours(2, :), state_colours(3,:)};
+radarplot(transpose(radar_data), {'Engagement','Awareness','Intention','Vigilance','Performance'}, radar_colors, radar_colors);
+legend('on-tasks', 'mind-wandering', 'mind-blanking');
 
 %%
 tbl=array2table(all_test_resprobes_perblock,'VariableNames',{'SubID','nBlock','Task','Look','State','Ori','Awa','Wil','Enga','Perf','Vig'});
