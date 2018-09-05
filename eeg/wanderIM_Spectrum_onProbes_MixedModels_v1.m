@@ -167,21 +167,21 @@ pF2.State=reordercats(pF2.State,{'2','1','3'});
 pIM2.State=reordercats(pIM2.State,{'2','1','3'});
 p2F2.State=reordercats(p2F.State,{'2','1','3'});
 
-mdl_IM= fitlme(pIM,'SNR~Chan * State + (1| SubID)');
-mdl_F= fitlme(pF,'SNR~Chan * State + (1| SubID)');
-mdl_2F= fitlme(p2F,'SNR~Chan * State + (1| SubID)');
+mdl_IM= fitlme(pIM,'SNR~Chan * State + (1+State| SubID)');
+mdl_F= fitlme(pF,'SNR~Chan * State + (1+State| SubID)');
+mdl_2F= fitlme(p2F,'SNR~Chan * State + (1+State| SubID)');
 
-mdl2_IM= fitlme(pIM2,'SNR~Chan * State + (1| SubID)');
-mdl2_F= fitlme(pF2,'SNR~Chan * State + (1| SubID)');
-mdl2_2F= fitlme(p2F2,'SNR~Chan * State + (1| SubID)');
+mdl2_IM= fitlme(pIM2,'SNR~Chan * State + (1+State| SubID)');
+mdl2_F= fitlme(pF2,'SNR~Chan * State + (1+State| SubID)');
+mdl2_2F= fitlme(p2F2,'SNR~Chan * State + (1+State| SubID)');
 
-fullmdl_IM= fitlme(pIM,'SNR~Task * Chan * State + (1| SubID)');
-fullmdl_F= fitlme(pF,'SNR~Task * Chan * State + (1| SubID)');
-fullmdl_2F= fitlme(p2F,'SNR~Task * Chan * State + (1| SubID)');
+fullmdl_IM= fitlme(pIM,'SNR~Task * Chan * State + (1+State| SubID)');
+fullmdl_F= fitlme(pF,'SNR~Task * Chan * State + (1+State| SubID)');
+fullmdl_2F= fitlme(p2F,'SNR~Task * Chan * State + (1+State| SubID)');
 
-fullmdl2_IM= fitlme(pIM2,'SNR~Task * Chan * State + (1| SubID)');
-fullmdl2_F= fitlme(pF2,'SNR~Task * Chan * State + (1| SubID)');
-fullmdl2_2F= fitlme(p2F2,'SNR~Task * Chan * State + (1| SubID)');
+fullmdl2_IM= fitlme(pIM2,'SNR~Task * Chan * State + (1+State| SubID)');
+fullmdl2_F= fitlme(pF2,'SNR~Task * Chan * State + (1+State| SubID)');
+fullmdl2_2F= fitlme(p2F2,'SNR~Task * Chan * State + (1+State| SubID)');
 
 pF_Face=pF(pF.Task == "1",:);
 p2F_Face=p2F(p2F.Task == "1",:);
@@ -214,21 +214,21 @@ pIM2_Square.State=reordercats(pIM2_Square.State,{'2','1','3'});
 p2F2_Square.State=reordercats(p2F_Square.State,{'2','1','3'});
 
 
-face_mdl_IM= fitlme(pIM_Face,'SNR~Chan * State + (1| SubID)');
-face_mdl_F= fitlme(pF_Face,'SNR~Chan * State + (1| SubID)');
-face_mdl_2F= fitlme(p2F_Face,'SNR~Chan * State + (1| SubID)');
+face_mdl_IM= fitlme(pIM_Face,'SNR~Chan * State + (1+State| SubID)');
+face_mdl_F= fitlme(pF_Face,'SNR~Chan * State + (1+State| SubID)');
+face_mdl_2F= fitlme(p2F_Face,'SNR~Chan * State + (1+State| SubID)');
 
-face_mdl2_IM= fitlme(pIM2_Face,'SNR~Chan * State + (1| SubID)');
-face_mdl2_F= fitlme(pF2_Face,'SNR~Chan * State + (1| SubID)');
-face_mdl2_2F= fitlme(p2F2_Face,'SNR~Chan * State + (1| SubID)');
+face_mdl2_IM= fitlme(pIM2_Face,'SNR~Chan * State + (1+State| SubID)');
+face_mdl2_F= fitlme(pF2_Face,'SNR~Chan * State + (1+State| SubID)');
+face_mdl2_2F= fitlme(p2F2_Face,'SNR~Chan * State + (1+State| SubID)');
 
-square_mdl_IM= fitlme(pIM_Square,'SNR~Chan * State + (1| SubID)');
-square_mdl_F= fitlme(pF_Square,'SNR~Chan * State + (1| SubID)');
-square_mdl_2F= fitlme(p2F_Square,'SNR~Chan * State + (1| SubID)');
+square_mdl_IM= fitlme(pIM_Square,'SNR~Chan * State + (1+State| SubID)');
+square_mdl_F= fitlme(pF_Square,'SNR~Chan * State + (1+State| SubID)');
+square_mdl_2F= fitlme(p2F_Square,'SNR~Chan * State + (1+State| SubID)');
 
-square_mdl2_IM= fitlme(pIM2_Square,'SNR~Chan * State + (1| SubID)');
-square_mdl2_F= fitlme(pF2_Square,'SNR~Chan * State + (1| SubID)');
-square_mdl2_2F= fitlme(p2F2_Square,'SNR~Chan * State + (1| SubID)');
+square_mdl2_IM= fitlme(pIM2_Square,'SNR~Chan * State + (1+State| SubID)');
+square_mdl2_F= fitlme(pF2_Square,'SNR~Chan * State + (1+State| SubID)');
+square_mdl2_2F= fitlme(p2F2_Square,'SNR~Chan * State + (1+State| SubID)');
 
 load('../BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
 
@@ -585,6 +585,134 @@ MBvsONidx=find_trials(this_model.CoefficientNames,'^State_3:');
 pVal2=double(this_model2.Coefficients(:,6));
 beta2=double(this_model2.Coefficients(:,2));
 MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^State_3:');
+
+subplot(3,3,3); format_fig; 
+temp_topo=beta(MWvsONidx);
+temp_pV=pVal(MWvsONidx);
+temp_topo(temp_pV>0.05)=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MW vs ON - IM')
+caxis([-1 1]*0.5)
+colorbar;
+
+subplot(3,3,6); format_fig; 
+temp_topo=beta(MBvsONidx);
+temp_pV=pVal(MBvsONidx);
+temp_topo(temp_pV>0.05)=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MB vs ON - IM')
+caxis([-1 1]*0.5)
+colorbar;
+
+subplot(3,3,9); format_fig; 
+temp_topo=beta2(MWvsMBidx2);
+temp_pV=pVal2(MWvsMBidx2);
+temp_topo(temp_pV>0.05)=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MW vs MB - IM')
+caxis([-1 1]*0.5)
+colorbar;
+
+%% Interaction
+%%% F
+this_model=fullmdl_F;
+this_model2=fullmdl2_F;
+pVal=double(this_model.Coefficients(:,6));
+beta=double(this_model.Coefficients(:,2));
+MWvsONidx=find_trials(this_model.CoefficientNames,'^Task_2:Chan');
+MBvsONidx=find_trials(this_model.CoefficientNames,'^Task_2:Chan');
+
+pVal2=double(this_model2.Coefficients(:,6));
+beta2=double(this_model2.Coefficients(:,2));
+MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^Task_2:Chan');
+
+figure;
+subplot(3,3,1); format_fig; 
+temp_topo=beta(MWvsONidx);
+temp_pV=pVal(MWvsONidx);
+temp_topo(temp_pV>0.05)=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MW vs ON - F')
+caxis([-1 1]*0.5)
+colorbar;
+
+subplot(3,3,4); format_fig; 
+temp_topo=beta(MBvsONidx);
+temp_pV=pVal(MBvsONidx);
+temp_topo(temp_pV>0.05)=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MB vs ON - F')
+caxis([-1 1]*0.5)
+colorbar;
+
+subplot(3,3,7); format_fig; 
+temp_topo=beta2(MWvsMBidx2);
+temp_pV=pVal2(MWvsMBidx2);
+temp_topo(temp_pV>0.05)=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MW vs MB - F')
+caxis([-1 1]*0.5)
+colorbar;
+
+%%% 2F
+this_model=fullmdl_2F;
+this_model2=fullmdl2_2F;
+pVal=double(this_model.Coefficients(:,6));
+beta=double(this_model.Coefficients(:,2));
+MWvsONidx=find_trials(this_model.CoefficientNames,'^Task_2:Chan');
+MBvsONidx=find_trials(this_model.CoefficientNames,'^Task_2:Chan');
+
+pVal2=double(this_model2.Coefficients(:,6));
+beta2=double(this_model2.Coefficients(:,2));
+MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^Task_2:Chan');
+
+subplot(3,3,2); format_fig; 
+temp_topo=beta(MWvsONidx);
+temp_pV=pVal(MWvsONidx);
+temp_topo(temp_pV>0.05)=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MW vs ON - 2F')
+caxis([-1 1]*0.5)
+colorbar;
+
+subplot(3,3,5); format_fig; 
+temp_topo=beta(MBvsONidx);
+temp_pV=pVal(MBvsONidx);
+temp_topo(temp_pV>0.05)=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MB vs ON - 2F')
+caxis([-1 1]*0.5)
+colorbar;
+
+subplot(3,3,8); format_fig; 
+temp_topo=beta2(MWvsMBidx2);
+temp_pV=pVal2(MWvsMBidx2);
+temp_topo(temp_pV>0.05)=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MW vs MB - 2F')
+caxis([-1 1]*0.5)
+colorbar;
+
+%%% IM
+this_model=fullmdl_IM;
+this_model2=fullmdl2_IM;
+pVal=double(this_model.Coefficients(:,6));
+beta=double(this_model.Coefficients(:,2));
+MWvsONidx=find_trials(this_model.CoefficientNames,'^Task_2:Chan');
+MBvsONidx=find_trials(this_model.CoefficientNames,'^Task_2:Chan');
+
+pVal2=double(this_model2.Coefficients(:,6));
+beta2=double(this_model2.Coefficients(:,2));
+MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^Task_2:Chan');
 
 subplot(3,3,3); format_fig; 
 temp_topo=beta(MWvsONidx);

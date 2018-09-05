@@ -2,7 +2,7 @@
 clear all
 close all
 
-run localdef_wanderIM
+run ../localdef_wanderIM
 
 addpath(genpath(lscpTools_path))
 
@@ -140,14 +140,16 @@ for n=1:length(files)
             temp_testres=these_trials(these_trials(:,4)>last_pr_tridx & these_trials(:,4)<this_pr_tridx,:);
             %             temp_testres(1:round(size(temp_testres,1)/2),:)=[];
             tcorr_go=nanmean(temp_testres(:,12));
+            tcorr_go_rel=tcorr_go/corr_go(n,these_probes(npr,5));
             tcorr_nogo=nanmean(temp_testres(:,11));
+            tcorr_nogo_rel=tcorr_nogo/corr_nogo(n,these_probes(npr,5));
             num_go=sum(~isnan(temp_testres(:,12)));
             num_nogo=sum(~isnan(temp_testres(:,11)));
             rt_go=nanmean(temp_testres(~isnan(temp_testres(:,12)),10)-temp_testres(~isnan(temp_testres(:,12)),8));
             rt_nogo=nanmean(temp_testres(~isnan(temp_testres(:,11)),10)-temp_testres(~isnan(temp_testres(:,11)),8));
             
             tdp=calc_dprime((temp_testres(~isnan(temp_testres(:,12)),12)==1),(temp_testres(~isnan(temp_testres(:,11)),11)==0));
-            all_probes_mat=[all_probes_mat ; [n nbl these_probes(npr,5) these_probes(npr,32) npr tcorr_go tcorr_nogo num_go num_nogo tdp (these_probes(npr,37)) rt_go rt_nogo]];
+            all_probes_mat=[all_probes_mat ; [n nbl these_probes(npr,5) these_probes(npr,32) npr tcorr_go tcorr_nogo num_go num_nogo tdp (these_probes(npr,37)) rt_go rt_nogo tcorr_go*tcorr_nogo tcorr_go_rel*tcorr_nogo_rel]];
         end
     end
 end
@@ -170,7 +172,9 @@ for ns=1:length(mysub)
             
             n_GO_byprobe_bysubj(ns,nt,npr)=length(tp_probes_thistype(:,6));
             n_NOGO_byprobe_bysubj(ns,nt,npr)=length(tp_probes_thistype(:,7));
-        end
+        
+            prodCorr_byprobe_bysubj(ns,nt,npr)=nanmean(tp_probes_thistype(:,14));
+       end
     end
 end
 
@@ -186,6 +190,8 @@ for nt=1:2
         
         rt_GO_byprobe{npr,nt}=(tp_probes_thistype(:,12));
         rt_NOGO_byprobe{npr,nt}=(tp_probes_thistype(:,13));
+        
+        prodCorr_byprobe{npr,nt}=(tp_probes_thistype(:,15));
     end
 end
 %% Behaviour - Performance on SART
@@ -290,6 +296,48 @@ for nsta=1:3
     
 end
 
+%% Prod Correctness
+figure; format_fig;
+for nsta=1:3
+    subplot(1,2,1); format_fig;
+    temp=prodCorr_byprobe{nsta,1};
+    simpleBarPlot(nsta,temp,state_colours(nsta,:),0.9,'k');
+    xlim([0.2 3.8])
+    ylim([0.95 1.12])
+    set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
+    ylabel('Corr_G_o * Corr_N_o_G_o')
+    title('Face')
+    
+    subplot(1,2,2); format_fig;
+    temp=prodCorr_byprobe{nsta,2};
+    simpleBarPlot(nsta,temp,[1 1 1;state_colours(nsta,:)],0.9,'k');
+    xlim([0.2 3.8])
+    ylim([0.95 1.12])
+    set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
+    ylabel('Corr_G_o * Corr_N_o_G_o')
+    title('Digits')
+end
+
+% figure; format_fig;
+% for nsta=1:3
+%     subplot(1,2,1); format_fig;
+%     temp=squeeze(prodCorr_byprobe_bysubj(n_NOGO_byprobe_bysubj(:,1,nsta)>5,1,nsta));
+%     simpleBarPlot(nsta,temp,state_colours(nsta,:),0.9,'k');
+%     xlim([0.2 3.8])
+%     ylim([0.5 0.8])
+%     set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
+%     ylabel('Corr_G_o * Corr_N_o_G_o')
+%     title('Face')
+%     
+%     subplot(1,2,2); format_fig;
+%     temp=squeeze(prodCorr_byprobe_bysubj(min(n_NOGO_byprobe_bysubj(:,2,:),[],3)>5,2,nsta));
+%     simpleBarPlot(nsta,temp,[1 1 1;state_colours(nsta,:)],0.9,'k');
+%     xlim([0.2 3.8])
+%     ylim([0.5 0.8])
+%     set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
+%     ylabel('Corr_G_o * Corr_N_o_G_o')
+%     title('Digits')
+% end
 %%
 tbl=array2table(all_test_resprobes_perblock,'VariableNames',{'SubID','nBlock','Task','Look','State','Ori','Awa','Wil','Enga','Perf','Vig'});
 tbl.SubID=categorical(tbl.SubID);

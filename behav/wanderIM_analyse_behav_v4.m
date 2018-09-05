@@ -20,6 +20,8 @@ all_test_res=[];
 all_probes_timing=[];
 all_probes_mat=[];
 RTs=[];
+all_probes_mat_fullgo=[];
+all_probes_mat_fullnogo=[];
 for n=1:length(files)
     % load
     load([data_path filesep files(n).name]);
@@ -41,7 +43,7 @@ for n=1:length(files)
     % 12: go
     
     %%% cleaning too fast RTs
-    RTs=[RTs; test_res(:,10)-test_res(:,8)];
+    RTs=[test_res(:,10)-test_res(:,8)];
     %     findFalseStarts=find(test_res(:,10)-test_res(:,8)<0.1);
     %     test_res(findFalseStarts,[10 11 12])=NaN;
     %     warning('correcting for false starts')
@@ -139,8 +141,8 @@ for n=1:length(files)
             
             temp_testres=these_trials(these_trials(:,4)>last_pr_tridx & these_trials(:,4)<this_pr_tridx,:);
             %             temp_testres(1:round(size(temp_testres,1)/2),:)=[];
-            tcorr_go=nanmean(temp_testres(:,12));
-            tcorr_nogo=nanmean(temp_testres(:,11));
+            tcorr_go=nanmean(temp_testres(:,12));%/corr_go(n,these_probes(npr,5));
+            tcorr_nogo=nanmean(temp_testres(:,11));%/corr_nogo(n,these_probes(npr,5));
             num_go=sum(~isnan(temp_testres(:,12)));
             num_nogo=sum(~isnan(temp_testres(:,11)));
             rt_go=nanmean(temp_testres(~isnan(temp_testres(:,12)),10)-temp_testres(~isnan(temp_testres(:,12)),8));
@@ -148,10 +150,95 @@ for n=1:length(files)
             
             tdp=calc_dprime((temp_testres(~isnan(temp_testres(:,12)),12)==1),(temp_testres(~isnan(temp_testres(:,11)),11)==0));
             all_probes_mat=[all_probes_mat ; [n nbl these_probes(npr,5) these_probes(npr,32) npr tcorr_go tcorr_nogo num_go num_nogo tdp (these_probes(npr,37)) rt_go rt_nogo]];
+            
+            temp_testres=these_trials(these_trials(:,4)<this_pr_tridx & ~isnan(these_trials(:,12)),:);
+            tcorr_go=(temp_testres(end-19:end,12))';%/corr_go(n,these_probes(npr,5));
+             temp_testres=these_trials(these_trials(:,4)<this_pr_tridx & ~isnan(these_trials(:,11)),:);
+            tcorr_nogo=(temp_testres(end-1:end,11))';%/corr_go(n,these_probes(npr,5));
+            all_probes_mat_fullgo=[all_probes_mat_fullgo ; [n nbl these_probes(npr,5) these_probes(npr,32) npr tcorr_go]];
+            all_probes_mat_fullnogo=[all_probes_mat_fullnogo ; [n nbl these_probes(npr,5) these_probes(npr,32) npr tcorr_nogo]];
         end
     end
 end
 
+%% Performance before probes
+all_probes_mat_fullgo2=all_probes_mat_fullgo;
+all_probes_mat_fullnogo2=all_probes_mat_fullnogo;
+mysub=unique(all_probes_mat_fullgo2(:,1));
+for ns=1:length(mysub)
+    for nt=1:2
+        temp=all_probes_mat_fullgo2(all_probes_mat_fullgo2(:,1)==mysub(ns) & all_probes_mat_fullgo2(:,3)==nt,:);
+        temp2=mean(mean(temp(temp(:,4)==1,end-19:end)));
+        temp(:,end-19:end)=temp(:,end-19:end)./temp2;
+        all_probes_mat_fullgo2(all_probes_mat_fullgo2(:,1)==mysub(ns) & all_probes_mat_fullgo2(:,3)==nt,:)=temp;
+        
+        temp=all_probes_mat_fullnogo2(all_probes_mat_fullnogo2(:,1)==mysub(ns) & all_probes_mat_fullnogo2(:,3)==nt,:);
+        temp2=mean(mean(temp(temp(:,4)==1,end-1:end)));
+        temp(:,end-1:end)=temp(:,end-1:end)./temp2;
+        all_probes_mat_fullnogo2(all_probes_mat_fullnogo2(:,1)==mysub(ns) & all_probes_mat_fullnogo2(:,3)==nt,:)=temp;
+    end
+end
+% by taks
+for nt=1:2
+    % by probe type
+    for npr=1:3
+        tp_probes_thistype=all_probes_mat_fullgo2(all_probes_mat_fullgo2(:,4)==npr & all_probes_mat_fullgo2(:,3)==nt,:);
+        tp_probes_thistype2=all_probes_mat_fullnogo2(all_probes_mat_fullnogo2(:,4)==npr & all_probes_mat_fullnogo2(:,3)==nt,:);
+        
+        corr_GO_byprobe_full{npr,nt}=(tp_probes_thistype(:,end-19:end));
+        corr_NOGO_byprobe_full{npr,nt}=(tp_probes_thistype2(:,end-1:end));
+
+    end
+    
+    tp_probes_thistype=all_probes_mat_fullgo2(all_probes_mat_fullgo2(:,4)==npr,:);
+        tp_probes_thistype2=all_probes_mat_fullnogo2(all_probes_mat_fullnogo2(:,4)==npr,:);
+        
+        corr_GO_byprobe_full2{npr}=(tp_probes_thistype(:,end-19:end));
+        corr_NOGO_byprobe_full2{npr}=(tp_probes_thistype2(:,end-1:end));
+end
+
+% % %%% TASKS SEPARATED
+% % figure;
+% % task_names={'Face','Digit'};
+% % for ntask=1:2
+% %     subplot(2,2,ntask); format_fig; hold on;
+% %     for nstate=1:3
+% %         errorbar(-20:1:-1,mean(corr_GO_byprobe_full{nstate,ntask}),sem(corr_GO_byprobe_full{nstate,ntask}),'Color',state_colours(nstate,:));
+% %     end
+% %     set(gca,'XTick',-20:1:-1);
+% %     ylabel('Correctness GO')
+% %     xlabel('Trial number before probe'); xlim([-20.5 -0.5])
+% %             title(sprintf('%s - SEM across probes',task_names{ntask}))
+% % 
+% %     subplot(2,2,ntask+2); format_fig; hold on;
+% %     for nstate=1:3
+% %         errorbar(-2:1:-1,mean(corr_NOGO_byprobe_full{nstate,ntask}),sem(corr_NOGO_byprobe_full{nstate,ntask}),'Color',state_colours(nstate,:));
+% %     end
+% %     set(gca,'XTick',-2:1:-1);
+% %     ylabel('Correctness NOGO')
+% %         xlabel('Trial number before probe'); xlim([-2.5 -0.5])
+% %         title(sprintf('%s - SEM across probes',task_names{ntask}))
+% % 
+% % end
+
+figure;
+subplot(2,1,1); format_fig; hold on;
+for nstate=1:3
+    errorbar(-20:1:-1,mean(corr_GO_byprobe_full{nstate}),sem(corr_GO_byprobe_full{nstate}),'Color',state_colours(nstate,:));
+end
+set(gca,'XTick',-20:1:-1);
+ylabel('Norm. Correctness GO')
+xlabel('Trial number before probe'); xlim([-20.5 -0.5])
+title('Both Tasks - SEM across probes')
+
+subplot(2,1,2); format_fig; hold on;
+for nstate=1:3
+    errorbar(-2:1:-1,mean(corr_NOGO_byprobe_full{nstate}),sem(corr_NOGO_byprobe_full{nstate}),'Color',state_colours(nstate,:));
+end
+set(gca,'XTick',-2:1:-1);
+ylabel('Norm. Correctness NOGO')
+xlabel('Trial number before probe'); xlim([-2.5 -0.5])
+title('Both Tasks - SEM across probes')
 %% Average probe results across subjects
 mysub=unique(all_probes_mat(:,1));
 for ns=1:length(mysub)
@@ -175,17 +262,30 @@ for ns=1:length(mysub)
 end
 
 %% Average probe results across probes
+all_probes_mat2=[all_probes_mat all_probes_mat(:,[6 7])];
+all_probes_mat2=[all_probes_mat2 all_probes_mat(:,[12 13])];
+mysub=unique(all_probes_mat2(:,1));
+for ns=1:length(mysub)
+    for nt=1:2
+        temp=all_probes_mat2(all_probes_mat2(:,1)==mysub(ns) & all_probes_mat2(:,3)==nt,:);
+        temp2=mean(temp(temp(:,4)==1,[14 15]));
+        temp(:,[14 15])=temp(:,[14 15])./temp2;
+        temp3=mean(temp(temp(:,4)==1,[16 17]));
+        temp(:,[16 17])=temp(:,[16 17])./temp3;
+        all_probes_mat2(all_probes_mat2(:,1)==mysub(ns) & all_probes_mat2(:,3)==nt,:)=temp;
+    end
+end
 % by taks
 for nt=1:2
     % by probe type
     for npr=1:3
-        tp_probes_thistype=all_probes_mat(all_probes_mat(:,4)==npr & all_probes_mat(:,3)==nt,:);
+        tp_probes_thistype=all_probes_mat2(all_probes_mat2(:,4)==npr & all_probes_mat2(:,3)==nt,:);
         
-        corr_GO_byprobe{npr,nt}=(tp_probes_thistype(:,6));
-        corr_NOGO_byprobe{npr,nt}=(tp_probes_thistype(:,7));
+        corr_GO_byprobe{npr,nt}=(tp_probes_thistype(:,14));
+        corr_NOGO_byprobe{npr,nt}=(tp_probes_thistype(:,15));
         
-        rt_GO_byprobe{npr,nt}=(tp_probes_thistype(:,12));
-        rt_NOGO_byprobe{npr,nt}=(tp_probes_thistype(:,13));
+        rt_GO_byprobe{npr,nt}=(tp_probes_thistype(:,16));
+        rt_NOGO_byprobe{npr,nt}=(tp_probes_thistype(:,17));
     end
 end
 %% Behaviour - Performance on SART - BY MIND-STATE AVGD ACROSS PROBES & PARTICIPANTS
@@ -268,7 +368,7 @@ set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
 ylabel('Corr Go')
 title('Correctness by Task')
 xlim([0.2 4.4])
-ylim([90 100])
+% ylim([90 100])
 legend(hb,{'ON','MW', 'MB'})
 
 subplot(2,2,2); format_fig;
@@ -282,35 +382,93 @@ set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
 ylabel('Corr No-Go')
 title('Correctness by Task')
 xlim([0.2 4.4])
-ylim([50 80])
+% ylim([50 80])
 legend(hb,{'ON','MW', 'MB'})
 
 subplot(2,2,3); format_fig;
-hb(1)=simpleBarPlot(0.6,100*squeeze(rt_GO_byprobe_bysubj(:,1,1)),state_colours(1,:),0.35,'k');
-hb(2)=simpleBarPlot(1.0,100*squeeze(rt_GO_byprobe_bysubj(:,1,2)),state_colours(2,:),0.35,'k');
-hb(3)=simpleBarPlot(1.4,100*squeeze(rt_GO_byprobe_bysubj(:,1,3)),state_colours(3,:),0.35,'k');
-hb(1)=simpleBarPlot(2.0,100*squeeze(rt_GO_byprobe_bysubj(:,2,1)),[1 1 1 ; state_colours(1,:)],0.35,'k');
-hb(2)=simpleBarPlot(2.4,100*squeeze(rt_GO_byprobe_bysubj(:,2,2)),[1 1 1 ; state_colours(2,:)],0.35,'k');
-hb(3)=simpleBarPlot(2.8,100*squeeze(rt_GO_byprobe_bysubj(:,2,3)),[1 1 1 ; state_colours(3,:)],0.35,'k');
+hb(1)=simpleBarPlot(0.6,squeeze(rt_GO_byprobe_bysubj(:,1,1)),state_colours(1,:),0.35,'k');
+hb(2)=simpleBarPlot(1.0,squeeze(rt_GO_byprobe_bysubj(:,1,2)),state_colours(2,:),0.35,'k');
+hb(3)=simpleBarPlot(1.4,squeeze(rt_GO_byprobe_bysubj(:,1,3)),state_colours(3,:),0.35,'k');
+hb(1)=simpleBarPlot(2.0,squeeze(rt_GO_byprobe_bysubj(:,2,1)),[1 1 1 ; state_colours(1,:)],0.35,'k');
+hb(2)=simpleBarPlot(2.4,squeeze(rt_GO_byprobe_bysubj(:,2,2)),[1 1 1 ; state_colours(2,:)],0.35,'k');
+hb(3)=simpleBarPlot(2.8,squeeze(rt_GO_byprobe_bysubj(:,2,3)),[1 1 1 ; state_colours(3,:)],0.35,'k');
 set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
 ylabel('RT Go')
 title('Reaction Time by Task')
 xlim([0.2 4.4])
-ylim([40 60])
+ylim([40 60]/100)
 legend(hb,{'ON','MW', 'MB'})
 
 subplot(2,2,4); format_fig;
-hb(1)=simpleBarPlot(0.6,100*squeeze(rt_NOGO_byprobe_bysubj(:,1,1)),state_colours(1,:),0.35,'k');
-hb(2)=simpleBarPlot(1.0,100*squeeze(rt_NOGO_byprobe_bysubj(:,1,2)),state_colours(2,:),0.35,'k');
-hb(3)=simpleBarPlot(1.4,100*squeeze(rt_NOGO_byprobe_bysubj(:,1,3)),state_colours(3,:),0.35,'k');
-hb(1)=simpleBarPlot(2.0,100*squeeze(rt_NOGO_byprobe_bysubj(:,2,1)),[1 1 1 ; state_colours(1,:)],0.35,'k');
-hb(2)=simpleBarPlot(2.4,100*squeeze(rt_NOGO_byprobe_bysubj(:,2,2)),[1 1 1 ; state_colours(2,:)],0.35,'k');
-hb(3)=simpleBarPlot(2.8,100*squeeze(rt_NOGO_byprobe_bysubj(:,2,3)),[1 1 1 ; state_colours(3,:)],0.35,'k');
+hb(1)=simpleBarPlot(0.6,squeeze(rt_NOGO_byprobe_bysubj(:,1,1)),state_colours(1,:),0.35,'k');
+hb(2)=simpleBarPlot(1.0,squeeze(rt_NOGO_byprobe_bysubj(:,1,2)),state_colours(2,:),0.35,'k');
+hb(3)=simpleBarPlot(1.4,squeeze(rt_NOGO_byprobe_bysubj(:,1,3)),state_colours(3,:),0.35,'k');
+hb(1)=simpleBarPlot(2.0,squeeze(rt_NOGO_byprobe_bysubj(:,2,1)),[1 1 1 ; state_colours(1,:)],0.35,'k');
+hb(2)=simpleBarPlot(2.4,squeeze(rt_NOGO_byprobe_bysubj(:,2,2)),[1 1 1 ; state_colours(2,:)],0.35,'k');
+hb(3)=simpleBarPlot(2.8,squeeze(rt_NOGO_byprobe_bysubj(:,2,3)),[1 1 1 ; state_colours(3,:)],0.35,'k');
 set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
 ylabel('RT No-Go')
 title('Reaction Time by Task')
 xlim([0.2 4.4])
-ylim([30 50])
+ylim([30 50]/100)
+legend(hb,{'ON','MW', 'MB'})
+
+%%
+figure;  set(gcf,'Position',[-29        1275        1218         412]);
+subplot(2,2,1); format_fig;
+hb(1)=simpleBarPlot(0.6,100*squeeze(corr_GO_byprobe{1,1}),state_colours(1,:),0.35,'k');
+hb(2)=simpleBarPlot(1.0,100*squeeze(corr_GO_byprobe{2,1}),state_colours(2,:),0.35,'k');
+hb(3)=simpleBarPlot(1.4,100*squeeze(corr_GO_byprobe{3,1}),state_colours(3,:),0.35,'k');
+hb(1)=simpleBarPlot(2.0,100*squeeze(corr_GO_byprobe{1,2}),[1 1 1 ; state_colours(1,:)],0.35,'k');
+hb(2)=simpleBarPlot(2.4,100*squeeze(corr_GO_byprobe{2,2}),[1 1 1 ; state_colours(2,:)],0.35,'k');
+hb(3)=simpleBarPlot(2.8,100*squeeze(corr_GO_byprobe{3,2}),[1 1 1 ; state_colours(3,:)],0.35,'k');
+set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
+ylabel('Corr Go')
+title('Correctness by Task')
+xlim([0.2 4.4])
+ylim([98 102])
+legend(hb,{'ON','MW', 'MB'})
+
+subplot(2,2,2); format_fig;
+hb(1)=simpleBarPlot(0.6,100*squeeze(corr_NOGO_byprobe{1,1}),state_colours(1,:),0.35,'k');
+hb(2)=simpleBarPlot(1.0,100*squeeze(corr_NOGO_byprobe{2,1}),state_colours(2,:),0.35,'k');
+hb(3)=simpleBarPlot(1.4,100*squeeze(corr_NOGO_byprobe{3,1}),state_colours(3,:),0.35,'k');
+hb(1)=simpleBarPlot(2.0,100*squeeze(corr_NOGO_byprobe{1,2}),[1 1 1 ; state_colours(1,:)],0.35,'k');
+hb(2)=simpleBarPlot(2.4,100*squeeze(corr_NOGO_byprobe{2,2}),[1 1 1 ; state_colours(2,:)],0.35,'k');
+hb(3)=simpleBarPlot(2.8,100*squeeze(corr_NOGO_byprobe{3,2}),[1 1 1 ; state_colours(3,:)],0.35,'k');
+set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
+ylabel('Corr No-Go')
+title('Correctness by Task')
+xlim([0.2 4.4])
+ylim([75 110])
+legend(hb,{'ON','MW', 'MB'})
+
+subplot(2,2,3); format_fig;
+hb(1)=simpleBarPlot(0.6,squeeze(rt_GO_byprobe{1,1}),state_colours(1,:),0.35,'k');
+hb(2)=simpleBarPlot(1.0,squeeze(rt_GO_byprobe{2,1}),state_colours(2,:),0.35,'k');
+hb(3)=simpleBarPlot(1.4,squeeze(rt_GO_byprobe{3,1}),state_colours(3,:),0.35,'k');
+hb(1)=simpleBarPlot(2.0,squeeze(rt_GO_byprobe{1,2}),[1 1 1 ; state_colours(1,:)],0.35,'k');
+hb(2)=simpleBarPlot(2.4,squeeze(rt_GO_byprobe{2,2}),[1 1 1 ; state_colours(2,:)],0.35,'k');
+hb(3)=simpleBarPlot(2.8,squeeze(rt_GO_byprobe{3,2}),[1 1 1 ; state_colours(3,:)],0.35,'k');
+set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
+ylabel('RT Go')
+title('Reaction Time by Task')
+xlim([0.2 4.4])
+% ylim([40 60])
+legend(hb,{'ON','MW', 'MB'})
+
+subplot(2,2,4); format_fig;
+hb(1)=simpleBarPlot(0.6,squeeze(rt_NOGO_byprobe{1,1}),state_colours(1,:),0.35,'k');
+hb(2)=simpleBarPlot(1.0,squeeze(rt_NOGO_byprobe{1,1}),state_colours(2,:),0.35,'k');
+hb(3)=simpleBarPlot(1.4,squeeze(rt_NOGO_byprobe{3,1}),state_colours(3,:),0.35,'k');
+hb(1)=simpleBarPlot(2.0,squeeze(rt_NOGO_byprobe{1,2}),[1 1 1 ; state_colours(1,:)],0.35,'k');
+hb(2)=simpleBarPlot(2.4,squeeze(rt_NOGO_byprobe{2,2}),[1 1 1 ; state_colours(2,:)],0.35,'k');
+hb(3)=simpleBarPlot(2.8,squeeze(rt_NOGO_byprobe{3,2}),[1 1 1 ; state_colours(3,:)],0.35,'k');
+set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
+ylabel('RT No-Go')
+title('Reaction Time by Task')
+xlim([0.2 4.4])
+% ylim([30 50])
 legend(hb,{'ON','MW', 'MB'})
 
 

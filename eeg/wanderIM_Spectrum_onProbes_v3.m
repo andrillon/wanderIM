@@ -36,8 +36,8 @@ for n=1:length(bsl_files)
     param=[];
     param.method='fft'; % fast fourier transform
     param.mindist=1; % we want to be able to separate peaks separated by at least 1 Hz
-%     these_times=D.indsample(-20):D.indsample(0)-1;
-    these_times=D.indsample(0)+1:D.indsample(20);
+    these_times=D.indsample(-20):D.indsample(0)-1;
+%     these_times=D.indsample(0)+1:D.indsample(20);
     temp_data=D(1:63,these_times,:); % D contains the data with channels * time * trials
     
     [logSNR, faxis, logpow]=get_logSNR(temp_data,D.fsample,param);
@@ -53,6 +53,40 @@ for n=1:length(bsl_files)
     idx_trials=find_trials(D.conditions,'DT');
     onprobe_logSNR_DG(n,:,:)=mean(logSNR(:,:,idx_trials),3);
     onprobe_logPow_DG(n,:,:)=mean(logpow(:,:,idx_trials),3);
+    
+    for nT=1:2
+        if nT==1
+            idx_trials=find_trials(D.conditions,'FA');
+        elseif nT==2
+            idx_trials=find_trials(D.conditions,'DT');
+        end
+        temp_data=D(1:63,these_times,idx_trials); % D contains the data with channels * time * trials
+        % RESS logSNR
+        myFreqs=[6 7.5 12 15 13.5];
+        for nf=1:length(myFreqs)
+            paramRESS=[];
+            paramRESS.peakfreq1=myFreqs(nf);
+            paramRESS.peakwidt=0.2;
+            paramRESS.neighfreq=1;
+            paramRESS.neighwidt=1;
+            paramRESS.fft_res=0.1; %0.1 default
+            paramRESS.mindist=0.3; %0.5Hz default
+            paramRESS.lowerfreq=1; %2Hz default
+            [snrR, snrE, faxis2, maps, components]=get_logSNR_RESS(temp_data,D.fsample,paramRESS);
+            
+            param=[];
+            param.method='fft'; % fast fourier transform
+            param.mindist=1;
+            RESS_comp(1,:,:)=components;
+            [logSNR_comp, faxis_comp, logpow_comp]=get_logSNR(RESS_comp,D.fsample,param);
+            
+            onprobe_logSNR_RESS(n,nT,nf,:,:)=logSNR_comp;
+            onprobe_Comp_RESS(n,nT,nf,:,:)=components;
+            onprobe_Maps_RESS(n,nT,nf,:)=maps;
+        end
+        [logSNR_dat, faxis_dat, logpow_dat]=get_logSNR(temp_data,D.fsample,param);
+        onprobe_logSNR_chan(n,nT,:,:,:)=logSNR_dat;
+    end
 end
 
 %%
@@ -174,3 +208,22 @@ simpleTopoPlot2(mean(temp_topo,1), pos', labels,0,[],0,lay,[]);
 % caxis([-2 2])
 title('Alpha')
 
+
+%% Where are the tags on the scalp ?
+% retrieve the channels position
+load('../BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
+% pos=D.coor2D';
+% labels=D.chanlabels(1:63);
+figure;
+for nfre=1:5
+    subplot(2,5,nfre); format_fig; % left fondamental
+    temp_topo=(squeeze(mean(zscore(onprobe_Maps_RESS(:,1,nfre,:),[],4),1)));
+    simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
+    caxis([-1 1]*max(max((mean(zscore(onprobe_Maps_RESS(:,1,:,:),[],4),1)))))
+    % title('Left F')
+    
+    subplot(2,5,5+nfre); format_fig; % left fondamental
+    temp_topo=(squeeze(mean(zscore(onprobe_Maps_RESS(:,2,nfre,:),[],4),1)));
+    simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
+    caxis([-1 1]*max(max((mean(zscore(onprobe_Maps_RESS(:,2,:,:),[],4),1)))))
+end
