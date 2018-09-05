@@ -372,7 +372,7 @@ MWvsMBidx2=find_trials(mdl2_IM_F.CoefficientNames,'State_3:');
 
 load('BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
 figure;
-subplot(1,3,1); format_fig; 
+subplot(1,3,1); format_fig;     
 temp_topo=beta(MWvsONidx);
 temp_pV=pVal(MWvsONidx);
 temp_topo(temp_pV>0.05)=0;
