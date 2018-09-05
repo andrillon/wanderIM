@@ -54,7 +54,8 @@ for n=1:length(bsl_files)
     param=[];
     param.method='fft'; % fast fourier transform
     param.mindist=1; % we want to be able to separate peaks separated by at least 1 Hz
-    these_times=D.indsample(-20):D.indsample(0)-1;
+    these_times=D.indsample(-20):D.indsample(0)-1; %20s window
+%    these_times=D.indsample(-10):D.indsample(0)-1; %10s window
     temp_data=D(:,these_times,:); % D contains the data with channels * time * trials
     [logSNR, faxis, logpow]=get_logSNR(temp_data,D.fsample,param);
 
@@ -251,7 +252,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - IM')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,2); format_fig; 
 temp_topo=beta(MBvsONidx);
@@ -262,7 +262,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - IM')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,3); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
@@ -295,7 +294,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - F')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,2); format_fig; 
 temp_topo=beta(MBvsONidx);
@@ -306,7 +304,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - F')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,3); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
@@ -341,7 +338,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - 2F')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,2); format_fig; 
 temp_topo=beta(MBvsONidx);
@@ -352,7 +348,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - 2F')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,3); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
@@ -386,7 +381,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - IM - Faces')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,2); format_fig; 
 temp_topo=beta(MBvsONidx);
@@ -397,7 +391,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - IM - Faces')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,3); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
@@ -430,7 +423,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - F - Faces')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,2); format_fig; 
 temp_topo=beta(MBvsONidx);
@@ -441,7 +433,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - F - Faces')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,3); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
@@ -476,7 +467,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - 2F - Faces')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,2); format_fig; 
 temp_topo=beta(MBvsONidx);
@@ -487,7 +477,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - 2F - Faces')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,3); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
@@ -521,7 +510,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - IM - Digits')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,2); format_fig; 
 temp_topo=beta(MBvsONidx);
@@ -532,7 +520,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - IM - Digits')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,3); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
@@ -565,7 +552,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - F - Digits')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,2); format_fig; 
 temp_topo=beta(MBvsONidx);
@@ -576,7 +562,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - F - Digits')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,3); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
@@ -590,7 +575,7 @@ caxis([-1 1]*0.5)
 colorbar;
 
 
-%% 2F - Faces
+%% 2F - Digits
 pVal=double(mdl_2F_D.Coefficients(:,6));
 beta=double(mdl_2F_D.Coefficients(:,2));
 MWvsONidx=find_trials(mdl_2F_D.CoefficientNames,'State_2:');
@@ -611,7 +596,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - 2F - Digits')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,2); format_fig; 
 temp_topo=beta(MBvsONidx);
@@ -622,7 +606,6 @@ simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - 2F - Digits')
 caxis([-1 1]*0.5)
-colorbar;
 
 subplot(1,3,3); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
