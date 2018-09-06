@@ -1,3 +1,4 @@
+#### IMPORT DATA ####
 # -- NOTE
 # Data is extracted from qualtrics in legacy format as a csv file with numeric values
 
@@ -16,10 +17,45 @@ remove(Attention_Scales)
 rawdf <- read.delim("./data/output/Attention_Scales.txt")
 View(rawdf)
 
+# Import Manually scored Guilford's AUT data
+library(readr)
+Guilford_AUT <- read_csv("data/input/AUT Input R.csv")
+
+# Import OSPAN
+OSPAN.dat <- read_csv("data/input/automatedospan_summary_18_07_09.csv")
+
+#Import NAB data
+NAB.df <- read.delim("data/input/Shortened Participant Output.txt")
+View(NAB.df)
+as.factor(NAB.df$Participant_No)
+
+attach(NAB.df)
+myvars <- c("Participant_No", "EOY2017Rating", "Org.Tenure", "Position.Tenure", "EmployeeLevel")
+NAB.df <- NAB.df[myvars]
+detach(NAB.df)
+
+#Recode performance variable from nab.df
+library(stringr)
+numextract <- function(string){ 
+  str_extract(string, "\\-*\\d+\\.*\\d*")
+} 
+
+NAB.df$EOY2017Rating_num <- numextract(NAB.df$EOY2017Rating)
+
+NAB.df$EOY2017Rating_int[NAB.df$EOY2017Rating_num=="1"] <- 1
+NAB.df$EOY2017Rating_int[NAB.df$EOY2017Rating_num=="2"] <- 2
+NAB.df$EOY2017Rating_int[NAB.df$EOY2017Rating_num=="3"] <- 3
+NAB.df$EOY2017Rating_int[NAB.df$EOY2017Rating_num=="4"] <- 4
+NAB.df$EOY2017Rating_int[NAB.df$EOY2017Rating_num=="5"] <- 5
+
+as.numeric(NAB.df$EOY2017Rating_int)
+
 # -- Libraries
 library("car")
 library("dplyr")
 library("plyr")
+
+#### DATA CLEANING ####
 
 # --- Data cleaning
 #Demographics
@@ -158,7 +194,7 @@ rawdf$WDQ._.Knowledge_26 <- mapvalues(rawdf$WDQ._.Knowledge_26, from = c(1,2,3,4
 rawdf$WDQ._.Knowledge_27 <- mapvalues(rawdf$WDQ._.Knowledge_27, from = c(1,2,3,4,5), to = c(5,4,3,2,1))
 rawdf$WDQ._.Knowledge_28 <- mapvalues(rawdf$WDQ._.Knowledge_28, from = c(1,2,3,4,5), to = c(5,4,3,2,1))
 
-
+#### CALCULATIONS ####
 
 # -- Create calculated variables for the processing of scales
 #DASS numeric variables
@@ -274,6 +310,8 @@ Computed_Scales <- subset(rawdf, select = c(
   WDQ_Autonomy, WDQ_Task_Variety, WDQ_Task_Significance, WDQ_Job_Complexity, WDQ_Information_Processing, WDQ_Problem_Solving, WDQ_Skill_Variety, WDQ_Specialization, WDQ_Social_Support,
   EES_Emotional_Engagement, EES_Behavioural_Engagement, EES_Cognitive_Engagement, EES_Employee_Engagement
 ))
+
+#### EXPORT ####
 
 View(Computed_Scales)
 

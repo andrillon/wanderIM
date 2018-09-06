@@ -36,8 +36,8 @@ for n=1:length(bsl_files)
     param=[];
     param.method='fft'; % fast fourier transform
     param.mindist=1; % we want to be able to separate peaks separated by at least 1 Hz
-%     these_times=D.indsample(-20):D.indsample(0)-1;
-    these_times=D.indsample(0)+1:D.indsample(20);
+%    these_times=D.indsample(-20):D.indsample(0)-1; %before probe
+    these_times=D.indsample(0)+1:D.indsample(20); %after probe
     temp_data=D(1:63,these_times,:); % D contains the data with channels * time * trials
     
     [logSNR, faxis, logpow]=get_logSNR(temp_data,D.fsample,param);
@@ -57,13 +57,14 @@ end
 
 %%
 figure;
-subplot(1,2,1)
-plot(faxis,squeeze(mean(onprobe_logSNR(:,match_str(D.chanlabels,'Oz'),:),1)),'b')
+plot(faxis,squeeze(mean(onprobe_logSNR(:,match_str(D.chanlabels,'Oz'),:),1)),'b','linewidth',1.5)
 xlim([1 30])
+ylim([-1 3])
 
-subplot(1,2,2)
-plot(faxis,squeeze(nanmean(onprobe_logPow(:,match_str(D.chanlabels,'Oz'),:),1)),'r')
+figure;
+plot(faxis,squeeze(nanmean(onprobe_logPow(:,match_str(D.chanlabels,'Oz'),:),1)),'r','linewidth',1.5)
 xlim([1 30])
+ylim([6 12])
 
 %%
 figure;
@@ -172,7 +173,7 @@ format_fig;
 temp_topo=zscore(squeeze(mean(mean(onprobe_logPow(:,:,faxis>8 & faxis<11 & (faxis~=9 | faxis~=10.5)),3),1)));
 
 simpleTopoPlot2(mean(temp_topo,1), pos', labels,0,'parula',0,lay,[]);
-% caxis([-2 2])
+caxis([-2.5 2.5])
 title('Alpha')
 colorbar;
 
@@ -184,7 +185,7 @@ format_fig;
 temp_topo=zscore(squeeze(mean(mean(onprobe_logPow(:,:,faxis==6 | faxis==7.5),3),1)));
 
 simpleTopoPlot2(mean(temp_topo,1), pos', labels,0,'parula',0,lay,[]);
-% caxis([-2 2])
+caxis([-2.5 2.5])
 title('Fundamentals')
 colorbar;
 
@@ -196,7 +197,7 @@ format_fig;
 temp_topo=zscore(squeeze(mean(mean(onprobe_logPow(:,:,faxis==13.5),3),1)));
 
 simpleTopoPlot2(mean(temp_topo,1), pos', labels,0,'parula',0,lay,[]);
-% caxis([-2 2])
+caxis([-2.5 2.5])
 title('Intermodulation (F1 + F2)')
 colorbar;
 
