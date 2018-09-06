@@ -16,12 +16,13 @@ cond_colours=[0.9 0.55 0.2 ; 0.2 0.55 0.9];
 %load([data_path filesep 'CARS_quest'])
 %%
 all_behav_mat=[];
+all_behav_mat2=[];
 for n=1:length(files)
     % load
     load([data_path filesep files(n).name]);
     SubID=SubjectInfo.subID;
     fprintf('... %s\n',SubID)
-%    CARS_flag(n)=CARS_bool(CARS_bool(:,1)==str2num(SubID),2);
+    %    CARS_flag(n)=CARS_bool(CARS_bool(:,1)==str2num(SubID),2);
     % SART
     %  1: num block
     %  2: block cond (1: Faces / 2: Squares)
@@ -51,7 +52,19 @@ for n=1:length(files)
         rt_gos(n,nbt)=nanmean(RTs(test_res(:,2)==nbt & ~isnan(test_res(:,12))));
         rt_nogos(n,nbt)=nanmean(RTs(test_res(:,2)==nbt & ~isnan(test_res(:,11))));
     end
-    temp_behav1=[SubID corr_go(n,1) corr_go(n,2) corr_nogo(n,1) corr_nogo(n,2) rt_gos(n,1) rt_gos(n,2)];
+    temp_behav1=[];
+    temp_behav1(1,:)=[str2num(SubID) 1 corr_go(n,1) corr_nogo(n,1) rt_gos(n,1) dprime_test(n,1) crit_test(n,1)];
+    temp_behav1(2,:)=[str2num(SubID) 2 corr_go(n,2) corr_nogo(n,2) rt_gos(n,2) dprime_test(n,2) crit_test(n,2)];
+
+    tp_nogos=test_res(~isnan(test_res(:,11)),11);
+    tp_gos=test_res(~isnan(test_res(:,12)),12);
+    [dprime_test2, crit_test2]=calc_dprime((tp_gos==1),(tp_nogos==0));
+    corr_go2=nanmean(tp_gos);
+    corr_nogo2=nanmean(tp_nogos);
+    
+    rt_gos2=nanmean(RTs(test_res(:,2)==nbt & ~isnan(test_res(:,12))));
+    temp_behav1b=[str2num(SubID) 1 corr_go2 corr_nogo2 rt_gos2 dprime_test2 crit_test2];
+    
     % probe
     %  1: num probe within block
     %  2: probe onset (expected)
@@ -80,7 +93,68 @@ for n=1:length(files)
         pption_MS(n,nbt,:)=pption;
         pption_Ori(n,nbt,:)=pption2;
     end
-    temp_behav2=[squeeze(pption_MS(n,1,:)) squeeze(pption_MS(n,2,:))];
+    temp_behav2=[];
+    temp_behav2(1,:)=[squeeze(pption_MS(n,1,1:3))'];
+    temp_behav2(2,:)=[squeeze(pption_MS(n,2,1:3))'];
     all_behav_mat=[all_behav_mat ; [temp_behav1 temp_behav2]];
+    
+    temp_behav2b=squeeze(mean(pption_MS(n,:,1:3),2))';
+    all_behav_mat2=[all_behav_mat2 ; [temp_behav1b temp_behav2b]];
+end
+%%
+M = readtable([pwd '/../survey/data/output/' 'MWI_Computed_Scales.csv']);
+TBL=array2table(all_behav_mat,'VariableNames',{'Sub','Task','CorrGo','CorrNoGo','RTGo','dp','crit','ON','MW','MB'});
+
+for ncol=1:size(M,2)
+    if isnumeric(eval(sprintf('M.%s(1)',M.Properties.VariableNames{ncol})))
+        eval(sprintf('TBL.%s=nan(length(mysubs),1);',M.Properties.VariableNames{ncol}))
+    else
+        eval(sprintf('TBL.%s=cell(length(mysubs),1);',M.Properties.VariableNames{ncol}))
+        
+    end
 end
 
+mysubs=TBL.Sub;
+for ns=1:length(mysubs)
+    theserows=find(M.Participant_No==mysubs(ns));
+    for ncol=1:size(M,2)
+        eval(sprintf('TBL.%s(TBL.Sub==mysubs(ns))=M.%s(theserows);',M.Properties.VariableNames{ncol},M.Properties.VariableNames{ncol}))
+    end
+end
+
+lme_1= fitlme(TBL,'CorrGo~1+(1|Sub)');
+lme_2= fitlme(TBL,'CorrGo~1+Task+(1+Task|Sub)');
+% lme_3= fitlme(TBL,'CorrGo~1+Task+D2___Age+(1+Task+D2___Age|Sub)');
+% lme_4= fitlme(TBL,'CorrGo~1+Task+D1___Gender+(1+Task+D1___Gender|Sub)');
+TBL.D1___Gender=categorical(TBL.D1___Gender);
+TBL.D3___mindfulness=categorical(TBL.D3___mindfulness);
+TBL.D3___mindfulness=reordercats(TBL.D3___mindfulness,{'I have never practiced mindfulness','A few times per year or less','A few times per month','A few times per week'});
+%%
+fullformula='CorrNoGo~1+Task';
+allvarnames=TBL.Properties.VariableNames;
+for ncol=[10 11 13 14 19 21 29]
+    fullformula=[fullformula '+' allvarnames{ncol}];
+end
+fullformula=[fullformula '+(1|Sub)'];
+lme_full= fitlme(TBL,fullformula);
+
+%% Correlation approach
+TBL2=array2table(all_behav_mat2,'VariableNames',{'Sub','Task','CorrGo','CorrNoGo','RTGo','dp','crit','ON','MW','MB'});
+
+var_tests={'CorrGo','CorrNoGo','RTGo','dp','crit','ON','MW','MB'};
+for nrow=1:length(var_tests)
+    eval(sprintf('varia=TBL.%s;',var_tests{nrow}))
+    for ncol=1:size(M,2)
+        if isnumeric(eval(sprintf('M.%s(1)',M.Properties.VariableNames{ncol})))
+            eval(sprintf('predictor=TBL.%s;',M.Properties.VariableNames{ncol}))
+            [r, pV]=corr(varia,predictor,'type','spearman');
+            Mat_Coeff(nrow,ncol)=r;
+            Mat_PVal(nrow,ncol)=pV;
+        else
+            eval(sprintf('predictor=TBL.%s;',M.Properties.VariableNames{ncol}))
+            [p,anovatab,stats] = kruskalwallis(varia,predictor,'off');
+            Mat_Coeff(nrow,ncol)=anovatab{2,5};
+            Mat_PVal(nrow,ncol)=anovatab{2,6};
+        end
+    end
+end
