@@ -23,6 +23,10 @@ Guilford_AUT <- read_csv("data/input/AUT Input R.csv")
 
 # Import OSPAN
 OSPAN.dat <- read_csv("data/input/automatedospan_summary_18_07_09.csv")
+attach(OSPAN.dat)
+myvars <- c("script.subjectid", "values.ospan")
+OSPAN.dat <- OSPAN.dat[myvars]
+detach(OSPAN.dat)
 
 #Import NAB data
 NAB.df <- read.delim("data/input/Shortened Participant Output.txt")
@@ -41,14 +45,6 @@ numextract <- function(string){
 } 
 
 NAB.df$EOY2017Rating_num <- numextract(NAB.df$EOY2017Rating)
-
-NAB.df$EOY2017Rating_int[NAB.df$EOY2017Rating_num=="1"] <- 1
-NAB.df$EOY2017Rating_int[NAB.df$EOY2017Rating_num=="2"] <- 2
-NAB.df$EOY2017Rating_int[NAB.df$EOY2017Rating_num=="3"] <- 3
-NAB.df$EOY2017Rating_int[NAB.df$EOY2017Rating_num=="4"] <- 4
-NAB.df$EOY2017Rating_int[NAB.df$EOY2017Rating_num=="5"] <- 5
-
-as.numeric(NAB.df$EOY2017Rating_int)
 
 # -- Libraries
 library("car")
@@ -310,6 +306,14 @@ Computed_Scales <- subset(rawdf, select = c(
   WDQ_Autonomy, WDQ_Task_Variety, WDQ_Task_Significance, WDQ_Job_Complexity, WDQ_Information_Processing, WDQ_Problem_Solving, WDQ_Skill_Variety, WDQ_Specialization, WDQ_Social_Support,
   EES_Emotional_Engagement, EES_Behavioural_Engagement, EES_Cognitive_Engagement, EES_Employee_Engagement
 ))
+
+
+#### JOIN DATA FILES ####
+
+Computed_Scales <- merge(Computed_Scales, Guilford_AUT, by.x="Participant_No", by.y="ID")
+Computed_Scales <- merge(Computed_Scales, OSPAN.dat, by.x="Participant_No", by.y="script.subjectid")
+Computed_Scales <- merge(Computed_Scales,NAB.df, by.x="Participant_No", by.y="Participant_No")
+
 
 #### EXPORT ####
 
