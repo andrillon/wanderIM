@@ -104,6 +104,7 @@ end
 %%
 M = readtable([pwd '/../survey/data/output/' 'MWI_Computed_Scales.csv']);
 TBL=array2table(all_behav_mat,'VariableNames',{'Sub','Task','CorrGo','CorrNoGo','RTGo','dp','crit','ON','MW','MB'});
+mysubs=TBL.Sub;
 
 for ncol=1:size(M,2)
     if isnumeric(eval(sprintf('M.%s(1)',M.Properties.VariableNames{ncol})))
@@ -114,7 +115,6 @@ for ncol=1:size(M,2)
     end
 end
 
-mysubs=TBL.Sub;
 for ns=1:length(mysubs)
     theserows=find(M.Participant_No==mysubs(ns));
     for ncol=1:size(M,2)
@@ -148,6 +148,15 @@ for nrow=1:length(var_tests)
         if isnumeric(eval(sprintf('M.%s(1)',M.Properties.VariableNames{ncol})))
             eval(sprintf('predictor=TBL.%s;',M.Properties.VariableNames{ncol}))
             [r, pV]=corr(varia,predictor,'type','spearman');
+            Mat_Coeff(nrow,ncol)=r;
+            Mat_PVal(nrow,ncol)=pV;
+        elseif strcmp(M.Properties.VariableNames{ncol},'D3___mindfulness')
+            eval(sprintf('predictor=TBL.%s;',M.Properties.VariableNames{ncol}))
+            predictor2(match_str(predictor,'I have never practiced mindfulness'))=1;
+            predictor2(match_str(predictor,'A few times per year or less'))=2;
+            predictor2(match_str(predictor,'A few times per month'))=3;
+            predictor2(match_str(predictor,'A few times per week'))=4;
+            [r, pV]=corr(varia,predictor2','type','spearman');
             Mat_Coeff(nrow,ncol)=r;
             Mat_PVal(nrow,ncol)=pV;
         else
