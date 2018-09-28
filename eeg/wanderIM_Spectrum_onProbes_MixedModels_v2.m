@@ -121,12 +121,14 @@ for n=1:length(bsl_files)
             % add alpha
             for nE=0:63
                 if nE>0
-                    temp_PWR=squeeze(mean(logpow(nE,(faxis>=8 & faxis<10.3 | (faxis>10.7 & faxis<=11)) ,idx_probe_eeg),2));
-                    temp_EEGres=[temp_EEGres ; temp_PWR];
+                    temp_PWR=polyarea([faxis(faxis==8) faxis((faxis>=8 & faxis<10.3) | (faxis>10.7 & faxis<=11.5)) faxis(faxis==11.5)],...
+                        [0 squeeze(logpow(nE,(faxis>=8 & faxis<10.3) | (faxis>10.7 & faxis<=11.5) ,idx_probe_eeg)) 0]);
+                    temp_PWR0=polyarea([faxis(faxis==8) faxis(faxis==8) faxis(faxis==11.5) faxis(faxis==11.5)],...
+                        [0 squeeze(logpow(nE,(faxis==8) ,idx_probe_eeg)) squeeze(logpow(nE,(faxis==11.5) ,idx_probe_eeg)) 0]);
+                    temp_EEGres=[temp_EEGres ; temp_PWR-temp_PWR0];
                     temp_EEGgroup=[temp_EEGgroup ; [length(FOI)+1 nE]];
                 else
-                    temp_PWR=squeeze(mean(mean(logpow(:,(faxis>=8 & faxis<10.3 | (faxis>10.7 & faxis<=11)) ,idx_probe_eeg),2),1));
-                    temp_EEGres=[temp_EEGres ; temp_PWR];
+                    temp_EEGres=[temp_EEGres ; 0];
                     temp_EEGgroup=[temp_EEGgroup ; [length(FOI)+1 nE]];
                 end
             end
@@ -198,10 +200,12 @@ mdl2_A= fitlme(pA2,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
 fullmdl_IM= fitlme(pIM,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
 fullmdl_F= fitlme(pF,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
 fullmdl_2F= fitlme(p2F,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
+fullmdl_A= fitlme(pA,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
 
 fullmdl2_IM= fitlme(pIM2,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
 fullmdl2_F= fitlme(pF2,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
 fullmdl2_2F= fitlme(p2F2,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
+fullmdl2_A= fitlme(pA2,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
 
 pF_Face=pF(pF.Task == "1",:);
 p2F_Face=p2F(p2F.Task == "1",:);
@@ -264,7 +268,71 @@ square_mdl2_A= fitlme(pA2_Square,'SNR~Chan * State + nBlock + nProbe + (1+State|
 
 load('../BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
 
-%% Both task together
+%% Check Topos
+stat_thr=0.01;
+
+this_model=fullmdl_F;
+pVal=double(this_model.Coefficients(:,6));
+beta=double(this_model.Coefficients(:,2));
+ChanIdx=find_trials(this_model.CoefficientNames,'^Chan');
+
+figure;
+subplot(2,2,1); format_fig; 
+temp_topo=beta(ChanIdx);
+temp_pV=pVal(ChanIdx);
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('F')
+caxis([-1 1]*0.5)
+colorbar;
+
+this_model=fullmdl_2F;
+pVal=double(this_model.Coefficients(:,6));
+beta=double(this_model.Coefficients(:,2));
+ChanIdx=find_trials(this_model.CoefficientNames,'^Chan');
+
+subplot(2,2,2); format_fig; 
+temp_topo=beta(ChanIdx);
+temp_pV=pVal(ChanIdx);
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('2F')
+caxis([-1 1]*0.5)
+colorbar;
+
+this_model=fullmdl_IM;
+pVal=double(this_model.Coefficients(:,6));
+beta=double(this_model.Coefficients(:,2));
+ChanIdx=find_trials(this_model.CoefficientNames,'^Chan');
+
+subplot(2,2,3); format_fig; 
+temp_topo=beta(ChanIdx);
+temp_pV=pVal(ChanIdx);
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('IM')
+caxis([-1 1]*0.5)
+colorbar;
+
+this_model=fullmdl_A;
+pVal=double(this_model.Coefficients(:,6));
+beta=double(this_model.Coefficients(:,2));
+ChanIdx=find_trials(this_model.CoefficientNames,'^Chan');
+
+subplot(2,2,4); format_fig; 
+temp_topo=beta(ChanIdx);
+temp_pV=pVal(ChanIdx);
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('A')
+caxis([-1 1]*0.5)
+colorbar;
+
+%% For Both Task
 %%% F
 this_model=mdl_F;
 this_model2=mdl2_F;
@@ -281,7 +349,7 @@ figure;
 subplot(3,3,1); format_fig; 
 temp_topo=beta(MWvsONidx);
 temp_pV=pVal(MWvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - F')
@@ -291,7 +359,7 @@ colorbar;
 subplot(3,3,4); format_fig; 
 temp_topo=beta(MBvsONidx);
 temp_pV=pVal(MBvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - F')
@@ -301,52 +369,10 @@ colorbar;
 subplot(3,3,7); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
 temp_pV=pVal2(MWvsMBidx2);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs MB - F')
-caxis([-1 1]*0.5)
-colorbar;
-
-%%% 2F
-this_model=mdl_2F;
-this_model2=mdl2_2F;
-pVal=double(this_model.Coefficients(:,6));
-beta=double(this_model.Coefficients(:,2));
-MWvsONidx=find_trials(this_model.CoefficientNames,'^State_2:');
-MBvsONidx=find_trials(this_model.CoefficientNames,'^State_3:');
-
-pVal2=double(this_model2.Coefficients(:,6));
-beta2=double(this_model2.Coefficients(:,2));
-MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^State_3:');
-
-subplot(3,3,2); format_fig; 
-temp_topo=beta(MWvsONidx);
-temp_pV=pVal(MWvsONidx);
-temp_topo(temp_pV>0.05)=0;
-simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
-caxis([-1 1])
-title('MW vs ON - 2F')
-caxis([-1 1]*0.5)
-colorbar;
-
-subplot(3,3,5); format_fig; 
-temp_topo=beta(MBvsONidx);
-temp_pV=pVal(MBvsONidx);
-temp_topo(temp_pV>0.05)=0;
-simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
-caxis([-1 1])
-title('MB vs ON - 2F')
-caxis([-1 1]*0.5)
-colorbar;
-
-subplot(3,3,8); format_fig; 
-temp_topo=beta2(MWvsMBidx2);
-temp_pV=pVal2(MWvsMBidx2);
-temp_topo(temp_pV>0.05)=0;
-simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
-caxis([-1 1])
-title('MW vs MB - 2F')
 caxis([-1 1]*0.5)
 colorbar;
 
@@ -362,35 +388,78 @@ pVal2=double(this_model2.Coefficients(:,6));
 beta2=double(this_model2.Coefficients(:,2));
 MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^State_3:');
 
-subplot(3,3,3); format_fig; 
+subplot(3,3,2); format_fig; 
 temp_topo=beta(MWvsONidx);
 temp_pV=pVal(MWvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - IM')
 caxis([-1 1]*0.5)
 colorbar;
 
-subplot(3,3,6); format_fig; 
+subplot(3,3,5); format_fig; 
 temp_topo=beta(MBvsONidx);
 temp_pV=pVal(MBvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - IM')
 caxis([-1 1]*0.5)
 colorbar;
 
-subplot(3,3,9); format_fig; 
+subplot(3,3,8); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
 temp_pV=pVal2(MWvsMBidx2);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs MB - IM')
 caxis([-1 1]*0.5)
 colorbar;
+
+%%% A
+this_model=mdl_A;
+this_model2=mdl2_A;
+pVal=double(this_model.Coefficients(:,6));
+beta=double(this_model.Coefficients(:,2));
+MWvsONidx=find_trials(this_model.CoefficientNames,'^State_2:');
+MBvsONidx=find_trials(this_model.CoefficientNames,'^State_3:');
+
+pVal2=double(this_model2.Coefficients(:,6));
+beta2=double(this_model2.Coefficients(:,2));
+MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^State_3:');
+
+subplot(3,3,3); format_fig; 
+temp_topo=beta(MWvsONidx);
+temp_pV=pVal(MWvsONidx);
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MW vs ON - Alpha')
+caxis([-1 1]*0.5)
+colorbar;
+
+subplot(3,3,6); format_fig; 
+temp_topo=beta(MBvsONidx);
+temp_pV=pVal(MBvsONidx);
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MB vs ON - Alpha')
+caxis([-1 1]*0.5)
+colorbar;
+
+subplot(3,3,9); format_fig; 
+temp_topo=beta2(MWvsMBidx2);
+temp_pV=pVal2(MWvsMBidx2);
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MW vs MB - Alpha')
+caxis([-1 1]*0.5)
+colorbar;
+
 
 %% For Face Task
 %%% F
@@ -409,7 +478,7 @@ figure;
 subplot(3,3,1); format_fig; 
 temp_topo=beta(MWvsONidx);
 temp_pV=pVal(MWvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - F')
@@ -419,7 +488,7 @@ colorbar;
 subplot(3,3,4); format_fig; 
 temp_topo=beta(MBvsONidx);
 temp_pV=pVal(MBvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - F')
@@ -429,52 +498,10 @@ colorbar;
 subplot(3,3,7); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
 temp_pV=pVal2(MWvsMBidx2);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs MB - F')
-caxis([-1 1]*0.5)
-colorbar;
-
-%%% 2F
-this_model=face_mdl_2F;
-this_model2=face_mdl2_2F;
-pVal=double(this_model.Coefficients(:,6));
-beta=double(this_model.Coefficients(:,2));
-MWvsONidx=find_trials(this_model.CoefficientNames,'^State_2:');
-MBvsONidx=find_trials(this_model.CoefficientNames,'^State_3:');
-
-pVal2=double(this_model2.Coefficients(:,6));
-beta2=double(this_model2.Coefficients(:,2));
-MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^State_3:');
-
-subplot(3,3,2); format_fig; 
-temp_topo=beta(MWvsONidx);
-temp_pV=pVal(MWvsONidx);
-temp_topo(temp_pV>0.05)=0;
-simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
-caxis([-1 1])
-title('MW vs ON - 2F')
-caxis([-1 1]*0.5)
-colorbar;
-
-subplot(3,3,5); format_fig; 
-temp_topo=beta(MBvsONidx);
-temp_pV=pVal(MBvsONidx);
-temp_topo(temp_pV>0.05)=0;
-simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
-caxis([-1 1])
-title('MB vs ON - 2F')
-caxis([-1 1]*0.5)
-colorbar;
-
-subplot(3,3,8); format_fig; 
-temp_topo=beta2(MWvsMBidx2);
-temp_pV=pVal2(MWvsMBidx2);
-temp_topo(temp_pV>0.05)=0;
-simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
-caxis([-1 1])
-title('MW vs MB - 2F')
 caxis([-1 1]*0.5)
 colorbar;
 
@@ -490,33 +517,75 @@ pVal2=double(this_model2.Coefficients(:,6));
 beta2=double(this_model2.Coefficients(:,2));
 MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^State_3:');
 
-subplot(3,3,3); format_fig; 
+subplot(3,3,2); format_fig; 
 temp_topo=beta(MWvsONidx);
 temp_pV=pVal(MWvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - IM')
 caxis([-1 1]*0.5)
 colorbar;
 
-subplot(3,3,6); format_fig; 
+subplot(3,3,5); format_fig; 
 temp_topo=beta(MBvsONidx);
 temp_pV=pVal(MBvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - IM')
 caxis([-1 1]*0.5)
 colorbar;
 
-subplot(3,3,9); format_fig; 
+subplot(3,3,8); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
 temp_pV=pVal2(MWvsMBidx2);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs MB - IM')
+caxis([-1 1]*0.5)
+colorbar;
+
+%%% IM
+this_model=face_mdl_A;
+this_model2=face_mdl2_A;
+pVal=double(this_model.Coefficients(:,6));
+beta=double(this_model.Coefficients(:,2));
+MWvsONidx=find_trials(this_model.CoefficientNames,'^State_2:');
+MBvsONidx=find_trials(this_model.CoefficientNames,'^State_3:');
+
+pVal2=double(this_model2.Coefficients(:,6));
+beta2=double(this_model2.Coefficients(:,2));
+MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^State_3:');
+
+subplot(3,3,3); format_fig; 
+temp_topo=beta(MWvsONidx);
+temp_pV=pVal(MWvsONidx);
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MW vs ON - Alpha')
+caxis([-1 1]*0.5)
+colorbar;
+
+subplot(3,3,6); format_fig; 
+temp_topo=beta(MBvsONidx);
+temp_pV=pVal(MBvsONidx);
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MB vs ON - Alpha')
+caxis([-1 1]*0.5)
+colorbar;
+
+subplot(3,3,9); format_fig; 
+temp_topo=beta2(MWvsMBidx2);
+temp_pV=pVal2(MWvsMBidx2);
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MW vs MB - Alpha')
 caxis([-1 1]*0.5)
 colorbar;
 
@@ -537,7 +606,7 @@ figure;
 subplot(3,3,1); format_fig; 
 temp_topo=beta(MWvsONidx);
 temp_pV=pVal(MWvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - F')
@@ -547,7 +616,7 @@ colorbar;
 subplot(3,3,4); format_fig; 
 temp_topo=beta(MBvsONidx);
 temp_pV=pVal(MBvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - F')
@@ -557,52 +626,10 @@ colorbar;
 subplot(3,3,7); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
 temp_pV=pVal2(MWvsMBidx2);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs MB - F')
-caxis([-1 1]*0.5)
-colorbar;
-
-%%% 2F
-this_model=square_mdl_2F;
-this_model2=square_mdl2_2F;
-pVal=double(this_model.Coefficients(:,6));
-beta=double(this_model.Coefficients(:,2));
-MWvsONidx=find_trials(this_model.CoefficientNames,'^State_2:');
-MBvsONidx=find_trials(this_model.CoefficientNames,'^State_3:');
-
-pVal2=double(this_model2.Coefficients(:,6));
-beta2=double(this_model2.Coefficients(:,2));
-MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^State_3:');
-
-subplot(3,3,2); format_fig; 
-temp_topo=beta(MWvsONidx);
-temp_pV=pVal(MWvsONidx);
-temp_topo(temp_pV>0.05)=0;
-simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
-caxis([-1 1])
-title('MW vs ON - 2F')
-caxis([-1 1]*0.5)
-colorbar;
-
-subplot(3,3,5); format_fig; 
-temp_topo=beta(MBvsONidx);
-temp_pV=pVal(MBvsONidx);
-temp_topo(temp_pV>0.05)=0;
-simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
-caxis([-1 1])
-title('MB vs ON - 2F')
-caxis([-1 1]*0.5)
-colorbar;
-
-subplot(3,3,8); format_fig; 
-temp_topo=beta2(MWvsMBidx2);
-temp_pV=pVal2(MWvsMBidx2);
-temp_topo(temp_pV>0.05)=0;
-simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
-caxis([-1 1])
-title('MW vs MB - 2F')
 caxis([-1 1]*0.5)
 colorbar;
 
@@ -618,33 +645,75 @@ pVal2=double(this_model2.Coefficients(:,6));
 beta2=double(this_model2.Coefficients(:,2));
 MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^State_3:');
 
-subplot(3,3,3); format_fig; 
+subplot(3,3,2); format_fig; 
 temp_topo=beta(MWvsONidx);
 temp_pV=pVal(MWvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - IM')
 caxis([-1 1]*0.5)
 colorbar;
 
-subplot(3,3,6); format_fig; 
+subplot(3,3,5); format_fig; 
 temp_topo=beta(MBvsONidx);
 temp_pV=pVal(MBvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - IM')
 caxis([-1 1]*0.5)
 colorbar;
 
-subplot(3,3,9); format_fig; 
+subplot(3,3,8); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
 temp_pV=pVal2(MWvsMBidx2);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs MB - IM')
+caxis([-1 1]*0.5)
+colorbar;
+
+%%% IM
+this_model=square_mdl_A;
+this_model2=square_mdl2_A;
+pVal=double(this_model.Coefficients(:,6));
+beta=double(this_model.Coefficients(:,2));
+MWvsONidx=find_trials(this_model.CoefficientNames,'^State_2:');
+MBvsONidx=find_trials(this_model.CoefficientNames,'^State_3:');
+
+pVal2=double(this_model2.Coefficients(:,6));
+beta2=double(this_model2.Coefficients(:,2));
+MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^State_3:');
+
+subplot(3,3,3); format_fig; 
+temp_topo=beta(MWvsONidx);
+temp_pV=pVal(MWvsONidx);
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MW vs ON - Alpha')
+caxis([-1 1]*0.5)
+colorbar;
+
+subplot(3,3,6); format_fig; 
+temp_topo=beta(MBvsONidx);
+temp_pV=pVal(MBvsONidx);
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MB vs ON - Alpha')
+caxis([-1 1]*0.5)
+colorbar;
+
+subplot(3,3,9); format_fig; 
+temp_topo=beta2(MWvsMBidx2);
+temp_pV=pVal2(MWvsMBidx2);
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+caxis([-1 1])
+title('MW vs MB - Alpha')
 caxis([-1 1]*0.5)
 colorbar;
 
@@ -665,7 +734,7 @@ figure;
 subplot(3,3,1); format_fig; 
 temp_topo=beta(MWvsONidx);
 temp_pV=pVal(MWvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - F')
@@ -675,7 +744,7 @@ colorbar;
 subplot(3,3,4); format_fig; 
 temp_topo=beta(MBvsONidx);
 temp_pV=pVal(MBvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - F')
@@ -685,7 +754,7 @@ colorbar;
 subplot(3,3,7); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
 temp_pV=pVal2(MWvsMBidx2);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs MB - F')
@@ -707,7 +776,7 @@ MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^Task_2:Chan');
 subplot(3,3,2); format_fig; 
 temp_topo=beta(MWvsONidx);
 temp_pV=pVal(MWvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - 2F')
@@ -717,7 +786,7 @@ colorbar;
 subplot(3,3,5); format_fig; 
 temp_topo=beta(MBvsONidx);
 temp_pV=pVal(MBvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - 2F')
@@ -727,7 +796,7 @@ colorbar;
 subplot(3,3,8); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
 temp_pV=pVal2(MWvsMBidx2);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs MB - 2F')
@@ -749,7 +818,7 @@ MWvsMBidx2=find_trials(this_model2.CoefficientNames,'^Task_2:Chan');
 subplot(3,3,3); format_fig; 
 temp_topo=beta(MWvsONidx);
 temp_pV=pVal(MWvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs ON - IM')
@@ -759,7 +828,7 @@ colorbar;
 subplot(3,3,6); format_fig; 
 temp_topo=beta(MBvsONidx);
 temp_pV=pVal(MBvsONidx);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MB vs ON - IM')
@@ -769,7 +838,7 @@ colorbar;
 subplot(3,3,9); format_fig; 
 temp_topo=beta2(MWvsMBidx2);
 temp_pV=pVal2(MWvsMBidx2);
-temp_topo(temp_pV>0.05)=0;
+temp_topo(temp_pV>fdr(temp_pV,0.05))=0;
 simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1])
 title('MW vs MB - IM')
