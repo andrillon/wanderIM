@@ -133,7 +133,9 @@ for n=1:length(files)
             tcorr_perf=min(temp_testres(:,11:12),[],2);
             tcorr_catTr=(temp_testres(:,5)==temp_testres(:,6)); %0 for go, 1 for nogo
             tcorr_RT=temp_testres(:,10)-temp_testres(:,8);
-            tcorr_distPr=-size(temp_testres,1):1:-1;
+            tcorr_distPr=nan(1,length(tcorr_catTr));
+            tcorr_distPr(tcorr_catTr==1)=-sum(tcorr_catTr==1):1:-1;
+            tcorr_distPr(tcorr_catTr==0)=-sum(tcorr_catTr==0):1:-1;
             % Colum order:
             all_probes_headers={'SubID','nBlock','Task','nTrial','Look','State','Orig','Awa','Int','Eng','Perf','Vig','Corr','RT','TrCat','DistProbe'};
             all_probes_mat=[all_probes_mat ; [repmat([str2num(SubID) nbl these_probes(npr,5) this_pr_tridx probe_details],size(temp_testres,1),1) tcorr_perf tcorr_RT tcorr_catTr tcorr_distPr']];
