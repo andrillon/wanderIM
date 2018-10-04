@@ -1,7 +1,7 @@
 %% Init
 clear all;
 close all;
-run ../localdef_wanderIM
+run localdef_wanderIM
 
 % adding relevant toolboxes to the path
 % spm12 and LSCPtools
@@ -124,3 +124,4 @@ for nfre=1:5
     simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
     caxis([-1 1]*max(max((mean(baseline_Maps_RESS(:,2,:,:),1))))/2)
 end
+
