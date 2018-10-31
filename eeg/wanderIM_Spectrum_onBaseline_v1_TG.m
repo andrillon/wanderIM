@@ -15,7 +15,7 @@
 %% Init
 clear all;
 close all;
-run ../localdef_wanderIM
+run localdef_wanderIM
 
 % adding relevant toolboxes to the path
 % spm12 and LSCPtools
@@ -166,7 +166,7 @@ xlabel('Freq (Hz)')
 
 %% Where are the tags on the scalp ?
 % retrieve the channels position
-load('../BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
+load('BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
 % pos=D.coor2D';
 % labels=D.chanlabels(1:63);
 figure;
@@ -245,22 +245,26 @@ typeblocks={'Fa','Fgap','Sq','inSq'};
 for l=1:4
 subplot(3,4,l); format_fig
 temp_topo=squeeze(mean(logSNR_fond(:,l,:),1));
-simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1]*2.5)
 title(['f1 - ' typeblocks{l}])
+colorbar;
 
 subplot(3,4,l+4); format_fig
 temp_topo=squeeze(mean(logSNR_2Harm(:,l,:),1));
-simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1]*2.5)
 title(['2f1 - ' typeblocks{l}])
+colorbar;
 
 subplot(3,4,l+8); format_fig
 temp_topo=squeeze(mean(logSNR_IM(:,l,:),1));
-simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
+simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
 caxis([-1 1]*2.5)
 title(['IM - ' typeblocks{l}])
+colorbar;
 end
+
 
 figure
 for k=1:3

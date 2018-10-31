@@ -56,7 +56,11 @@ library("psych")
 library(readr)
 Guilford_AUT <- read_csv("data/input/AUT Input R.csv")
 
+# Import OSPAN
+OSPAN.dat <- read_csv("data/input/automatedospan_summary_18_07_09.csv")
 
+# Import behavioural response metrics exported from MATLAB
+behav_resp_DV <- read_csv("data/output/all_behav_mat2.csv")
 
 # EXPLORE BEHAVIOURAL DATA
 
@@ -137,7 +141,7 @@ krusk_Vig
 dunnTest(Vig~State, data=Probe_Results_OtQs)
 
 
-#### OVERALL CORRECTNESS ACROSS TRIALS by NBLOCK ####
+#### ARCHIVED / NOT USED ####
 
 #Reshape data to view correctness by individual participant across trials
 tbl_perf_by_block_ind <- table(WanderIM_ProbeResults$nBlock, WanderIM_ProbeResults$SubID, WanderIM_ProbeResults$Corr)
@@ -177,7 +181,7 @@ summary(aov_effect_block)
 
 
 
-#### CORRECTNESS ACROSS NOGO TRIALS by NBLOCK ####
+# CORRECTNESS ACROSS NOGO TRIALS by NBLOCK
 
 #Reshape data to view correctness by individual participant across trials
 tbl_perf_by_block_ind_nogo <- subset(WanderIM_ProbeResults, TrCat == "1")
@@ -219,7 +223,7 @@ summary(aov_effect_block)
 #No effect of block on correctness
 
 
-#### CORRECTNESS ACROSS GO TRIALS by NBLOCK ####
+# CORRECTNESS ACROSS GO TRIALS by NBLOCK #
 
 #Reshape data to view correctness by individual participant across trials
 tbl_perf_by_block_ind_go <- subset(WanderIM_ProbeResults, TrCat == "0")
@@ -263,7 +267,7 @@ summary(aov_effect_block)
 
 
 
-#### REACTION TIME ACROSS GO TRIALS by NBLOCK ####
+# REACTION TIME ACROSS GO TRIALS by NBLOCK
 
 #Reshape data to view response time by individual participant across trials
 tbl_RT_by_block_ind_go <- subset(WanderIM_ProbeResults, TrCat == "0")
@@ -301,7 +305,7 @@ summary(aov_effect_block)
 
 
 
-#### CORRECTNESS BY TASK ####
+# CORRECTNESS BY TASK #
 
 #Reshape data to view correctness by individual participant across trials
 #Task coding: 1=faces, 2=squares - taken from Thomas' comments in matlab script
@@ -346,7 +350,7 @@ TukeyHSD(aov_effect_Task)
 
 
 
-#### REACTION TIME BY TASK ####
+# REACTION TIME BY TASK #
 #Task coding: 1=faces, 2=squares - taken from Thomas' comments in matlab script
 
 
@@ -384,7 +388,7 @@ summary(aov_RTeffect_Task)
 
 
 
-#### OVERALL CORRECTNESS BY TRIAL N WITHIN BLOCK - issue viewing this - too few instances to make sense ####
+# OVERALL CORRECTNESS BY TRIAL N WITHIN BLOCK - issue viewing this - too few instances to make sense #
 
 tbl_perf_by_trial_ind <- table(WanderIM_TestResults$nTrial, WanderIM_TestResults$Corr)
 wrongs <- tbl_perf_by_trial_ind[1:474, 1]
@@ -399,7 +403,7 @@ names(tbl_perf_by_trial_ind)[names(tbl_perf_by_trial_ind)=="value"] <- "perc_cor
 plot(tbl_perf_by_trial_ind)
 
 
-#### REACTION TIME BY TRIAL N WITHIN BLOCK ####
+# REACTION TIME BY TRIAL N WITHIN BLOCK #
 #Task coding: 1=faces, 2=squares - taken from Thomas' comments in matlab script
 
 #Reshape data to view response time by individual participant across trials
@@ -413,7 +417,7 @@ lines(lowess(tbl_RT_by_trial_ind_go$`tbl_RT_by_trial_ind_go$nTrial`, tbl_RT_by_t
 
 
 
-#### OVERALL CORRECTNESS MODELLING - ALL GO/NOGO TRIALS COMBINED (COMPLEX) ####
+# OVERALL CORRECTNESS MODELLING - ALL GO/NOGO TRIALS COMBINED (COMPLEX) #
 # Modelling the task parameters
 library(lme4)
 
@@ -509,7 +513,7 @@ fit <- cfa(model, data = WanderIM_ProbeResults)
 lavaan.diagram()
 lavaan(model = mdl_15, data = WanderIM_ProbeResults)
 
-#### REACTION TIME MODELLING ####
+# REACTION TIME MODELLING #
 # Modelling the task parameters
 
 ## Model: Reaction Time ~ 100% (baseline)
@@ -1081,6 +1085,16 @@ tbl_perf_ind <- merge(tbl_perf_ind, tbl_freq_probe_temp, by="SubID")
 tbl_perf_ind_merged <- merge(tbl_perf_ind,Survey.df, by.x="SubID", by.y="Participant_No")
 tbl_perf_ind_merged <- merge(tbl_perf_ind_merged,NAB.df, by.x="SubID", by.y="Participant_No")
 tbl_perf_ind_merged <- merge(tbl_perf_ind_merged,Guilford_AUT, by.x="SubID", by.y="ID")
+tbl_perf_ind_merged <- merge(tbl_perf_ind_merged,behav_resp_DV, by.x="SubID", by.y="Sub")
+tbl_perf_ind_merged <- merge(tbl_perf_ind_merged,OSPAN.new, by.x="SubID", by.y="script.subjectid")
+
+
+attach(OSPAN.dat)
+myvars <- c("script.subjectid", "values.ospan")
+OSPAN.new <- OSPAN.dat[myvars]
+detach(OSPAN.dat)
+
+tbl_perf_ind_merged <- merge(tbl_perf_ind_merged,OSPAN.new, by.x="SubID", by.y="script.subjectid")
 
 # Turn attention state frequencies into categories
 # ON - Find quartiles
@@ -1462,6 +1476,7 @@ describeBy(MB_Correctness, group=ON_CAT)
 describeBy(ON_RT, group=ON_CAT)
 describeBy(MW_RT, group=ON_CAT)
 describeBy(MB_RT, group=ON_CAT)
+describeBy(values.ospan, group=ON_CAT)
 
 
 describeBy(DASS_Depression, group=MW_CAT)
@@ -1487,6 +1502,8 @@ describeBy(MB_Correctness, group=MW_CAT)
 describeBy(ON_RT, group=MW_CAT)
 describeBy(MW_RT, group=MW_CAT)
 describeBy(MB_RT, group=MW_CAT)
+describeBy(values.ospan, group=MW_CAT)
+
 
 
 describeBy(DASS_Depression, group=MB_CAT)
@@ -1512,6 +1529,8 @@ describeBy(MB_Correctness, group=MB_CAT)
 describeBy(ON_RT, group=MB_CAT)
 describeBy(MW_RT, group=MB_CAT)
 describeBy(MB_RT, group=MB_CAT)
+describeBy(values.ospan, group=MB_CAT)
+
 
 describe(DASS_Depression)
 describe(DASS_Anxiety)
@@ -1565,4 +1584,889 @@ aggregate(WanderIM_ProbeResults$Corr, by=WanderIM_ProbeResults$nBlock, FUN="mean
 
 plot(WanderIM_ProbeResults$Corr, WanderIM_ProbeResults$nBlock, main="Correctness by block", 
      xlab="Correct", ylab="Block number", pch=19)
+
+
+
+#### CORRELATIONS AND KRUSKAL WALLIS ON SCALE DVS ####
+attach(tbl_perf_ind_merged)
+
+### CORR GO
+
+# perform tests
+corrgo_test1 <- cor.test(CorrGo,DASS_Depression, method = "spearman")
+corrgo_test2 <- cor.test(CorrGo,DASS_Anxiety, method = "spearman")
+corrgo_test3 <- cor.test(CorrGo,DASS_Stress, method = "spearman")
+corrgo_test4 <- cor.test(CorrGo,ESS, method = "spearman")
+corrgo_test5 <- cor.test(CorrGo,MWQ_mean, method = "spearman")
+corrgo_test6 <- cor.test(CorrGo,MiniIPIP_Openness, method = "spearman")
+corrgo_test7 <- cor.test(CorrGo,MiniIPIP_Conscientiousness, method = "spearman")
+corrgo_test8 <- cor.test(CorrGo,MiniIPIP_Extraversion, method = "spearman")
+corrgo_test9 <- cor.test(CorrGo,MiniIPIP_Agreeableness, method = "spearman")
+corrgo_test10 <- cor.test(CorrGo,MiniIPIP_Neuroticism, method = "spearman")
+corrgo_test11 <- cor.test(CorrGo,PANAS_Positive_Affect, method = "spearman")
+corrgo_test12 <- cor.test(CorrGo,PANAS_Negative_Affect, method = "spearman")
+corrgo_test13 <- cor.test(CorrGo,ASRS_ptA_num, method = "spearman")
+corrgo_test14 <- cor.test(CorrGo,BRS_mean, method = "spearman")
+corrgo_test15 <- cor.test(CorrGo,WDQ_Autonomy, method = "spearman")
+corrgo_test16 <- cor.test(CorrGo,WDQ_Information_Processing, method = "spearman")
+corrgo_test17 <- cor.test(CorrGo,WDQ_Job_Complexity, method = "spearman")
+corrgo_test18 <- cor.test(CorrGo,WDQ_Problem_Solving, method = "spearman")
+corrgo_test19 <- cor.test(CorrGo,WDQ_Skill_Variety, method = "spearman")
+corrgo_test20 <- cor.test(CorrGo,WDQ_Social_Support, method = "spearman")
+corrgo_test21 <- cor.test(CorrGo,WDQ_Specialization, method = "spearman")
+corrgo_test22 <- cor.test(CorrGo,WDQ_Task_Significance, method = "spearman")
+corrgo_test23 <- cor.test(CorrGo,WDQ_Task_Variety, method = "spearman")
+corrgo_test24 <- cor.test(CorrGo,EES_Employee_Engagement, method = "spearman")
+corrgo_test25 <- cor.test(CorrGo,AUT_Score.y, method = "spearman")
+corrgo_test26 <- cor.test(CorrGo,values.ospan, method = "spearman")
+corrgo_test27 <- cor.test(CorrGo,EOY2017Rating_num.x, method = "spearman")
+
+corrgo_test28 <- kruskal.test(CorrGo~D1...Gender)
+corrgo_test29 <- cor.test(CorrGo,D2...Age, method = "spearman")
+corrgo_test30 <- kruskal.test(CorrGo~D3...mindfulness)
+
+# export stats and apply bonferroni adjustment
+corrgo_test1
+p.adjust(corrgo_test1$p.value, method = "fdr", n = length(corrgo_test1$p.value))
+corrgo_test2
+p.adjust(corrgo_test2$p.value, method = "fdr", n = length(corrgo_test2$p.value))
+corrgo_test3
+p.adjust(corrgo_test3$p.value, method = "fdr", n = length(corrgo_test3$p.value))
+corrgo_test4
+p.adjust(corrgo_test4$p.value, method = "fdr", n = length(corrgo_test4$p.value))
+corrgo_test5
+p.adjust(corrgo_test5$p.value, method = "fdr", n = length(corrgo_test5$p.value))
+corrgo_test6
+p.adjust(corrgo_test6$p.value, method = "fdr", n = length(corrgo_test6$p.value))
+corrgo_test7
+p.adjust(corrgo_test7$p.value, method = "fdr", n = length(corrgo_test7$p.value))
+corrgo_test8
+p.adjust(corrgo_test8$p.value, method = "fdr", n = length(corrgo_test8$p.value))
+corrgo_test9
+p.adjust(corrgo_test9$p.value, method = "fdr", n = length(corrgo_test9$p.value))
+corrgo_test10
+p.adjust(corrgo_test10$p.value, method = "fdr", n = length(corrgo_test10$p.value))
+corrgo_test11
+p.adjust(corrgo_test11$p.value, method = "fdr", n = length(corrgo_test11$p.value))
+corrgo_test12
+p.adjust(corrgo_test12$p.value, method = "fdr", n = length(corrgo_test12$p.value))
+corrgo_test13
+p.adjust(corrgo_test13$p.value, method = "fdr", n = length(corrgo_test13$p.value))
+corrgo_test14
+p.adjust(corrgo_test14$p.value, method = "fdr", n = length(corrgo_test14$p.value))
+corrgo_test15
+p.adjust(corrgo_test15$p.value, method = "fdr", n = length(corrgo_test15$p.value))
+corrgo_test16
+p.adjust(corrgo_test16$p.value, method = "fdr", n = length(corrgo_test16$p.value))
+corrgo_test17
+p.adjust(corrgo_test17$p.value, method = "fdr", n = length(corrgo_test17$p.value))
+corrgo_test18
+p.adjust(corrgo_test18$p.value, method = "fdr", n = length(corrgo_test18$p.value))
+corrgo_test19
+p.adjust(corrgo_test19$p.value, method = "fdr", n = length(corrgo_test19$p.value))
+corrgo_test20
+p.adjust(corrgo_test20$p.value, method = "fdr", n = length(corrgo_test20$p.value))
+corrgo_test21
+p.adjust(corrgo_test21$p.value, method = "fdr", n = length(corrgo_test21$p.value))
+corrgo_test22
+p.adjust(corrgo_test22$p.value, method = "fdr", n = length(corrgo_test22$p.value))
+corrgo_test23
+p.adjust(corrgo_test23$p.value, method = "fdr", n = length(corrgo_test23$p.value))
+corrgo_test24
+p.adjust(corrgo_test24$p.value, method = "fdr", n = length(corrgo_test24$p.value))
+corrgo_test25
+p.adjust(corrgo_test25$p.value, method = "fdr", n = length(corrgo_test25$p.value))
+corrgo_test26
+p.adjust(corrgo_test26$p.value, method = "fdr", n = length(corrgo_test26$p.value))
+corrgo_test27
+p.adjust(corrgo_test27$p.value, method = "fdr", n = length(corrgo_test27$p.value))
+corrgo_test28
+p.adjust(corrgo_test28$p.value, method = "fdr", n = length(corrgo_test28$p.value))
+corrgo_test29
+p.adjust(corrgo_test29$p.value, method = "fdr", n = length(corrgo_test29$p.value))
+corrgo_test30
+p.adjust(corrgo_test30$p.value, method = "fdr", n = length(corrgo_test30$p.value))
+
+
+### CORRNOGO
+
+# perform tests
+CorrNoGo_test1 <- cor.test(CorrNoGo,DASS_Depression, method = "spearman")
+CorrNoGo_test2 <- cor.test(CorrNoGo,DASS_Anxiety, method = "spearman")
+CorrNoGo_test3 <- cor.test(CorrNoGo,DASS_Stress, method = "spearman")
+CorrNoGo_test4 <- cor.test(CorrNoGo,ESS, method = "spearman")
+CorrNoGo_test5 <- cor.test(CorrNoGo,MWQ_mean, method = "spearman")
+CorrNoGo_test6 <- cor.test(CorrNoGo,MiniIPIP_Openness, method = "spearman")
+CorrNoGo_test7 <- cor.test(CorrNoGo,MiniIPIP_Conscientiousness, method = "spearman")
+CorrNoGo_test8 <- cor.test(CorrNoGo,MiniIPIP_Extraversion, method = "spearman")
+CorrNoGo_test9 <- cor.test(CorrNoGo,MiniIPIP_Agreeableness, method = "spearman")
+CorrNoGo_test10 <- cor.test(CorrNoGo,MiniIPIP_Neuroticism, method = "spearman")
+CorrNoGo_test11 <- cor.test(CorrNoGo,PANAS_Positive_Affect, method = "spearman")
+CorrNoGo_test12 <- cor.test(CorrNoGo,PANAS_Negative_Affect, method = "spearman")
+CorrNoGo_test13 <- cor.test(CorrNoGo,ASRS_ptA_num, method = "spearman")
+CorrNoGo_test14 <- cor.test(CorrNoGo,BRS_mean, method = "spearman")
+CorrNoGo_test15 <- cor.test(CorrNoGo,WDQ_Autonomy, method = "spearman")
+CorrNoGo_test16 <- cor.test(CorrNoGo,WDQ_Information_Processing, method = "spearman")
+CorrNoGo_test17 <- cor.test(CorrNoGo,WDQ_Job_Complexity, method = "spearman")
+CorrNoGo_test18 <- cor.test(CorrNoGo,WDQ_Problem_Solving, method = "spearman")
+CorrNoGo_test19 <- cor.test(CorrNoGo,WDQ_Skill_Variety, method = "spearman")
+CorrNoGo_test20 <- cor.test(CorrNoGo,WDQ_Social_Support, method = "spearman")
+CorrNoGo_test21 <- cor.test(CorrNoGo,WDQ_Specialization, method = "spearman")
+CorrNoGo_test22 <- cor.test(CorrNoGo,WDQ_Task_Significance, method = "spearman")
+CorrNoGo_test23 <- cor.test(CorrNoGo,WDQ_Task_Variety, method = "spearman")
+CorrNoGo_test24 <- cor.test(CorrNoGo,EES_Employee_Engagement, method = "spearman")
+CorrNoGo_test25 <- cor.test(CorrNoGo,AUT_Score.y, method = "spearman")
+CorrNoGo_test26 <- cor.test(CorrNoGo,values.ospan, method = "spearman")
+CorrNoGo_test27 <- cor.test(CorrNoGo,EOY2017Rating_num.x, method = "spearman")
+
+CorrNoGo_test28 <- kruskal.test(CorrNoGo~D1...Gender)
+CorrNoGo_test29 <- cor.test(CorrNoGo,D2...Age, method = "spearman")
+CorrNoGo_test30 <- kruskal.test(CorrNoGo~D3...mindfulness)
+
+# export stats and apply bonferroni adjustment
+CorrNoGo_test1
+p.adjust(CorrNoGo_test1$p.value, method = "fdr", n = length(CorrNoGo_test1$p.value))
+CorrNoGo_test2
+p.adjust(CorrNoGo_test2$p.value, method = "fdr", n = length(CorrNoGo_test2$p.value))
+CorrNoGo_test3
+p.adjust(CorrNoGo_test3$p.value, method = "fdr", n = length(CorrNoGo_test3$p.value))
+CorrNoGo_test4
+p.adjust(CorrNoGo_test4$p.value, method = "fdr", n = length(CorrNoGo_test4$p.value))
+CorrNoGo_test5
+p.adjust(CorrNoGo_test5$p.value, method = "fdr", n = length(CorrNoGo_test5$p.value))
+CorrNoGo_test6
+p.adjust(CorrNoGo_test6$p.value, method = "fdr", n = length(CorrNoGo_test6$p.value))
+CorrNoGo_test7
+p.adjust(CorrNoGo_test7$p.value, method = "fdr", n = length(CorrNoGo_test7$p.value))
+CorrNoGo_test8
+p.adjust(CorrNoGo_test8$p.value, method = "fdr", n = length(CorrNoGo_test8$p.value))
+CorrNoGo_test9
+p.adjust(CorrNoGo_test9$p.value, method = "fdr", n = length(CorrNoGo_test9$p.value))
+CorrNoGo_test10
+p.adjust(CorrNoGo_test10$p.value, method = "fdr", n = length(CorrNoGo_test10$p.value))
+CorrNoGo_test11
+p.adjust(CorrNoGo_test11$p.value, method = "fdr", n = length(CorrNoGo_test11$p.value))
+CorrNoGo_test12
+p.adjust(CorrNoGo_test12$p.value, method = "fdr", n = length(CorrNoGo_test12$p.value))
+CorrNoGo_test13
+p.adjust(CorrNoGo_test13$p.value, method = "fdr", n = length(CorrNoGo_test13$p.value))
+CorrNoGo_test14
+p.adjust(CorrNoGo_test14$p.value, method = "fdr", n = length(CorrNoGo_test14$p.value))
+CorrNoGo_test15
+p.adjust(CorrNoGo_test15$p.value, method = "fdr", n = length(CorrNoGo_test15$p.value))
+CorrNoGo_test16
+p.adjust(CorrNoGo_test16$p.value, method = "fdr", n = length(CorrNoGo_test16$p.value))
+CorrNoGo_test17
+p.adjust(CorrNoGo_test17$p.value, method = "fdr", n = length(CorrNoGo_test17$p.value))
+CorrNoGo_test18
+p.adjust(CorrNoGo_test18$p.value, method = "fdr", n = length(CorrNoGo_test18$p.value))
+CorrNoGo_test19
+p.adjust(CorrNoGo_test19$p.value, method = "fdr", n = length(CorrNoGo_test19$p.value))
+CorrNoGo_test20
+p.adjust(CorrNoGo_test20$p.value, method = "fdr", n = length(CorrNoGo_test20$p.value))
+CorrNoGo_test21
+p.adjust(CorrNoGo_test21$p.value, method = "fdr", n = length(CorrNoGo_test21$p.value))
+CorrNoGo_test22
+p.adjust(CorrNoGo_test22$p.value, method = "fdr", n = length(CorrNoGo_test22$p.value))
+CorrNoGo_test23
+p.adjust(CorrNoGo_test23$p.value, method = "fdr", n = length(CorrNoGo_test23$p.value))
+CorrNoGo_test24
+p.adjust(CorrNoGo_test24$p.value, method = "fdr", n = length(CorrNoGo_test24$p.value))
+CorrNoGo_test25
+p.adjust(CorrNoGo_test25$p.value, method = "fdr", n = length(CorrNoGo_test25$p.value))
+CorrNoGo_test26
+p.adjust(CorrNoGo_test26$p.value, method = "fdr", n = length(CorrNoGo_test26$p.value))
+CorrNoGo_test27
+p.adjust(CorrNoGo_test27$p.value, method = "fdr", n = length(CorrNoGo_test27$p.value))
+CorrNoGo_test28
+p.adjust(CorrNoGo_test28$p.value, method = "fdr", n = length(CorrNoGo_test28$p.value))
+CorrNoGo_test29
+p.adjust(CorrNoGo_test29$p.value, method = "fdr", n = length(CorrNoGo_test29$p.value))
+CorrNoGo_test30
+p.adjust(CorrNoGo_test30$p.value, method = "fdr", n = length(CorrNoGo_test30$p.value))
+
+
+### RTGO
+
+
+# perform tests
+RTGo_test1 <- cor.test(RTGo,DASS_Depression, method = "spearman")
+RTGo_test2 <- cor.test(RTGo,DASS_Anxiety, method = "spearman")
+RTGo_test3 <- cor.test(RTGo,DASS_Stress, method = "spearman")
+RTGo_test4 <- cor.test(RTGo,ESS, method = "spearman")
+RTGo_test5 <- cor.test(RTGo,MWQ_mean, method = "spearman")
+RTGo_test6 <- cor.test(RTGo,MiniIPIP_Openness, method = "spearman")
+RTGo_test7 <- cor.test(RTGo,MiniIPIP_Conscientiousness, method = "spearman")
+RTGo_test8 <- cor.test(RTGo,MiniIPIP_Extraversion, method = "spearman")
+RTGo_test9 <- cor.test(RTGo,MiniIPIP_Agreeableness, method = "spearman")
+RTGo_test10 <- cor.test(RTGo,MiniIPIP_Neuroticism, method = "spearman")
+RTGo_test11 <- cor.test(RTGo,PANAS_Positive_Affect, method = "spearman")
+RTGo_test12 <- cor.test(RTGo,PANAS_Negative_Affect, method = "spearman")
+RTGo_test13 <- cor.test(RTGo,ASRS_ptA_num, method = "spearman")
+RTGo_test14 <- cor.test(RTGo,BRS_mean, method = "spearman")
+RTGo_test15 <- cor.test(RTGo,WDQ_Autonomy, method = "spearman")
+RTGo_test16 <- cor.test(RTGo,WDQ_Information_Processing, method = "spearman")
+RTGo_test17 <- cor.test(RTGo,WDQ_Job_Complexity, method = "spearman")
+RTGo_test18 <- cor.test(RTGo,WDQ_Problem_Solving, method = "spearman")
+RTGo_test19 <- cor.test(RTGo,WDQ_Skill_Variety, method = "spearman")
+RTGo_test20 <- cor.test(RTGo,WDQ_Social_Support, method = "spearman")
+RTGo_test21 <- cor.test(RTGo,WDQ_Specialization, method = "spearman")
+RTGo_test22 <- cor.test(RTGo,WDQ_Task_Significance, method = "spearman")
+RTGo_test23 <- cor.test(RTGo,WDQ_Task_Variety, method = "spearman")
+RTGo_test24 <- cor.test(RTGo,EES_Employee_Engagement, method = "spearman")
+RTGo_test25 <- cor.test(RTGo,AUT_Score.y, method = "spearman")
+RTGo_test26 <- cor.test(RTGo,values.ospan, method = "spearman")
+RTGo_test27 <- cor.test(RTGo,EOY2017Rating_num.x, method = "spearman")
+
+RTGo_test28 <- kruskal.test(RTGo~D1...Gender)
+RTGo_test29 <- cor.test(RTGo,D2...Age, method = "spearman")
+RTGo_test30 <- kruskal.test(RTGo~D3...mindfulness)
+
+# export stats and apply bonferroni adjustment
+RTGo_test1
+p.adjust(RTGo_test1$p.value, method = "fdr", n = length(RTGo_test1$p.value))
+RTGo_test2
+p.adjust(RTGo_test2$p.value, method = "fdr", n = length(RTGo_test2$p.value))
+RTGo_test3
+p.adjust(RTGo_test3$p.value, method = "fdr", n = length(RTGo_test3$p.value))
+RTGo_test4
+p.adjust(RTGo_test4$p.value, method = "fdr", n = length(RTGo_test4$p.value))
+RTGo_test5
+p.adjust(RTGo_test5$p.value, method = "fdr", n = length(RTGo_test5$p.value))
+RTGo_test6
+p.adjust(RTGo_test6$p.value, method = "fdr", n = length(RTGo_test6$p.value))
+RTGo_test7
+p.adjust(RTGo_test7$p.value, method = "fdr", n = length(RTGo_test7$p.value))
+RTGo_test8
+p.adjust(RTGo_test8$p.value, method = "fdr", n = length(RTGo_test8$p.value))
+RTGo_test9
+p.adjust(RTGo_test9$p.value, method = "fdr", n = length(RTGo_test9$p.value))
+RTGo_test10
+p.adjust(RTGo_test10$p.value, method = "fdr", n = length(RTGo_test10$p.value))
+RTGo_test11
+p.adjust(RTGo_test11$p.value, method = "fdr", n = length(RTGo_test11$p.value))
+RTGo_test12
+p.adjust(RTGo_test12$p.value, method = "fdr", n = length(RTGo_test12$p.value))
+RTGo_test13
+p.adjust(RTGo_test13$p.value, method = "fdr", n = length(RTGo_test13$p.value))
+RTGo_test14
+p.adjust(RTGo_test14$p.value, method = "fdr", n = length(RTGo_test14$p.value))
+RTGo_test15
+p.adjust(RTGo_test15$p.value, method = "fdr", n = length(RTGo_test15$p.value))
+RTGo_test16
+p.adjust(RTGo_test16$p.value, method = "fdr", n = length(RTGo_test16$p.value))
+RTGo_test17
+p.adjust(RTGo_test17$p.value, method = "fdr", n = length(RTGo_test17$p.value))
+RTGo_test18
+p.adjust(RTGo_test18$p.value, method = "fdr", n = length(RTGo_test18$p.value))
+RTGo_test19
+p.adjust(RTGo_test19$p.value, method = "fdr", n = length(RTGo_test19$p.value))
+RTGo_test20
+p.adjust(RTGo_test20$p.value, method = "fdr", n = length(RTGo_test20$p.value))
+RTGo_test21
+p.adjust(RTGo_test21$p.value, method = "fdr", n = length(RTGo_test21$p.value))
+RTGo_test22
+p.adjust(RTGo_test22$p.value, method = "fdr", n = length(RTGo_test22$p.value))
+RTGo_test23
+p.adjust(RTGo_test23$p.value, method = "fdr", n = length(RTGo_test23$p.value))
+RTGo_test24
+p.adjust(RTGo_test24$p.value, method = "fdr", n = length(RTGo_test24$p.value))
+RTGo_test25
+p.adjust(RTGo_test25$p.value, method = "fdr", n = length(RTGo_test25$p.value))
+RTGo_test26
+p.adjust(RTGo_test26$p.value, method = "fdr", n = length(RTGo_test26$p.value))
+RTGo_test27
+p.adjust(RTGo_test27$p.value, method = "fdr", n = length(RTGo_test27$p.value))
+RTGo_test28
+p.adjust(RTGo_test28$p.value, method = "fdr", n = length(RTGo_test28$p.value))
+RTGo_test29
+p.adjust(RTGo_test29$p.value, method = "fdr", n = length(RTGo_test29$p.value))
+RTGo_test30
+p.adjust(RTGo_test30$p.value, method = "fdr", n = length(RTGo_test30$p.value))
+
+
+
+### D-PRIME 
+
+
+# perform tests
+dp_test1 <- cor.test(dp,DASS_Depression, method = "spearman")
+dp_test2 <- cor.test(dp,DASS_Anxiety, method = "spearman")
+dp_test3 <- cor.test(dp,DASS_Stress, method = "spearman")
+dp_test4 <- cor.test(dp,ESS, method = "spearman")
+dp_test5 <- cor.test(dp,MWQ_mean, method = "spearman")
+dp_test6 <- cor.test(dp,MiniIPIP_Openness, method = "spearman")
+dp_test7 <- cor.test(dp,MiniIPIP_Conscientiousness, method = "spearman")
+dp_test8 <- cor.test(dp,MiniIPIP_Extraversion, method = "spearman")
+dp_test9 <- cor.test(dp,MiniIPIP_Agreeableness, method = "spearman")
+dp_test10 <- cor.test(dp,MiniIPIP_Neuroticism, method = "spearman")
+dp_test11 <- cor.test(dp,PANAS_Positive_Affect, method = "spearman")
+dp_test12 <- cor.test(dp,PANAS_Negative_Affect, method = "spearman")
+dp_test13 <- cor.test(dp,ASRS_ptA_num, method = "spearman")
+dp_test14 <- cor.test(dp,BRS_mean, method = "spearman")
+dp_test15 <- cor.test(dp,WDQ_Autonomy, method = "spearman")
+dp_test16 <- cor.test(dp,WDQ_Information_Processing, method = "spearman")
+dp_test17 <- cor.test(dp,WDQ_Job_Complexity, method = "spearman")
+dp_test18 <- cor.test(dp,WDQ_Problem_Solving, method = "spearman")
+dp_test19 <- cor.test(dp,WDQ_Skill_Variety, method = "spearman")
+dp_test20 <- cor.test(dp,WDQ_Social_Support, method = "spearman")
+dp_test21 <- cor.test(dp,WDQ_Specialization, method = "spearman")
+dp_test22 <- cor.test(dp,WDQ_Task_Significance, method = "spearman")
+dp_test23 <- cor.test(dp,WDQ_Task_Variety, method = "spearman")
+dp_test24 <- cor.test(dp,EES_Employee_Engagement, method = "spearman")
+dp_test25 <- cor.test(dp,AUT_Score.y, method = "spearman")
+dp_test26 <- cor.test(dp,values.ospan, method = "spearman")
+dp_test27 <- cor.test(dp,EOY2017Rating_num.x, method = "spearman")
+
+dp_test28 <- kruskal.test(dp~D1...Gender)
+dp_test29 <- cor.test(dp,D2...Age, method = "spearman")
+dp_test30 <- kruskal.test(dp~D3...mindfulness)
+
+# export stats and apply bonferroni adjustment
+dp_test1
+p.adjust(dp_test1$p.value, method = "fdr", n = length(dp_test1$p.value))
+dp_test2
+p.adjust(dp_test2$p.value, method = "fdr", n = length(dp_test2$p.value))
+dp_test3
+p.adjust(dp_test3$p.value, method = "fdr", n = length(dp_test3$p.value))
+dp_test4
+p.adjust(dp_test4$p.value, method = "fdr", n = length(dp_test4$p.value))
+dp_test5
+p.adjust(dp_test5$p.value, method = "fdr", n = length(dp_test5$p.value))
+dp_test6
+p.adjust(dp_test6$p.value, method = "fdr", n = length(dp_test6$p.value))
+dp_test7
+p.adjust(dp_test7$p.value, method = "fdr", n = length(dp_test7$p.value))
+dp_test8
+p.adjust(dp_test8$p.value, method = "fdr", n = length(dp_test8$p.value))
+dp_test9
+p.adjust(dp_test9$p.value, method = "fdr", n = length(dp_test9$p.value))
+dp_test10
+p.adjust(dp_test10$p.value, method = "fdr", n = length(dp_test10$p.value))
+dp_test11
+p.adjust(dp_test11$p.value, method = "fdr", n = length(dp_test11$p.value))
+dp_test12
+p.adjust(dp_test12$p.value, method = "fdr", n = length(dp_test12$p.value))
+dp_test13
+p.adjust(dp_test13$p.value, method = "fdr", n = length(dp_test13$p.value))
+dp_test14
+p.adjust(dp_test14$p.value, method = "fdr", n = length(dp_test14$p.value))
+dp_test15
+p.adjust(dp_test15$p.value, method = "fdr", n = length(dp_test15$p.value))
+dp_test16
+p.adjust(dp_test16$p.value, method = "fdr", n = length(dp_test16$p.value))
+dp_test17
+p.adjust(dp_test17$p.value, method = "fdr", n = length(dp_test17$p.value))
+dp_test18
+p.adjust(dp_test18$p.value, method = "fdr", n = length(dp_test18$p.value))
+dp_test19
+p.adjust(dp_test19$p.value, method = "fdr", n = length(dp_test19$p.value))
+dp_test20
+p.adjust(dp_test20$p.value, method = "fdr", n = length(dp_test20$p.value))
+dp_test21
+p.adjust(dp_test21$p.value, method = "fdr", n = length(dp_test21$p.value))
+dp_test22
+p.adjust(dp_test22$p.value, method = "fdr", n = length(dp_test22$p.value))
+dp_test23
+p.adjust(dp_test23$p.value, method = "fdr", n = length(dp_test23$p.value))
+dp_test24
+p.adjust(dp_test24$p.value, method = "fdr", n = length(dp_test24$p.value))
+dp_test25
+p.adjust(dp_test25$p.value, method = "fdr", n = length(dp_test25$p.value))
+dp_test26
+p.adjust(dp_test26$p.value, method = "fdr", n = length(dp_test26$p.value))
+dp_test27
+p.adjust(dp_test27$p.value, method = "fdr", n = length(dp_test27$p.value))
+dp_test28
+p.adjust(dp_test28$p.value, method = "fdr", n = length(dp_test28$p.value))
+dp_test29
+p.adjust(dp_test29$p.value, method = "fdr", n = length(dp_test29$p.value))
+dp_test30
+p.adjust(dp_test30$p.value, method = "fdr", n = length(dp_test30$p.value))
+
+
+
+### CRITERION
+
+
+# perform tests
+crit_test1 <- cor.test(crit,DASS_Depression, method = "spearman")
+crit_test2 <- cor.test(crit,DASS_Anxiety, method = "spearman")
+crit_test3 <- cor.test(crit,DASS_Stress, method = "spearman")
+crit_test4 <- cor.test(crit,ESS, method = "spearman")
+crit_test5 <- cor.test(crit,MWQ_mean, method = "spearman")
+crit_test6 <- cor.test(crit,MiniIPIP_Openness, method = "spearman")
+crit_test7 <- cor.test(crit,MiniIPIP_Conscientiousness, method = "spearman")
+crit_test8 <- cor.test(crit,MiniIPIP_Extraversion, method = "spearman")
+crit_test9 <- cor.test(crit,MiniIPIP_Agreeableness, method = "spearman")
+crit_test10 <- cor.test(crit,MiniIPIP_Neuroticism, method = "spearman")
+crit_test11 <- cor.test(crit,PANAS_Positive_Affect, method = "spearman")
+crit_test12 <- cor.test(crit,PANAS_Negative_Affect, method = "spearman")
+crit_test13 <- cor.test(crit,ASRS_ptA_num, method = "spearman")
+crit_test14 <- cor.test(crit,BRS_mean, method = "spearman")
+crit_test15 <- cor.test(crit,WDQ_Autonomy, method = "spearman")
+crit_test16 <- cor.test(crit,WDQ_Information_Processing, method = "spearman")
+crit_test17 <- cor.test(crit,WDQ_Job_Complexity, method = "spearman")
+crit_test18 <- cor.test(crit,WDQ_Problem_Solving, method = "spearman")
+crit_test19 <- cor.test(crit,WDQ_Skill_Variety, method = "spearman")
+crit_test20 <- cor.test(crit,WDQ_Social_Support, method = "spearman")
+crit_test21 <- cor.test(crit,WDQ_Specialization, method = "spearman")
+crit_test22 <- cor.test(crit,WDQ_Task_Significance, method = "spearman")
+crit_test23 <- cor.test(crit,WDQ_Task_Variety, method = "spearman")
+crit_test24 <- cor.test(crit,EES_Employee_Engagement, method = "spearman")
+crit_test25 <- cor.test(crit,AUT_Score.y, method = "spearman")
+crit_test26 <- cor.test(crit,values.ospan, method = "spearman")
+crit_test27 <- cor.test(crit,EOY2017Rating_num.x, method = "spearman")
+
+crit_test28 <- kruskal.test(crit~D1...Gender)
+crit_test29 <- cor.test(crit,D2...Age, method = "spearman")
+crit_test30 <- kruskal.test(crit~D3...mindfulness)
+
+# export stats and apply bonferroni adjustment
+crit_test1
+p.adjust(crit_test1$p.value, method = "fdr", n = length(crit_test1$p.value))
+crit_test2
+p.adjust(crit_test2$p.value, method = "fdr", n = length(crit_test2$p.value))
+crit_test3
+p.adjust(crit_test3$p.value, method = "fdr", n = length(crit_test3$p.value))
+crit_test4
+p.adjust(crit_test4$p.value, method = "fdr", n = length(crit_test4$p.value))
+crit_test5
+p.adjust(crit_test5$p.value, method = "fdr", n = length(crit_test5$p.value))
+crit_test6
+p.adjust(crit_test6$p.value, method = "fdr", n = length(crit_test6$p.value))
+crit_test7
+p.adjust(crit_test7$p.value, method = "fdr", n = length(crit_test7$p.value))
+crit_test8
+p.adjust(crit_test8$p.value, method = "fdr", n = length(crit_test8$p.value))
+crit_test9
+p.adjust(crit_test9$p.value, method = "fdr", n = length(crit_test9$p.value))
+crit_test10
+p.adjust(crit_test10$p.value, method = "fdr", n = length(crit_test10$p.value))
+crit_test11
+p.adjust(crit_test11$p.value, method = "fdr", n = length(crit_test11$p.value))
+crit_test12
+p.adjust(crit_test12$p.value, method = "fdr", n = length(crit_test12$p.value))
+crit_test13
+p.adjust(crit_test13$p.value, method = "fdr", n = length(crit_test13$p.value))
+crit_test14
+p.adjust(crit_test14$p.value, method = "fdr", n = length(crit_test14$p.value))
+crit_test15
+p.adjust(crit_test15$p.value, method = "fdr", n = length(crit_test15$p.value))
+crit_test16
+p.adjust(crit_test16$p.value, method = "fdr", n = length(crit_test16$p.value))
+crit_test17
+p.adjust(crit_test17$p.value, method = "fdr", n = length(crit_test17$p.value))
+crit_test18
+p.adjust(crit_test18$p.value, method = "fdr", n = length(crit_test18$p.value))
+crit_test19
+p.adjust(crit_test19$p.value, method = "fdr", n = length(crit_test19$p.value))
+crit_test20
+p.adjust(crit_test20$p.value, method = "fdr", n = length(crit_test20$p.value))
+crit_test21
+p.adjust(crit_test21$p.value, method = "fdr", n = length(crit_test21$p.value))
+crit_test22
+p.adjust(crit_test22$p.value, method = "fdr", n = length(crit_test22$p.value))
+crit_test23
+p.adjust(crit_test23$p.value, method = "fdr", n = length(crit_test23$p.value))
+crit_test24
+p.adjust(crit_test24$p.value, method = "fdr", n = length(crit_test24$p.value))
+crit_test25
+p.adjust(crit_test25$p.value, method = "fdr", n = length(crit_test25$p.value))
+crit_test26
+p.adjust(crit_test26$p.value, method = "fdr", n = length(crit_test26$p.value))
+crit_test27
+p.adjust(crit_test27$p.value, method = "fdr", n = length(crit_test27$p.value))
+crit_test28
+p.adjust(crit_test28$p.value, method = "fdr", n = length(crit_test28$p.value))
+crit_test29
+p.adjust(crit_test29$p.value, method = "fdr", n = length(crit_test29$p.value))
+crit_test30
+p.adjust(crit_test30$p.value, method = "fdr", n = length(crit_test30$p.value))
+
+
+
+### ON PERCENTAGE
+
+
+# perform tests
+ON_test1 <- cor.test(ON,DASS_Depression, method = "spearman")
+ON_test2 <- cor.test(ON,DASS_Anxiety, method = "spearman")
+ON_test3 <- cor.test(ON,DASS_Stress, method = "spearman")
+ON_test4 <- cor.test(ON,ESS, method = "spearman")
+ON_test5 <- cor.test(ON,MWQ_mean, method = "spearman")
+ON_test6 <- cor.test(ON,MiniIPIP_Openness, method = "spearman")
+ON_test7 <- cor.test(ON,MiniIPIP_Conscientiousness, method = "spearman")
+ON_test8 <- cor.test(ON,MiniIPIP_Extraversion, method = "spearman")
+ON_test9 <- cor.test(ON,MiniIPIP_Agreeableness, method = "spearman")
+ON_test10 <- cor.test(ON,MiniIPIP_Neuroticism, method = "spearman")
+ON_test11 <- cor.test(ON,PANAS_Positive_Affect, method = "spearman")
+ON_test12 <- cor.test(ON,PANAS_Negative_Affect, method = "spearman")
+ON_test13 <- cor.test(ON,ASRS_ptA_num, method = "spearman")
+ON_test14 <- cor.test(ON,BRS_mean, method = "spearman")
+ON_test15 <- cor.test(ON,WDQ_Autonomy, method = "spearman")
+ON_test16 <- cor.test(ON,WDQ_Information_Processing, method = "spearman")
+ON_test17 <- cor.test(ON,WDQ_Job_Complexity, method = "spearman")
+ON_test18 <- cor.test(ON,WDQ_Problem_Solving, method = "spearman")
+ON_test19 <- cor.test(ON,WDQ_Skill_Variety, method = "spearman")
+ON_test20 <- cor.test(ON,WDQ_Social_Support, method = "spearman")
+ON_test21 <- cor.test(ON,WDQ_Specialization, method = "spearman")
+ON_test22 <- cor.test(ON,WDQ_Task_Significance, method = "spearman")
+ON_test23 <- cor.test(ON,WDQ_Task_Variety, method = "spearman")
+ON_test24 <- cor.test(ON,EES_Employee_Engagement, method = "spearman")
+ON_test25 <- cor.test(ON,AUT_Score.y, method = "spearman")
+ON_test26 <- cor.test(ON,values.ospan, method = "spearman")
+ON_test27 <- cor.test(ON,EOY2017Rating_num.x, method = "spearman")
+
+ON_test28 <- kruskal.test(ON~D1...Gender)
+ON_test29 <- cor.test(ON,D2...Age, method = "spearman")
+ON_test30 <- kruskal.test(ON~D3...mindfulness)
+
+# export stats and apply bonferroni adjustment
+ON_test1
+p.adjust(ON_test1$p.value, method = "fdr", n = length(ON_test1$p.value))
+ON_test2
+p.adjust(ON_test2$p.value, method = "fdr", n = length(ON_test2$p.value))
+ON_test3
+p.adjust(ON_test3$p.value, method = "fdr", n = length(ON_test3$p.value))
+ON_test4
+p.adjust(ON_test4$p.value, method = "fdr", n = length(ON_test4$p.value))
+ON_test5
+p.adjust(ON_test5$p.value, method = "fdr", n = length(ON_test5$p.value))
+ON_test6
+p.adjust(ON_test6$p.value, method = "fdr", n = length(ON_test6$p.value))
+ON_test7
+p.adjust(ON_test7$p.value, method = "fdr", n = length(ON_test7$p.value))
+ON_test8
+p.adjust(ON_test8$p.value, method = "fdr", n = length(ON_test8$p.value))
+ON_test9
+p.adjust(ON_test9$p.value, method = "fdr", n = length(ON_test9$p.value))
+ON_test10
+p.adjust(ON_test10$p.value, method = "fdr", n = length(ON_test10$p.value))
+ON_test11
+p.adjust(ON_test11$p.value, method = "fdr", n = length(ON_test11$p.value))
+ON_test12
+p.adjust(ON_test12$p.value, method = "fdr", n = length(ON_test12$p.value))
+ON_test13
+p.adjust(ON_test13$p.value, method = "fdr", n = length(ON_test13$p.value))
+ON_test14
+p.adjust(ON_test14$p.value, method = "fdr", n = length(ON_test14$p.value))
+ON_test15
+p.adjust(ON_test15$p.value, method = "fdr", n = length(ON_test15$p.value))
+ON_test16
+p.adjust(ON_test16$p.value, method = "fdr", n = length(ON_test16$p.value))
+ON_test17
+p.adjust(ON_test17$p.value, method = "fdr", n = length(ON_test17$p.value))
+ON_test18
+p.adjust(ON_test18$p.value, method = "fdr", n = length(ON_test18$p.value))
+ON_test19
+p.adjust(ON_test19$p.value, method = "fdr", n = length(ON_test19$p.value))
+ON_test20
+p.adjust(ON_test20$p.value, method = "fdr", n = length(ON_test20$p.value))
+ON_test21
+p.adjust(ON_test21$p.value, method = "fdr", n = length(ON_test21$p.value))
+ON_test22
+p.adjust(ON_test22$p.value, method = "fdr", n = length(ON_test22$p.value))
+ON_test23
+p.adjust(ON_test23$p.value, method = "fdr", n = length(ON_test23$p.value))
+ON_test24
+p.adjust(ON_test24$p.value, method = "fdr", n = length(ON_test24$p.value))
+ON_test25
+p.adjust(ON_test25$p.value, method = "fdr", n = length(ON_test25$p.value))
+ON_test26
+p.adjust(ON_test26$p.value, method = "fdr", n = length(ON_test26$p.value))
+ON_test27
+p.adjust(ON_test27$p.value, method = "fdr", n = length(ON_test27$p.value))
+ON_test28
+p.adjust(ON_test28$p.value, method = "fdr", n = length(ON_test28$p.value))
+ON_test29
+p.adjust(ON_test29$p.value, method = "fdr", n = length(ON_test29$p.value))
+ON_test30
+p.adjust(ON_test30$p.value, method = "fdr", n = length(ON_test30$p.value))
+
+
+
+### MW PERCENTAGE
+
+
+# perform tests
+MW_test1 <- cor.test(MW,DASS_Depression, method = "spearman")
+MW_test2 <- cor.test(MW,DASS_Anxiety, method = "spearman")
+MW_test3 <- cor.test(MW,DASS_Stress, method = "spearman")
+MW_test4 <- cor.test(MW,ESS, method = "spearman")
+MW_test5 <- cor.test(MW,MWQ_mean, method = "spearman")
+MW_test6 <- cor.test(MW,MiniIPIP_Openness, method = "spearman")
+MW_test7 <- cor.test(MW,MiniIPIP_Conscientiousness, method = "spearman")
+MW_test8 <- cor.test(MW,MiniIPIP_Extraversion, method = "spearman")
+MW_test9 <- cor.test(MW,MiniIPIP_Agreeableness, method = "spearman")
+MW_test10 <- cor.test(MW,MiniIPIP_Neuroticism, method = "spearman")
+MW_test11 <- cor.test(MW,PANAS_Positive_Affect, method = "spearman")
+MW_test12 <- cor.test(MW,PANAS_Negative_Affect, method = "spearman")
+MW_test13 <- cor.test(MW,ASRS_ptA_num, method = "spearman")
+MW_test14 <- cor.test(MW,BRS_mean, method = "spearman")
+MW_test15 <- cor.test(MW,WDQ_Autonomy, method = "spearman")
+MW_test16 <- cor.test(MW,WDQ_Information_Processing, method = "spearman")
+MW_test17 <- cor.test(MW,WDQ_Job_Complexity, method = "spearman")
+MW_test18 <- cor.test(MW,WDQ_Problem_Solving, method = "spearman")
+MW_test19 <- cor.test(MW,WDQ_Skill_Variety, method = "spearman")
+MW_test20 <- cor.test(MW,WDQ_Social_Support, method = "spearman")
+MW_test21 <- cor.test(MW,WDQ_Specialization, method = "spearman")
+MW_test22 <- cor.test(MW,WDQ_Task_Significance, method = "spearman")
+MW_test23 <- cor.test(MW,WDQ_Task_Variety, method = "spearman")
+MW_test24 <- cor.test(MW,EES_Employee_Engagement, method = "spearman")
+MW_test25 <- cor.test(MW,AUT_Score.y, method = "spearman")
+MW_test26 <- cor.test(MW,values.ospan, method = "spearman")
+MW_test27 <- cor.test(MW,EOY2017Rating_num.x, method = "spearman")
+
+MW_test28 <- kruskal.test(MW~D1...Gender)
+MW_test29 <- cor.test(MW,D2...Age, method = "spearman")
+MW_test30 <- kruskal.test(MW~D3...mindfulness)
+
+# export stats and apply bonferroni adjustment
+MW_test1
+p.adjust(MW_test1$p.value, method = "fdr", n = length(MW_test1$p.value))
+MW_test2
+p.adjust(MW_test2$p.value, method = "fdr", n = length(MW_test2$p.value))
+MW_test3
+p.adjust(MW_test3$p.value, method = "fdr", n = length(MW_test3$p.value))
+MW_test4
+p.adjust(MW_test4$p.value, method = "fdr", n = length(MW_test4$p.value))
+MW_test5
+p.adjust(MW_test5$p.value, method = "fdr", n = length(MW_test5$p.value))
+MW_test6
+p.adjust(MW_test6$p.value, method = "fdr", n = length(MW_test6$p.value))
+MW_test7
+p.adjust(MW_test7$p.value, method = "fdr", n = length(MW_test7$p.value))
+MW_test8
+p.adjust(MW_test8$p.value, method = "fdr", n = length(MW_test8$p.value))
+MW_test9
+p.adjust(MW_test9$p.value, method = "fdr", n = length(MW_test9$p.value))
+MW_test10
+p.adjust(MW_test10$p.value, method = "fdr", n = length(MW_test10$p.value))
+MW_test11
+p.adjust(MW_test11$p.value, method = "fdr", n = length(MW_test11$p.value))
+MW_test12
+p.adjust(MW_test12$p.value, method = "fdr", n = length(MW_test12$p.value))
+MW_test13
+p.adjust(MW_test13$p.value, method = "fdr", n = length(MW_test13$p.value))
+MW_test14
+p.adjust(MW_test14$p.value, method = "fdr", n = length(MW_test14$p.value))
+MW_test15
+p.adjust(MW_test15$p.value, method = "fdr", n = length(MW_test15$p.value))
+MW_test16
+p.adjust(MW_test16$p.value, method = "fdr", n = length(MW_test16$p.value))
+MW_test17
+p.adjust(MW_test17$p.value, method = "fdr", n = length(MW_test17$p.value))
+MW_test18
+p.adjust(MW_test18$p.value, method = "fdr", n = length(MW_test18$p.value))
+MW_test19
+p.adjust(MW_test19$p.value, method = "fdr", n = length(MW_test19$p.value))
+MW_test20
+p.adjust(MW_test20$p.value, method = "fdr", n = length(MW_test20$p.value))
+MW_test21
+p.adjust(MW_test21$p.value, method = "fdr", n = length(MW_test21$p.value))
+MW_test22
+p.adjust(MW_test22$p.value, method = "fdr", n = length(MW_test22$p.value))
+MW_test23
+p.adjust(MW_test23$p.value, method = "fdr", n = length(MW_test23$p.value))
+MW_test24
+p.adjust(MW_test24$p.value, method = "fdr", n = length(MW_test24$p.value))
+MW_test25
+p.adjust(MW_test25$p.value, method = "fdr", n = length(MW_test25$p.value))
+MW_test26
+p.adjust(MW_test26$p.value, method = "fdr", n = length(MW_test26$p.value))
+MW_test27
+p.adjust(MW_test27$p.value, method = "fdr", n = length(MW_test27$p.value))
+MW_test28
+p.adjust(MW_test28$p.value, method = "fdr", n = length(MW_test28$p.value))
+MW_test29
+p.adjust(MW_test29$p.value, method = "fdr", n = length(MW_test29$p.value))
+MW_test30
+p.adjust(MW_test30$p.value, method = "fdr", n = length(MW_test30$p.value))
+
+
+
+
+### MB PERCENTAGE
+
+
+# perform tests
+MB_test1 <- cor.test(MB,DASS_Depression, method = "spearman")
+MB_test2 <- cor.test(MB,DASS_Anxiety, method = "spearman")
+MB_test3 <- cor.test(MB,DASS_Stress, method = "spearman")
+MB_test4 <- cor.test(MB,ESS, method = "spearman")
+MB_test5 <- cor.test(MB,MWQ_mean, method = "spearman")
+MB_test6 <- cor.test(MB,MiniIPIP_Openness, method = "spearman")
+MB_test7 <- cor.test(MB,MiniIPIP_Conscientiousness, method = "spearman")
+MB_test8 <- cor.test(MB,MiniIPIP_Extraversion, method = "spearman")
+MB_test9 <- cor.test(MB,MiniIPIP_Agreeableness, method = "spearman")
+MB_test10 <- cor.test(MB,MiniIPIP_Neuroticism, method = "spearman")
+MB_test11 <- cor.test(MB,PANAS_Positive_Affect, method = "spearman")
+MB_test12 <- cor.test(MB,PANAS_Negative_Affect, method = "spearman")
+MB_test13 <- cor.test(MB,ASRS_ptA_num, method = "spearman")
+MB_test14 <- cor.test(MB,BRS_mean, method = "spearman")
+MB_test15 <- cor.test(MB,WDQ_Autonomy, method = "spearman")
+MB_test16 <- cor.test(MB,WDQ_Information_Processing, method = "spearman")
+MB_test17 <- cor.test(MB,WDQ_Job_Complexity, method = "spearman")
+MB_test18 <- cor.test(MB,WDQ_Problem_Solving, method = "spearman")
+MB_test19 <- cor.test(MB,WDQ_Skill_Variety, method = "spearman")
+MB_test20 <- cor.test(MB,WDQ_Social_Support, method = "spearman")
+MB_test21 <- cor.test(MB,WDQ_Specialization, method = "spearman")
+MB_test22 <- cor.test(MB,WDQ_Task_Significance, method = "spearman")
+MB_test23 <- cor.test(MB,WDQ_Task_Variety, method = "spearman")
+MB_test24 <- cor.test(MB,EES_Employee_Engagement, method = "spearman")
+MB_test25 <- cor.test(MB,AUT_Score.y, method = "spearman")
+MB_test26 <- cor.test(MB,values.ospan, method = "spearman")
+MB_test27 <- cor.test(MB,EOY2017Rating_num.x, method = "spearman")
+
+MB_test28 <- kruskal.test(MB~D1...Gender)
+MB_test29 <- cor.test(MB,D2...Age, method = "spearman")
+MB_test30 <- kruskal.test(MB~D3...mindfulness)
+
+# export stats and apply bonferroni adjustment
+MB_test1
+p.adjust(MB_test1$p.value, method = "fdr", n = length(MB_test1$p.value))
+MB_test2
+p.adjust(MB_test2$p.value, method = "fdr", n = length(MB_test2$p.value))
+MB_test3
+p.adjust(MB_test3$p.value, method = "fdr", n = length(MB_test3$p.value))
+MB_test4
+p.adjust(MB_test4$p.value, method = "fdr", n = length(MB_test4$p.value))
+MB_test5
+p.adjust(MB_test5$p.value, method = "fdr", n = length(MB_test5$p.value))
+MB_test6
+p.adjust(MB_test6$p.value, method = "fdr", n = length(MB_test6$p.value))
+MB_test7
+p.adjust(MB_test7$p.value, method = "fdr", n = length(MB_test7$p.value))
+MB_test8
+p.adjust(MB_test8$p.value, method = "fdr", n = length(MB_test8$p.value))
+MB_test9
+p.adjust(MB_test9$p.value, method = "fdr", n = length(MB_test9$p.value))
+MB_test10
+p.adjust(MB_test10$p.value, method = "fdr", n = length(MB_test10$p.value))
+MB_test11
+p.adjust(MB_test11$p.value, method = "fdr", n = length(MB_test11$p.value))
+MB_test12
+p.adjust(MB_test12$p.value, method = "fdr", n = length(MB_test12$p.value))
+MB_test13
+p.adjust(MB_test13$p.value, method = "fdr", n = length(MB_test13$p.value))
+MB_test14
+p.adjust(MB_test14$p.value, method = "fdr", n = length(MB_test14$p.value))
+MB_test15
+p.adjust(MB_test15$p.value, method = "fdr", n = length(MB_test15$p.value))
+MB_test16
+p.adjust(MB_test16$p.value, method = "fdr", n = length(MB_test16$p.value))
+MB_test17
+p.adjust(MB_test17$p.value, method = "fdr", n = length(MB_test17$p.value))
+MB_test18
+p.adjust(MB_test18$p.value, method = "fdr", n = length(MB_test18$p.value))
+MB_test19
+p.adjust(MB_test19$p.value, method = "fdr", n = length(MB_test19$p.value))
+MB_test20
+p.adjust(MB_test20$p.value, method = "fdr", n = length(MB_test20$p.value))
+MB_test21
+p.adjust(MB_test21$p.value, method = "fdr", n = length(MB_test21$p.value))
+MB_test22
+p.adjust(MB_test22$p.value, method = "fdr", n = length(MB_test22$p.value))
+MB_test23
+p.adjust(MB_test23$p.value, method = "fdr", n = length(MB_test23$p.value))
+MB_test24
+p.adjust(MB_test24$p.value, method = "fdr", n = length(MB_test24$p.value))
+MB_test25
+p.adjust(MB_test25$p.value, method = "fdr", n = length(MB_test25$p.value))
+MB_test26
+p.adjust(MB_test26$p.value, method = "fdr", n = length(MB_test26$p.value))
+MB_test27
+p.adjust(MB_test27$p.value, method = "fdr", n = length(MB_test27$p.value))
+MB_test28
+p.adjust(MB_test28$p.value, method = "fdr", n = length(MB_test28$p.value))
+MB_test29
+p.adjust(MB_test29$p.value, method = "fdr", n = length(MB_test29$p.value))
+MB_test30
+p.adjust(MB_test30$p.value, method = "fdr", n = length(MB_test30$p.value))
+
+
+plot(MB,PANAS_Positive_Affect)
+plot(MB,WDQ_Information_Processing)
+plot(MB,WDQ_Job_Complexity)
+
+barplot
+
+
+plot(MB_test11)
+
+#### THOMAS RESULTS FEEDBACK ####
+
+## Frequency of attention states
+# Aggregate to Frequency of MB/MW/ON
+## Retain task type variable
+tbl_freq_probe1 <- subset(WanderIM_ProbeResults, DistProbe >-2)
+attach(tbl_freq_probe1)
+tbl_freq_probe1 <- aggregate(nTrial~SubID+State+Task, FUN = "length")
+#Pivot so attention each attention state is own variable
+library(reshape2)
+tbl_freq_probe1 <- dcast(tbl_freq_probe1, SubID+Task~State)
+#Rename variables
+library(plyr)
+tbl_freq_probe1 <- plyr::rename(tbl_freq_probe1, c("1"="ON_Freq", "2"="MW_Freq", "3"="MB_Freq", "4"="DR"))
+# Drop don't remember probes
+library(dplyr)
+tbl_freq_probe1 <- select(tbl_freq_probe1, -DR)
+detach(tbl_freq_probe1)
+
+tbl_freq_probe1$ON_Freq[is.na(tbl_freq_probe1$ON_Freq)] <- 0
+tbl_freq_probe1$MW_Freq[is.na(tbl_freq_probe1$MW_Freq)] <- 0
+tbl_freq_probe1$MB_Freq[is.na(tbl_freq_probe1$MB_Freq)] <- 0
+
+# t-tests to show no effect of task type on proportion of mind-state frequency
+as.factor(tbl_freq_probe1$Task)
+is.numeric(tbl_freq_probe1$ON_Freq)
+on.perc.ttest <- t.test(tbl_freq_probe1$ON_Freq~tbl_freq_probe1$Task, paired = TRUE)
+on.perc.ttest
+aggregate(tbl_freq_probe1$ON_Freq~tbl_freq_probe1$Task, FUN=sd)
+aggregate(tbl_freq_probe1$ON_Freq~tbl_freq_probe1$Task, FUN=mean)
+
+mw.perc.ttest <- t.test(tbl_freq_probe1$MW_Freq~tbl_freq_probe1$Task, paired = TRUE)
+mw.perc.ttest
+aggregate(tbl_freq_probe1$MW_Freq~tbl_freq_probe1$Task, FUN=sd)
+aggregate(tbl_freq_probe1$MW_Freq~tbl_freq_probe1$Task, FUN=mean)
+
+mb.perc.ttest <- t.test(tbl_freq_probe1$MB_Freq~tbl_freq_probe1$Task, paired = TRUE, na.action = na.omit)
+mb.perc.ttest
+aggregate(tbl_freq_probe1$MB_Freq~tbl_freq_probe1$Task, FUN=sd)
+aggregate(tbl_freq_probe1$MB_Freq~tbl_freq_probe1$Task, FUN=mean)
+
+
+# Aggregate to origin of MW
+## Retain task type variable
+tbl_freq_probe2 <- subset(WanderIM_ProbeResults, DistProbe >-2)
+attach(tbl_freq_probe2)
+tbl_freq_probe2 <- aggregate(nTrial~SubID+Orig+Task, FUN = "length")
+#Pivot so attention each attention state is own variable
+library(reshape2)
+tbl_freq_probe2 <- dcast(tbl_freq_probe2, SubID+Task~Orig)
+#Rename variables
+library(plyr)
+tbl_freq_probe2 <- plyr::rename(tbl_freq_probe2, c("1"="Room", "2"="Pers", "3"="TaskOrig"))
+detach(tbl_freq_probe2)
+
+# t-tests to show no effect of task type on proportion of mind-state frequency
+as.factor(tbl_freq_probe2$Task)
+is.numeric(tbl_freq_probe2$Room)
+
+tbl_freq_probe2$Room[is.na(tbl_freq_probe2$Room)] <- 0
+tbl_freq_probe2$Pers[is.na(tbl_freq_probe2$Pers)] <- 0
+tbl_freq_probe2$TaskOrig[is.na(tbl_freq_probe2$TaskOrig)] <- 0
+
+room.ttest <- t.test(tbl_freq_probe2$Room~tbl_freq_probe2$Task, paired = TRUE)
+room.ttest
+aggregate(tbl_freq_probe2$Room~tbl_freq_probe2$Task, FUN=sd)
+
+pers.ttest <- t.test(tbl_freq_probe2$Pers~tbl_freq_probe2$Task, paired = TRUE)
+pers.ttest
+aggregate(tbl_freq_probe2$Pers~tbl_freq_probe2$Task, FUN=sd)
+
+task.ttest <- t.test(tbl_freq_probe2$TaskOrig~tbl_freq_probe2$Task, paired = TRUE)
+task.ttest
+aggregate(tbl_freq_probe2$TaskOrig~tbl_freq_probe2$Task, FUN=sd)
 
