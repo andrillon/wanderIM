@@ -42,6 +42,36 @@ for n=1:length(bsl_files)
     
     [logSNR, faxis, logpow]=get_logSNR(temp_data,D.fsample,param);
     
+%     locked_logSNR_IM=[];
+%     locked_logSNR_F=[];
+%     mindist=1; df=1/D.fsample;
+%     length_kernel=length(-mindist+df:df:mindist-df);
+%     kernel=ones(1,length_kernel);
+%     kernel((-mindist+df:df:mindist-df)>-df & (-mindist+df:df:mindist-df)<df)=0;
+%     kernel=kernel/sum(kernel);
+%     for nE=1:63
+%         for nP=1:60
+%             nic=0;
+%             nic2=0;
+%             for ni=1:20
+%                 if rem(1.5*ni,6)~=0 && rem(1.5*ni,7.5)~=0
+%                     nic=nic+1;
+%                     templocked=logpow(nE,faxis>=(1.5*ni-1) & faxis<=(1.5*ni+1),nP);
+% %                     convlogpow= conv(templocked, kernel, 'same');
+%                     locked_logSNR_IM(nic,nE,:,nP)=templocked-convlogpow;
+%                 else
+%                     nic2=nic2+1;
+%                     templocked=logpow(nE,faxis>=(1.5*ni-1) & faxis<=(1.5*ni+1),nP);
+% %                     convlogpow= conv(templocked, kernel, 'same');
+%                     locked_logSNR_F(nic2,nE,:,nP)=templocked-convlogpow;
+%                 end
+%             end
+%         end
+%     end
+%     onprobe_logSNR_lockedIM(n,:,:)=squeeze(mean(mean(locked_logSNR_IM,1),3));
+%     onprobe_logSNR_lockedF(n,:,:)=squeeze(mean(mean(locked_logSNR_F,1),3));
+
+    
     onprobe_logSNR(n,:,:)=mean(logSNR,3);
     onprobe_logPow(n,:,:)=mean(logpow,3);
     
@@ -100,7 +130,8 @@ plot(faxis,squeeze(nanmean(onprobe_logPow(:,match_str(D.chanlabels,'Oz'),:),1)),
 xlim([1 30])
 
 %%
-figure;
+
+
 subplot(1,2,1)
 plot(faxis,squeeze(mean(onprobe_logSNR_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
 hold on;
@@ -117,86 +148,111 @@ legend({'Face','Digit'})
 
 %%
 load('../BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
-myFreq=6;
+load(['EasyCap64_layout']);
 
+plotFreqs={[6 7.5],[12 15],[13.5]};
 figure;
-subplot(2,2,1); format_fig;
-[closestf, idxclosest]=findclosest(faxis,myFreq);
-temp_topo=squeeze(mean(onprobe_logSNR(:,:,idxclosest),1));
-simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
-caxis([-2 2]); colorbar;
-
-myFreq=7.5;
-
-subplot(2,2,2); format_fig;
-[closestf, idxclosest]=findclosest(faxis,myFreq);
-temp_topo=squeeze(mean(onprobe_logSNR(:,:,idxclosest),1));
-simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
-caxis([-2 2]); colorbar;
-
-myFreq=7.5-6;
-
-subplot(2,2,3); format_fig;
-[closestf, idxclosest]=findclosest(faxis,myFreq);
-temp_topo=squeeze(mean(onprobe_logSNR(:,:,idxclosest),1));
-simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
-caxis([-2 2]); colorbar;
-
-myFreq=7.5+6;
-
-subplot(2,2,4); format_fig;
-[closestf, idxclosest]=findclosest(faxis,myFreq);
-temp_topo=squeeze(mean(onprobe_logSNR(:,:,idxclosest),1));
-simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
-caxis([-2 2]); colorbar;
+for ntask=1:2
+    for nplot=1:3
+        
+        subplot(2,3,nplot); format_fig;
+        myFreq=plotFreqs{nplot}; idxF=[];
+        for i=1:length(myFreq), [closestf, idxF(i)]=findclosest(faxis,myFreq(i)); end
+        temp_topo=squeeze(mean(mean(onprobe_logSNR_FA(:,:,idxF),1),3));
+        addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+        topoplot(temp_topo, layout.chaninfo,'style','map','whitebk','on','electrodes','off');
+        rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+        caxis([0 3]);
+        cmap=colormap('hot'); cmap=flipud(cmap); colormap(cmap);
+        colorbar;
+        title(sprintf('FACE'));
+        
+        subplot(2,3,nplot+3); format_fig;
+        myFreq=plotFreqs{nplot}; idxF=[];
+        for i=1:length(myFreq), [closestf, idxF(i)]=findclosest(faxis,myFreq(i)); end
+        temp_topo=squeeze(mean(mean(onprobe_logSNR_DG(:,:,idxF),1),3));
+        addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+        topoplot(temp_topo, layout.chaninfo,'style','map','whitebk','on','electrodes','off');
+        rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+        caxis([0 3]);
+        cmap=colormap('hot'); cmap=flipud(cmap); colormap(cmap);
+        colorbar;
+        title(sprintf('DIGIT'));
+    end
+end
 
 %%
 figure;
-subplot(2,2,1); format_fig;
+subplot(2,3,1); format_fig;
 
-temp_topo=[];
+temp_topo1=[];
 for n=1:length(left_freq)
     [~,idxclosest]=findclosest(faxis,left_freq(n)/2);
-    temp_topo(n,:)=squeeze(mean(onprobe_logSNR(n,:,idxclosest),1));
+    temp_topo1(n,:)=squeeze(mean(onprobe_logSNR(n,:,idxclosest),1));
 end
-simpleTopoPlot2(mean(temp_topo,1), pos', labels,0,[],0,lay,[]);
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(temp_topo1,1), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+
 caxis([-2 2])
 title('Left F')
 
 
-subplot(2,2,2); format_fig;
+subplot(2,3,2); format_fig;
 
-temp_topo=[];
+temp_topo2=[];
 for n=1:length(right_freq)
     [~,idxclosest]=findclosest(faxis,right_freq(n)/2);
-    temp_topo(n,:)=squeeze(mean(onprobe_logSNR(n,:,idxclosest),1));
+    temp_topo2(n,:)=squeeze(mean(onprobe_logSNR(n,:,idxclosest),1));
 end
-simpleTopoPlot2(mean(temp_topo,1), pos', labels,0,[],0,lay,[]);
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(temp_topo2,1), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
 caxis([-2 2])
 title('Right F')
 
-subplot(2,2,3); format_fig;
+subplot(2,3,3); format_fig;
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(temp_topo2,1)-mean(temp_topo1,1), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+caxis([-2 2])
+title('Right-Left F')
 
-temp_topo=[];
+
+subplot(2,3,4); format_fig;
+
+temp_topo1=[];
 for n=1:length(left_freq)
     [~,idxclosest]=findclosest(faxis,left_freq(n));
-    temp_topo(n,:)=squeeze(mean(onprobe_logSNR(n,:,idxclosest),1));
+    temp_topo1(n,:)=squeeze(mean(onprobe_logSNR(n,:,idxclosest),1));
 end
-simpleTopoPlot2(mean(temp_topo,1), pos', labels,0,[],0,lay,[]);
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(temp_topo1,1), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
 caxis([-2 2])
 title('Left 2F')
 
 
-subplot(2,2,4); format_fig;
+subplot(2,3,5); format_fig;
 
-temp_topo=[];
+temp_topo2=[];
 for n=1:length(right_freq)
     [~,idxclosest]=findclosest(faxis,right_freq(n));
-    temp_topo(n,:)=squeeze(mean(onprobe_logSNR(n,:,idxclosest),1));
+    temp_topo2(n,:)=squeeze(mean(onprobe_logSNR(n,:,idxclosest),1));
 end
-simpleTopoPlot2(mean(temp_topo,1), pos', labels,0,[],0,lay,[]);
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(temp_topo2,1), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
 caxis([-2 2])
 title('Right 2F')
+
+subplot(2,3,6); format_fig;
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(temp_topo2,1)-mean(temp_topo1,1), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+caxis([-2 2])
+title('Right-Left 2F')
+
 
 %%
 figure;

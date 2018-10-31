@@ -164,7 +164,7 @@ tbl_probe.R_freq=categorical(tbl_probe.R_freq);
 tbl_probe.Freq=categorical(tbl_probe.Freq);
 tbl_probe.Chan=categorical(tbl_probe.Chan);
 
-writetable(tbl_probe,[behav_path filesep 'WanderIM_ProbeResults_EEG_allCh2.txt']);
+% writetable(tbl_probe,[behav_path filesep 'WanderIM_ProbeResults_EEG_allCh2.txt']);
 
 %%
 tbl_probe(tbl_probe.State=="4",:)=[];
@@ -194,25 +194,115 @@ pIM2.State=reordercats(pIM2.State,{'2','1','3'});
 p2F2.State=reordercats(p2F2.State,{'2','1','3'});
 pA2.State=reordercats(pA2.State,{'2','1','3'});
 
-mdl_IM= fitlme(pIM,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-mdl_F= fitlme(pF,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-mdl_2F= fitlme(p2F,'SNR~Chan * State + nBlock + nProbe +  (1+State| SubID)');
-mdl_A= fitlme(pA,'SNR~Chan * State + nBlock + nProbe +  (1+State| SubID)');
+%% model on performance - by electrode
+pval_mod_perf=[];
+beta_mod_perf=[];
+pval_mod_perf2=[];
+beta_mod_perf2=[];
+fprintf('%2.0f/63\n',0)
+for n=1:63
+    fprintf('\b\b\b\b\b\b%2.0f/63\n',n)
+    temp_p=pA(pA.Chan == num2str(n) & pA.Task == "2",:);
+    temp_p.Chan=removecats(temp_p.Chan);
+    temp_mdl= fitlme(temp_p,'SNR~dp + crit + CorrGo + CorrNoGo + State + (1| SubID)');
+    pval_mod_perf(n,:)=double(temp_mdl.Coefficients(:,6));
+    beta_mod_perf(n,:)=double(temp_mdl.Coefficients(:,2));
+    mod_varnanmes=temp_mdl.CoefficientNames;
+    
+    [p,anovatab,stats] = kruskalwallis(temp_p.SNR,temp_p.State,'off');
+    pval_mod_perf2(n,1:2)=[anovatab{2,6} NaN];
+    beta_mod_perf2(n,1:2)=[anovatab{2,5} NaN];
+    [r,pV] = corr(temp_p.SNR,temp_p.CorrGo,'type','spearman');
+    pval_mod_perf2(n,3)=pV;
+    beta_mod_perf2(n,3)=r;
+    [r,pV] = corr(temp_p.SNR,temp_p.CorrNoGo,'type','spearman');
+    pval_mod_perf2(n,4)=pV;
+    beta_mod_perf2(n,4)=r;
+    [r,pV] = corr(temp_p.SNR,temp_p.dp,'type','spearman');
+    pval_mod_perf2(n,5)=pV;
+    beta_mod_perf2(n,5)=r;
+    [r,pV] = corr(temp_p.SNR,temp_p.crit,'type','spearman');
+    pval_mod_perf2(n,6)=pV;
+    beta_mod_perf2(n,6)=r;
+end
 
-mdl2_IM= fitlme(pIM2,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-mdl2_F= fitlme(pF2,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-mdl2_2F= fitlme(p2F2,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-mdl2_A= fitlme(pA2,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
+temp_p=pA(pA.Task == "2",:);
+temp_mdl= fitlme(temp_p,'SNR~Chan*dp + Chan*crit + Chan*CorrGo + Chan*CorrNoGo + Chan*State + (1| SubID)');
+ChanIdx=find_trials(temp_mdl.CoefficientNames,'State_2:');
+pval_mod_perffull(:,1)=double(temp_mdl.Coefficients(ChanIdx,6));
+beta_mod_perffull(:,1)=double(temp_mdl.Coefficients(ChanIdx,2));
+ChanIdx=find_trials(temp_mdl.CoefficientNames,'State_3:');
+pval_mod_perffull(:,2)=double(temp_mdl.Coefficients(ChanIdx,6));
+beta_mod_perffull(:,2)=double(temp_mdl.Coefficients(ChanIdx,2));
+ChanIdx=find_trials(temp_mdl.CoefficientNames,'CorrGo:');
+pval_mod_perffull(:,3)=double(temp_mdl.Coefficients(ChanIdx,6));
+beta_mod_perffull(:,3)=double(temp_mdl.Coefficients(ChanIdx,2));
+ ChanIdx=find_trials(temp_mdl.CoefficientNames,'CorrNoGo:');
+pval_mod_perffull(:,4)=double(temp_mdl.Coefficients(ChanIdx,6));
+beta_mod_perffull(:,4)=double(temp_mdl.Coefficients(ChanIdx,2));
+ ChanIdx=find_trials(temp_mdl.CoefficientNames,'dp:');
+pval_mod_perffull(:,5)=double(temp_mdl.Coefficients(ChanIdx,6));
+beta_mod_perffull(:,5)=double(temp_mdl.Coefficients(ChanIdx,2));
+ ChanIdx=find_trials(temp_mdl.CoefficientNames,'crit:');
+pval_mod_perffull(:,6)=double(temp_mdl.Coefficients(ChanIdx,6));
+beta_mod_perffull(:,6)=double(temp_mdl.Coefficients(ChanIdx,2));
+  
 
-fullmdl_IM= fitlme(pIM,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
-fullmdl_F= fitlme(pF,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
-fullmdl_2F= fitlme(p2F,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
-fullmdl_A= fitlme(pA,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
+load('../BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
+figure;
+for nsubplot=1:6
+    subplot(2,3,nsubplot)
+    temp_topo=beta_mod_perf(:,nsubplot+1)';
+    temp_topo(pval_mod_perf(:,nsubplot+1)>0.1)=0;
+    simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+    %     caxis([-1 1])
+    title(mod_varnanmes{nsubplot+1})
+    colorbar;
+end
 
-fullmdl2_IM= fitlme(pIM2,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
-fullmdl2_F= fitlme(pF2,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
-fullmdl2_2F= fitlme(p2F2,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
-fullmdl2_A= fitlme(pA2,'SNR~Task * Chan * State + nBlock + nProbe + (1+State| SubID)');
+load('../BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
+figure;
+for nsubplot=[1 3:6]
+    subplot(2,3,nsubplot)
+    temp_topo=beta_mod_perf2(:,nsubplot)';
+    temp_topo(pval_mod_perf2(:,nsubplot)>0.1)=0;
+    simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+    %     caxis([-1 1])
+    title(mod_varnanmes{nsubplot+1})
+    colorbar;
+end
+
+figure;
+for nsubplot=1:6
+    subplot(2,3,nsubplot)
+    temp_topo=beta_mod_perffull(:,nsubplot)';
+     temp_topo(pval_mod_perffull(:,nsubplot)>0.1)=0;
+     simpleTopoPlot2(temp_topo, pos', labels,0,'parula',0,lay,[]);
+    %     caxis([-1 1])
+    title(mod_varnanmes{nsubplot+1})
+    colorbar;
+end
+
+%%
+mdl_IM= fitlme(pIM,'SNR~Chan * State + nBlock + (1| SubID)');
+mdl_F= fitlme(pF,'SNR~Chan * State + nBlock + (1| SubID)');
+mdl_2F= fitlme(p2F,'SNR~Chan * State + nBlock + nProbe +  (1| SubID)');
+mdl_A= fitlme(pA,'SNR~Chan * State + nBlock + nProbe +  (1| SubID)');
+
+mdl2_IM= fitlme(pIM2,'SNR~Chan * State + nBlock + (1| SubID)');
+mdl2_F= fitlme(pF2,'SNR~Chan * State + nBlock + (1| SubID)');
+mdl2_2F= fitlme(p2F2,'SNR~Chan * State + nBlock + (1| SubID)');
+mdl2_A= fitlme(pA2,'SNR~Chan * State + nBlock + (1| SubID)');
+
+fullmdl_IM= fitlme(pIM,'SNR~Task * Chan * State + nBlock + (1| SubID)');
+fullmdl_F= fitlme(pF,'SNR~Task * Chan * State + nBlock + (1| SubID)');
+fullmdl_2F= fitlme(p2F,'SNR~Task * Chan * State + nBlock + (1| SubID)');
+fullmdl_A= fitlme(pA,'SNR~Task * Chan * State + nBlock + (1| SubID)');
+
+fullmdl2_IM= fitlme(pIM2,'SNR~Task * Chan * State + nBlock + (1| SubID)');
+fullmdl2_F= fitlme(pF2,'SNR~Task * Chan * State + nBlock + (1| SubID)');
+fullmdl2_2F= fitlme(p2F2,'SNR~Task * Chan * State + nBlock + (1| SubID)');
+fullmdl2_A= fitlme(pA2,'SNR~Task * Chan * State + nBlock + (1| SubID)');
 
 pF_Face=pF(pF.Task == "1",:);
 p2F_Face=p2F(p2F.Task == "1",:);
@@ -253,25 +343,25 @@ p2F2_Square.State=reordercats(p2F2_Square.State,{'2','1','3'});
 pA2_Square.State=reordercats(pA2_Square.State,{'2','1','3'});
 
 
-face_mdl_IM= fitlme(pIM_Face,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-face_mdl_F= fitlme(pF_Face,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-face_mdl_2F= fitlme(p2F_Face,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-face_mdl_A= fitlme(pA_Face,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
+face_mdl_IM= fitlme(pIM_Face,'SNR~Chan * State + nBlock + (1| SubID)');
+face_mdl_F= fitlme(pF_Face,'SNR~Chan * State + nBlock + (1| SubID)');
+face_mdl_2F= fitlme(p2F_Face,'SNR~Chan * State + nBlock + (1| SubID)');
+face_mdl_A= fitlme(pA_Face,'SNR~Chan * State + nBlock + (1| SubID)');
 
-face_mdl2_IM= fitlme(pIM2_Face,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-face_mdl2_F= fitlme(pF2_Face,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-face_mdl2_2F= fitlme(p2F2_Face,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-face_mdl2_A= fitlme(pA2_Face,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
+face_mdl2_IM= fitlme(pIM2_Face,'SNR~Chan * State + nBlock + (1| SubID)');
+face_mdl2_F= fitlme(pF2_Face,'SNR~Chan * State + nBlock + (1| SubID)');
+face_mdl2_2F= fitlme(p2F2_Face,'SNR~Chan * State + nBlock + (1| SubID)');
+face_mdl2_A= fitlme(pA2_Face,'SNR~Chan * State + nBlock + (1| SubID)');
 
-square_mdl_IM= fitlme(pIM_Square,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-square_mdl_F= fitlme(pF_Square,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-square_mdl_2F= fitlme(p2F_Square,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-square_mdl_A= fitlme(pA_Square,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
+square_mdl_IM= fitlme(pIM_Square,'SNR~Chan * State + nBlock + (1| SubID)');
+square_mdl_F= fitlme(pF_Square,'SNR~Chan * State + nBlock + (1| SubID)');
+square_mdl_2F= fitlme(p2F_Square,'SNR~Chan * State + nBlock + (1| SubID)');
+square_mdl_A= fitlme(pA_Square,'SNR~Chan * State + nBlock + (1| SubID)');
 
-square_mdl2_IM= fitlme(pIM2_Square,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-square_mdl2_F= fitlme(pF2_Square,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-square_mdl2_2F= fitlme(p2F2_Square,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
-square_mdl2_A= fitlme(pA2_Square,'SNR~Chan * State + nBlock + nProbe + (1+State| SubID)');
+square_mdl2_IM= fitlme(pIM2_Square,'SNR~Chan * State + nBlock + (1| SubID)');
+square_mdl2_F= fitlme(pF2_Square,'SNR~Chan * State + nBlock + (1| SubID)');
+square_mdl2_2F= fitlme(p2F2_Square,'SNR~Chan * State + nBlock + (1| SubID)');
+square_mdl2_A= fitlme(pA2_Square,'SNR~Chan * State + nBlock + (1| SubID)');
 
 load('../BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
 

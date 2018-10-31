@@ -109,10 +109,12 @@ for n=1:length(files)
     end
     
     %%% aggregate trials between probes
+    countpr=0;
     for nbl=1:6
         these_probes=probe_res(probe_res(:,4)==nbl,:);
         these_trials=test_res(test_res(:,1)==nbl,:);
         for npr=1:10
+            countpr=countpr+1;
             this_pr_tridx=these_probes(npr,6);
             if npr==1
                 last_pr_tridx=0;
@@ -137,8 +139,8 @@ for n=1:length(files)
             tcorr_distPr(tcorr_catTr==1)=-sum(tcorr_catTr==1):1:-1;
             tcorr_distPr(tcorr_catTr==0)=-sum(tcorr_catTr==0):1:-1;
             % Colum order:
-            all_probes_headers={'SubID','nBlock','Task','nTrial','Look','State','Orig','Awa','Int','Eng','Perf','Vig','Corr','RT','TrCat','DistProbe'};
-            all_probes_mat=[all_probes_mat ; [repmat([str2num(SubID) nbl these_probes(npr,5) this_pr_tridx probe_details],size(temp_testres,1),1) tcorr_perf tcorr_RT tcorr_catTr tcorr_distPr']];
+            all_probes_headers={'SubID','nBlock','nProbe','Task','nTrial','Look','State','Orig','Awa','Int','Eng','Perf','Vig','Corr','RT','TrCat','DistProbe'};
+            all_probes_mat=[all_probes_mat ; [repmat([str2num(SubID) nbl countpr these_probes(npr,5) this_pr_tridx probe_details],size(temp_testres,1),1) tcorr_perf tcorr_RT tcorr_catTr tcorr_distPr']];
         end
     end
 end

@@ -187,6 +187,8 @@ for nt=1:2
         
         corr_GO_byprobe_full{npr,nt}=(tp_probes_thistype(:,end-19:end));
         corr_NOGO_byprobe_full{npr,nt}=(tp_probes_thistype2(:,end-1:end));
+   corr_GO_byprobe_raw{npr,nt}=nanmean(tp_probes_thistype(:,end-19:end),2);
+        corr_NOGO_byprobe_raw{npr,nt}=nanmean(tp_probes_thistype2(:,end-1:end),2);
 
     end
     
@@ -419,9 +421,26 @@ subplot(2,2,1); format_fig;
 hb(1)=simpleBarPlot(0.6,100*squeeze(corr_GO_byprobe{1,1}),state_colours(1,:),0.35,'k');
 hb(2)=simpleBarPlot(1.0,100*squeeze(corr_GO_byprobe{2,1}),state_colours(2,:),0.35,'k');
 hb(3)=simpleBarPlot(1.4,100*squeeze(corr_GO_byprobe{3,1}),state_colours(3,:),0.35,'k');
+[pV]=ranksum(100*squeeze(corr_GO_byprobe{2,1}),100*squeeze(corr_GO_byprobe{1,1}));
+fprintf('... GO... FACE: MW vs. ON ... p=%1.5f\n',pV)
+[pV]=ranksum(100*squeeze(corr_GO_byprobe{3,1}),100*squeeze(corr_GO_byprobe{1,1}));
+fprintf('... GO... FACE: MB vs. ON ... p=%1.5f\n',pV)
+[pV]=ranksum(100*squeeze(corr_GO_byprobe{2,1}),100*squeeze(corr_GO_byprobe{3,1}));
+fprintf('... ... GO... FACE: MB vs. MW ... p=%1.5f\n',pV)
+fprintf('\n')
+
 hb(1)=simpleBarPlot(2.0,100*squeeze(corr_GO_byprobe{1,2}),[1 1 1 ; state_colours(1,:)],0.35,'k');
 hb(2)=simpleBarPlot(2.4,100*squeeze(corr_GO_byprobe{2,2}),[1 1 1 ; state_colours(2,:)],0.35,'k');
 hb(3)=simpleBarPlot(2.8,100*squeeze(corr_GO_byprobe{3,2}),[1 1 1 ; state_colours(3,:)],0.35,'k');
+[pV]=ranksum(100*squeeze(corr_GO_byprobe{2,2}),100*squeeze(corr_GO_byprobe{1,2}));
+fprintf('... GO... DIGT: MW vs. ON ... p=%1.5f\n',pV)
+[pV]=ranksum(100*squeeze(corr_GO_byprobe{3,2}),100*squeeze(corr_GO_byprobe{1,2}));
+fprintf('... GO... DIGT: MB vs. ON ... p=%1.5f\n',pV)
+[pV]=ranksum(100*squeeze(corr_GO_byprobe{2,2}),100*squeeze(corr_GO_byprobe{3,2}));
+fprintf('... ... GO... DIGT MB vs. MW ... p=%1.5f\n',pV)
+fprintf('\n')
+
+
 set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
 ylabel('Corr Go')
 title('Correctness by Task')
@@ -433,9 +452,25 @@ subplot(2,2,2); format_fig;
 hb(1)=simpleBarPlot(0.6,100*squeeze(corr_NOGO_byprobe{1,1}),state_colours(1,:),0.35,'k');
 hb(2)=simpleBarPlot(1.0,100*squeeze(corr_NOGO_byprobe{2,1}),state_colours(2,:),0.35,'k');
 hb(3)=simpleBarPlot(1.4,100*squeeze(corr_NOGO_byprobe{3,1}),state_colours(3,:),0.35,'k');
+[pV]=ranksum(100*squeeze(corr_NOGO_byprobe{2,1}),100*squeeze(corr_NOGO_byprobe{1,1}));
+fprintf('... NOGO... FACE: MW vs. ON ... p=%1.5f\n',pV)
+[pV]=ranksum(100*squeeze(corr_NOGO_byprobe{3,1}),100*squeeze(corr_NOGO_byprobe{1,1}));
+fprintf('... NOGO... FACE: MB vs. ON ... p=%1.5f\n',pV)
+[pV]=ranksum(100*squeeze(corr_NOGO_byprobe{2,1}),100*squeeze(corr_NOGO_byprobe{3,1}));
+fprintf('... ... NOGO... FACE: MB vs. MW ... p=%1.5f\n',pV)
+fprintf('\n')
+
 hb(1)=simpleBarPlot(2.0,100*squeeze(corr_NOGO_byprobe{1,2}),[1 1 1 ; state_colours(1,:)],0.35,'k');
 hb(2)=simpleBarPlot(2.4,100*squeeze(corr_NOGO_byprobe{2,2}),[1 1 1 ; state_colours(2,:)],0.35,'k');
 hb(3)=simpleBarPlot(2.8,100*squeeze(corr_NOGO_byprobe{3,2}),[1 1 1 ; state_colours(3,:)],0.35,'k');
+[pV]=ranksum(100*squeeze(corr_NOGO_byprobe{2,2}),100*squeeze(corr_NOGO_byprobe{1,2}));
+fprintf('... NOGO... FACE: MW vs. ON ... p=%1.5f\n',pV)
+[pV]=ranksum(100*squeeze(corr_GO_byprobe{3,1}),100*squeeze(corr_GO_byprobe{1,2}));
+fprintf('... NOGO... FACE: MB vs. ON ... p=%1.5f\n',pV)
+[pV]=ranksum(100*squeeze(corr_GO_byprobe{2,1}),100*squeeze(corr_GO_byprobe{3,2}));
+fprintf('... ... NOGO... FACE: MB vs. MW ... p=%1.5f\n',pV)
+fprintf('\n')
+
 set(gca,'XTick',1:2,'XTickLabel',{'Face','Square'})
 ylabel('Corr No-Go')
 title('Correctness by Task')
@@ -769,3 +804,51 @@ simpleCorPlot(Y1,Y2,[],'pearson',0);
 %%
 R1 = splitapply(@corr,all_probes_mat(all_probes_mat(:,3)==1,11),all_probes_mat(all_probes_mat(:,3)==1,10),all_probes_mat(all_probes_mat(:,3)==1,1));
 R2 = splitapply(@corr,all_probes_mat(all_probes_mat(:,3)==2,11),all_probes_mat(all_probes_mat(:,3)==2,10),all_probes_mat(all_probes_mat(:,3)==2,1));
+
+%%
+%%
+figure;  set(gcf,'Position',[-29        1275        1218         412]);
+subplot(2,2,1); format_fig;
+hb(1)=simpleBarPlot(1,100*squeeze(corr_NOGO_byprobe_raw{1,1}./corr_GO_byprobe_raw{1,1}),state_colours(1,:),0.8,'k');
+hb(2)=simpleBarPlot(2,100*squeeze(corr_NOGO_byprobe_raw{2,1}./corr_GO_byprobe_raw{2,1}),state_colours(2,:),0.8,'k');
+hb(3)=simpleBarPlot(3,100*squeeze(corr_NOGO_byprobe_raw{3,1}./corr_GO_byprobe_raw{3,1}),state_colours(3,:),0.8,'k');
+[h, pV]=ttest2(100*squeeze(corr_NOGO_byprobe_raw{2,1}./corr_GO_byprobe_raw{2,1}),100*squeeze(corr_NOGO_byprobe_raw{1,1}./corr_GO_byprobe_raw{1,1}));
+fprintf('... GO... FACE: MW vs. ON ... p=%1.5f\n',pV)
+[h, pV]=ttest2(100*squeeze(corr_NOGO_byprobe_raw{3,1}./corr_GO_byprobe_raw{3,1}),100*squeeze(corr_NOGO_byprobe_raw{1,1}./corr_GO_byprobe_raw{1,1}));
+fprintf('... GO... FACE: MB vs. ON ... p=%1.5f\n',pV)
+[h, pV]=ttest2(100*squeeze(corr_NOGO_byprobe_raw{2,1}./corr_GO_byprobe_raw{2,1}),100*squeeze(corr_NOGO_byprobe_raw{3,1}./corr_GO_byprobe_raw{3,1}));
+fprintf('... ... GO... FACE: MB vs. MW ... p=%1.5f\n',pV)
+fprintf('\n')
+
+subplot(2,2,2); format_fig;
+hb(1)=simpleBarPlot(1,100*squeeze(corr_NOGO_byprobe_raw{1,2}./corr_GO_byprobe_raw{1,2}),[1 1 1 ; state_colours(1,:)],0.8,'k');
+hb(2)=simpleBarPlot(2,100*squeeze(corr_NOGO_byprobe_raw{2,2}./corr_GO_byprobe_raw{2,2}),[1 1 1 ; state_colours(2,:)],0.8,'k');
+hb(3)=simpleBarPlot(3,100*squeeze(corr_NOGO_byprobe_raw{3,2}./corr_GO_byprobe_raw{3,2}),[1 1 1 ; state_colours(3,:)],0.8,'k');
+[h, pV]=ttest2(100*squeeze(corr_NOGO_byprobe_raw{2,2}./corr_GO_byprobe_raw{2,2}),100*squeeze(corr_NOGO_byprobe_raw{1,2}./corr_GO_byprobe_raw{1,2}));
+fprintf('... GO... DIGT: MW vs. ON ... p=%1.5f\n',pV)
+[h, pV]=ttest2(100*squeeze(corr_NOGO_byprobe_raw{3,2}./corr_GO_byprobe_raw{3,2}),100*squeeze(corr_NOGO_byprobe_raw{1,2}./corr_GO_byprobe_raw{1,2}));
+fprintf('... GO... DIGT: MB vs. ON ... p=%1.5f\n',pV)
+[h, pV]=ttest2(100*squeeze(corr_NOGO_byprobe_raw{2,2}./corr_GO_byprobe_raw{2,2}),100*squeeze(corr_NOGO_byprobe_raw{3,2}./corr_GO_byprobe_raw{3,2}));
+fprintf('... ... GO... DIGT MB vs. MW ... p=%1.5f\n',pV)
+fprintf('\n')
+
+
+subplot(2,2,3); format_fig;
+hb(1)=simpleBarPlot(1-0.4,100*squeeze(corr_GO_byprobe_raw{1,1}),state_colours(1,:),0.35,'k');
+hb(2)=simpleBarPlot(1,100*squeeze(corr_GO_byprobe_raw{2,1}),state_colours(2,:),0.35,'k');
+hb(3)=simpleBarPlot(1+0.4,100*squeeze(corr_GO_byprobe_raw{3,1}),state_colours(3,:),0.35,'k');
+
+hb(1)=simpleBarPlot(3-0.4,100*squeeze(corr_GO_byprobe_raw{1,2}),state_colours(1,:),0.35,'k');
+hb(2)=simpleBarPlot(3,100*squeeze(corr_GO_byprobe_raw{2,2}),state_colours(2,:),0.35,'k');
+hb(3)=simpleBarPlot(3+0.4,100*squeeze(corr_GO_byprobe_raw{3,2}),state_colours(3,:),0.35,'k');
+ylim([90 105])
+
+subplot(2,2,4); format_fig;
+hb(1)=simpleBarPlot(1-0.4,100*squeeze(corr_NOGO_byprobe_raw{1,1}),[1 1 1 ; state_colours(1,:)],0.35,'k');
+hb(2)=simpleBarPlot(1,100*squeeze(corr_NOGO_byprobe_raw{2,1}),[1 1 1 ; state_colours(2,:)],0.35,'k');
+hb(3)=simpleBarPlot(1+0.4,100*squeeze(corr_NOGO_byprobe_raw{3,1}),[1 1 1 ; state_colours(3,:)],0.35,'k');
+
+hb(1)=simpleBarPlot(3-0.4,100*squeeze(corr_NOGO_byprobe_raw{1,2}),[1 1 1 ; state_colours(1,:)],0.35,'k');
+hb(2)=simpleBarPlot(3,100*squeeze(corr_NOGO_byprobe_raw{2,2}),[1 1 1 ; state_colours(2,:)],0.35,'k');
+hb(3)=simpleBarPlot(3+0.4,100*squeeze(corr_NOGO_byprobe_raw{3,2}),[1 1 1 ; state_colours(3,:)],0.35,'k');
+ylim([50 110])

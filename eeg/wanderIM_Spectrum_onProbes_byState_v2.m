@@ -15,7 +15,7 @@
 %% Init
 clear all;
 close all;
-run localdef_wanderIM
+run ../localdef_wanderIM
 
 % adding relevant toolboxes to the path
 % spm12 and LSCPtools
@@ -118,15 +118,22 @@ for n=1:length(bsl_files)
 end
 %% Plot the LogSNR and the Log Power (currently set to Oz channel)
 % across both conditions
-figure;
-subplot(1,2,1)
-plot(faxis,squeeze(mean(onprobe_logSNR(:,match_str(D.chanlabels,'Oz'),:),1)),'b')
-xlim([1 30])
-
+figure; format_fig;
 subplot(1,2,2)
-plot(faxis,squeeze(nanmean(onprobe_logPow(:,match_str(D.chanlabels,'Oz'),:),1)),'r')
+plot(faxis,squeeze(mean(onprobe_logSNR(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b','LineWidth',2)
 xlim([1 30])
+xlabel('Frequency (Hz)')
+ylabel('log(SNR)')
+format_fig;
+title('Oz')
 
+subplot(1,2,1); format_fig;
+plot(faxis,squeeze(nanmean(onprobe_logPow(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','r','LineWidth',2)
+xlim([1 30])
+xlabel('Frequency (Hz)')
+ylabel('log(Power)')
+format_fig;
+title('Oz')
 %% Split the LogSNR and LogPower plots by attention state - face condition
 figure;
 plot(faxis,squeeze(nanmean(onprobe_logSNR_ON(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
