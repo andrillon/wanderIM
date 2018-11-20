@@ -15,7 +15,7 @@ addpath(path_localsleep)
 % select relevant files, here baseline blocks
 eeg_path=[root_path filesep 'preproc_eeg'];
 behav_path=[root_path filesep 'behav'];
-bsl_files=dir([eeg_path filesep 'lprobe_nfEEG_S3*.mat']);
+bsl_files=dir([eeg_path filesep 'probe_nfEEG_S3*.mat']);
 
 %% loop across trials for baseline blocks
 all_amp_Waves=[];
@@ -40,7 +40,8 @@ for n=1:length(bsl_files)
     param.mindist=1; % we want to be able to separate peaks separated by at least 1 Hz
     these_times=D.indsample(-20):D.indsample(0)-1;
     temp_data=D(1:63,these_times,:); % D contains the data with channels * time * trials
-    
+    temp_data=temp_data-repmat(mean(temp_data([41 54],:,:),1),[size(temp_data,1) 1 1]); % D contains the data with channels * time * trials
+
     all_Waves=[];
     for npr=1:size(temp_data,3)
         datainput=squeeze(temp_data(:,:,npr));
@@ -51,6 +52,7 @@ for n=1:length(bsl_files)
                 cell2mat(twa_results.channels(nE).poszx)' ...
                 cell2mat(twa_results.channels(nE).wvend)' ...
                 cell2mat(twa_results.channels(nE).maxnegpk)' ...
+                cell2mat(twa_results.channels(nE).maxnegpkamp)' ...
                 cell2mat(twa_results.channels(nE).maxpospk)' ...
                 cell2mat(twa_results.channels(nE).maxpospkamp)' ...
                 cell2mat(twa_results.channels(nE).mxdnslp)' ...
@@ -58,7 +60,7 @@ for n=1:length(bsl_files)
                 ]];
         end
     end
-    save([eeg_path filesep 'wanderIM_twa_' SubID],'all_Waves')
+    save([eeg_path filesep 'wanderIM_twa2_' SubID],'all_Waves')
     for nE=1:63
         thr_Wave1(n,nE)=prctile(all_Waves(all_Waves(:,3)==nE,4),80);
         thr_Wave2(n,nE)=prctile(all_Waves(all_Waves(:,3)==nE,4),90);

@@ -14,8 +14,11 @@ files=dir([behav_path filesep 'wanderIM_behavres_s*.mat']);
 %% Loop on files
 all_blinks_mat=[];
 all_sacc_mat=[];
-all_pup_mat=[];
+all_pup_mat=nan(20*6*10,25019);
+all_PosX_mat=nan(20*6*10,25019);
+all_PosY_mat=nan(20*6*10,25019);
 all_eyet_probes=[];
+ntotprobe=0;
 for n=1:length(files)
     subID=files(n).name;
     bound=findstr(subID,'wanderIM_behavres_s');
@@ -26,7 +29,7 @@ for n=1:length(files)
     load([behav_path filesep behav_file.name]);
     
     % load eye-tracker data
-    savename=['wanderIM_eyelink_S' subID];
+    savename=['wanderIM_eyelink_S' subID '_clean'];
     load([eyet_path filesep savename])
     fprintf('... %s loaded\n',subID)
     Fs=EL_headers.Fs;
@@ -44,6 +47,7 @@ for n=1:length(files)
         for npr=1:10
             fprintf('... Block %g Probe %g\n',nbl,npr)
             this_pr_tridx=these_probes(npr,6);
+            ntotprobe=ntotprobe+1;
             if npr==1
                 last_pr_tridx=0;
             else
@@ -58,14 +62,14 @@ for n=1:length(files)
             probe_details(7)=these_probes(npr,37); % Performance
             probe_details(8)=these_probes(npr,38); % Alterness
             %  7: resp Q1 Looking (1: Yes / 2: No)
-    %  8: resp Q2 Mind-State (1: On / 2: MW / 3: MB / 4: ?)
-    %  9: resp Q3 Origine (1: room / 2: personal / 3: task)
-    % 10: resp Q4 Awareness (1 (fully) to 4 (not at all))
-    % 11: resp Q5 Intention (1 (fully) to 4 (not at all))
-    % 12: resp Q6 Engagement (1 (not) to 4 (very))
-    % 13: resp Q7 Performance (1 (bad) to 4 (good))
-    % 14: resp Q8 Alterness (1 (alert) to 4 (sleepy))
-    
+            %  8: resp Q2 Mind-State (1: On / 2: MW / 3: MB / 4: ?)
+            %  9: resp Q3 Origine (1: room / 2: personal / 3: task)
+            % 10: resp Q4 Awareness (1 (fully) to 4 (not at all))
+            % 11: resp Q5 Intention (1 (fully) to 4 (not at all))
+            % 12: resp Q6 Engagement (1 (not) to 4 (very))
+            % 13: resp Q7 Performance (1 (bad) to 4 (good))
+            % 14: resp Q8 Alterness (1 (alert) to 4 (sleepy))
+            
             temp_testresgo=these_trials(these_trials(:,4)<this_pr_tridx & ~isnan(these_trials(:,12)),:);
             tcorr_go=(temp_testresgo(end-19:end,12))';%/corr_go(n,these_probes(npr,5));
             temp_testresnogo=these_trials(these_trials(:,4)<this_pr_tridx & ~isnan(these_trials(:,11)),:);
@@ -95,8 +99,15 @@ for n=1:length(files)
             % Eye-Tracker - pupil
             this_probe_time=probe_times(nbl,npr);
             [~,idx_this_probe]=findclosest(EL_data.time,this_probe_time);
-            temp_Pupil=EL_data.pupilSize((-30*Fs:5*Fs)+idx_this_probe);
-            all_pup_mat=[all_pup_mat ; [temp_behav temp_Pupil']];
+            temp_Pupil=EL_data.clean_pupilSize((-20*Fs:5*Fs)+idx_this_probe);
+            all_pup_mat(ntotprobe,:)=[temp_behav temp_Pupil'];
+            
+            % Eye-Tracker - pos X, Y
+            temp_PosX=EL_data.clean_posX((-20*Fs:5*Fs)+idx_this_probe);
+            all_PosX_mat(ntotprobe,:)=[temp_behav temp_PosX'];
+            temp_PosY=EL_data.clean_posY((-20*Fs:5*Fs)+idx_this_probe);
+            all_PosY_mat(ntotprobe,:)=[temp_behav temp_PosY'];
+            
             
             ampSac=sqrt((EL_events.Sacc.posX_end(all_sacc_idx)+EL_events.Sacc.posX_start(all_sacc_idx)).^2+(EL_events.Sacc.posY_end(all_sacc_idx)+EL_events.Sacc.posY_start(all_sacc_idx)).^2);
             all_eyet_probes=[all_eyet_probes ; [temp_behav sum(temp_blinks(:,end)<400) mean(temp_blinks(temp_blinks(:,end)<400,end)) size(temp_sacc,1) mean(ampSac) mean(temp_sacc(:,end))]];
@@ -106,13 +117,14 @@ end
 
 %% figure Pupil
 figure; set(gcf,'position',[4    12   542   762])
-xTime=(-30*Fs:5*Fs)/Fs;
+xTime=(-20*Fs:5*Fs)/Fs;
 for task=1:2
     subplot(2,1,task);
     format_fig;
     for nstate=1:3
-        tempplot=mean(all_pup_mat(all_pup_mat(:,7)==nstate & all_pup_mat(:,4)==task,size(temp_behav,2)+1:end));
-        simpleTplot(xTime,tempplot,0,Colors(nstate,:),0,'-',1,0.5,5,0,2);
+        tempplot=nanmean(all_pup_mat(all_pup_mat(:,7)==nstate & all_pup_mat(:,4)==task,size(temp_behav,2)+1:end));
+        tempplot=tempplot-nanmean(tempplot(xTime>0));
+        simpleTplot(xTime,tempplot,0,Colors(nstate,:),0,'-',1,0.5,20,0,2);
     end
     legend({'ON','MW','MB'})
 end
@@ -122,7 +134,7 @@ format_fig;
 for task=1:2
     for nstate=1:3
         tempplot=(all_pup_mat(all_pup_mat(:,7)==nstate & all_pup_mat(:,4)==task,size(temp_behav,2)+1:end));
-        tempplot=mean(tempplot(:,xTime>-5 & xTime<0),2);
+        tempplot=nanmean(tempplot(:,xTime>-5 & xTime<0),2);
         if task==1
             simpleBarPlot(nstate+0.2*(task*2-3),tempplot,[Colors(nstate,:)],0.35,'k',[],2);
         elseif task==2
@@ -133,8 +145,107 @@ end
 ylabel('Pupil before')
 ylim([400 1400])
 xlim([0.2 3.8])
-    set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
-    xlim([0.2 3.8])
+set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
+xlim([0.2 3.8])
+
+%% figure Pupil
+figure; set(gcf,'position',[4    12   542   762])
+xTime=(-20*Fs:5*Fs)/Fs;
+mysval={[1 3],[2]};
+for task=1:2
+    subplot(2,1,task);
+    format_fig;
+    for nstate=1:2
+        tempplot=nanmean(all_pup_mat(ismember(all_pup_mat(:,8),mysval{nstate}) & all_pup_mat(:,4)==task,size(temp_behav,2)+1:end));
+        %         tempplot=tempplot-nanmean(tempplot(xTime>0));
+        simpleTplot(xTime,tempplot,0,Colors(nstate,:),0,'-',1,0.5,20,0,2);
+    end
+    legend({'Dist','MW'})
+end
+
+figure
+format_fig;
+for task=1:2
+    for nstate=1:2
+        tempplot=(all_pup_mat(ismember(all_pup_mat(:,8),mysval{nstate}) & all_pup_mat(:,4)==task,size(temp_behav,2)+1:end));
+        tempplot=nanmean(tempplot(:,xTime>-5 & xTime<0),2);
+        if task==1
+            simpleBarPlot(nstate+0.2*(task*2-3),tempplot,[Colors(nstate,:)],0.35,'k',[],2);
+        elseif task==2
+            simpleBarPlot(nstate+0.2*(task*2-3),tempplot,[1 1 1;Colors(nstate,:)],0.35,'k',[],2);
+        end
+    end
+end
+ylabel('Pupil before')
+ylim([400 1400])
+xlim([0.2 2.8])
+set(gca,'XTick',1:2,'XTickLabel',{'Dist','MW'})
+xlim([0.2 2.8])
+
+
+%% Heatmaps
+figure
+for task=1:2
+    for nstate=1:3
+        tempplotX=(all_PosX_mat(all_PosX_mat(:,7)==nstate & all_PosX_mat(:,4)==task,size(temp_behav,2)+1:end));
+        tempplotY=(all_PosY_mat(all_PosY_mat(:,7)==nstate & all_PosY_mat(:,4)==task,size(temp_behav,2)+1:end));
+        toplot=[];
+        for ntr=1:size(tempplotX,1)
+            [toplot(:,:,ntr),XEDGES,YEDGES] = histcounts2(tempplotX(ntr,:),tempplotY(ntr,:),[0:10:2500],[0:10:2500]);
+            toplot(:,:,ntr)=toplot(:,:,ntr)/nansum(nansum(toplot(:,:,ntr),1),2)*100;
+        end
+        subplot(2,3,3*(task-1)+nstate);
+        format_fig;
+        imagesc(XEDGES,YEDGES,nanmean(toplot,3));
+        ylim([1000 1500])
+        xlim([500 1000])
+        heatmaps{task,nstate}=nanmean(toplot,3);
+    end
+end
+
+figure
+for nstate=1:3
+    for nstate2=nstate:3
+        if nstate2==nstate
+            subplot(3,3,3*(nstate-1)+nstate2);
+            format_fig;
+            imagesc(XEDGES,YEDGES,heatmaps{task,nstate});
+            ylim([1000 1500])
+            xlim([500 1000])
+        else
+            subplot(3,3,3*(nstate-1)+nstate2);
+            format_fig;
+            imagesc(XEDGES,YEDGES,heatmaps{task,nstate}-heatmaps{task,nstate2});
+            ylim([1000 1500])
+            xlim([500 1000])
+        end
+        
+    end
+end
+
+%%
+for task=1:2
+    figure
+    for nstate=1:3
+        for nstate2=nstate:3
+            if nstate2==nstate
+                subplot(3,3,3*(nstate-1)+nstate2);
+                format_fig;
+                imagesc(XEDGES,YEDGES,heatmaps{task,nstate});
+                ylim([1000 1500])
+                xlim([500 1000])
+            else
+                subplot(3,3,3*(nstate-1)+nstate2);
+                format_fig;
+                imagesc(XEDGES,YEDGES,heatmaps{task,nstate}-heatmaps{task,nstate2});
+                ylim([1000 1500])
+                xlim([500 1000])
+                caxis([-0.6 0.6])
+            end
+            
+        end
+    end
+end
 %% figure Bar
 figure;
 NamesPlot={'# blinks','dur blinks','# saccades'};
@@ -184,11 +295,11 @@ for nvar=1:5
     simpleCorPlotsetbin(5-all_eyet_probes(:,9),all_eyet_probes(:,varCol(nvar)),1:4,{'o','b','b',96,20},[],0,1);
     if nvar==5
         xlabel('Awareness?')
-    set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
+        set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
     else
-    set(gca,'xtick',[])
+        set(gca,'xtick',[])
     end
-%     ylabel(varNames{nvar})
+    %     ylabel(varNames{nvar})
     title('')
 end
 
@@ -201,11 +312,11 @@ for nvar=1:5
     simpleCorPlotsetbin(5-all_eyet_probes(:,10),all_eyet_probes(:,varCol(nvar)),1:4,{'o','b','b',96,20},[],0,1);
     if nvar==5
         xlabel('Intentionality?')
-    set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
+        set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
     else
-    set(gca,'xtick',[])
+        set(gca,'xtick',[])
     end
-%     ylabel(varNames{nvar})
+    %     ylabel(varNames{nvar})
     title('')
 end
 % Engagement
@@ -217,11 +328,11 @@ for nvar=1:5
     simpleCorPlotsetbin(all_eyet_probes(:,11),all_eyet_probes(:,varCol(nvar)),1:4,{'o','b','b',96,20},[],0,1);
     if nvar==5
         xlabel('Engagement?')
-    set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
+        set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
     else
-    set(gca,'xtick',[])
+        set(gca,'xtick',[])
     end
-%     ylabel(varNames{nvar})
+    %     ylabel(varNames{nvar})
     title('')
 end
 % Performance
@@ -233,13 +344,13 @@ for nvar=1:5
     simpleCorPlotsetbin(all_eyet_probes(:,12),all_eyet_probes(:,varCol(nvar)),1:4,{'o','b','b',96,20},[],0,1);
     if nvar==5
         xlabel('Performance?')
-    set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
+        set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
     else
-    set(gca,'xtick',[])
+        set(gca,'xtick',[])
     end
-%     ylabel(varNames{nvar})
+    %     ylabel(varNames{nvar})
     title('')
-end    
+end
 % Alterness
 figure; set(gcf,'Position',[1     8   230   700])
 varNames={'CorrGo', 'CorrNoGo',  'd''', 'crit', 'RTgo'};
@@ -249,11 +360,11 @@ for nvar=1:5
     simpleCorPlotsetbin(all_eyet_probes(:,13),all_eyet_probes(:,varCol(nvar)),1:4,{'o','b','b',96,20},[],0,1);
     if nvar==5
         xlabel('Sleepiness?')
-    set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
+        set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
     else
-    set(gca,'xtick',[])
+        set(gca,'xtick',[])
     end
-%     ylabel(varNames{nvar})
+    %     ylabel(varNames{nvar})
     title('')
     xlim([0.5 4.5])
 end    % 14: resp Q8 Alterness (1 (alert) to 4 (sleepy))
@@ -262,17 +373,17 @@ end    % 14: resp Q8 Alterness (1 (alert) to 4 (sleepy))
 % # blinks / dur blinks / # saccades / amp saccades / vel saccades
 figure; set(gcf,'Position',[1     8   230   700])
 varNames={'# blinks', '# sacc',  'amp sacc', 'vel sacc'};
-varCol=[19 21 22 23];
+varCol=[20 21 22 23];
 for nvar=1:4
     subplot(4,1,nvar);
     simpleCorPlotsetbin(5-all_eyet_probes(:,9),all_eyet_probes(:,varCol(nvar)),1:4,{'o','b','b',72,4},[],0,1);
     if nvar==4
         xlabel('Awareness?')
-    set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
+        set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
     else
-    set(gca,'xtick',[])
+        set(gca,'xtick',[])
     end
-%     ylabel(varNames{nvar})
+    %     ylabel(varNames{nvar})
     title('')
     xlim([0.5 4.5])
 end    % 14: resp Q8 Alterness (1 (alert) to 4 (sleepy))
@@ -280,17 +391,17 @@ end    % 14: resp Q8 Alterness (1 (alert) to 4 (sleepy))
 
 figure; set(gcf,'Position',[1     8   230   700])
 varNames={'# blinks', '# sacc',  'amp sacc', 'vel sacc'};
-varCol=[19 21 22 23];
+varCol=[20 21 22 23];
 for nvar=1:4
     subplot(4,1,nvar);
     simpleCorPlotsetbin(all_eyet_probes(:,11),all_eyet_probes(:,varCol(nvar)),1:4,{'o','b','b',72,4},[],0,1);
     if nvar==4
         xlabel('Engagement?')
-    set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
+        set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
     else
-    set(gca,'xtick',[])
+        set(gca,'xtick',[])
     end
-%     ylabel(varNames{nvar})
+    %     ylabel(varNames{nvar})
     title('')
     xlim([0.5 4.5])
 end    % 14: resp Q8 Alterness (1 (alert) to 4 (sleepy))
@@ -298,17 +409,17 @@ end    % 14: resp Q8 Alterness (1 (alert) to 4 (sleepy))
 
 figure; set(gcf,'Position',[1     8   230   700])
 varNames={'# blinks', '# sacc',  'amp sacc', 'vel sacc'};
-varCol=[19 21 22 23];
+varCol=[20 21 22 23];
 for nvar=1:4
     subplot(4,1,nvar);
     simpleCorPlotsetbin(all_eyet_probes(:,12),all_eyet_probes(:,varCol(nvar)),1:4,{'o','b','b',72,4},[],0,1);
     if nvar==4
         xlabel('Performance?')
-    set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
+        set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
     else
-    set(gca,'xtick',[])
+        set(gca,'xtick',[])
     end
-%     ylabel(varNames{nvar})
+    %     ylabel(varNames{nvar})
     title('')
     xlim([0.5 4.5])
 end    % 14: resp Q8 Alterness (1 (alert) to 4 (sleepy))
@@ -316,19 +427,92 @@ end    % 14: resp Q8 Alterness (1 (alert) to 4 (sleepy))
 
 figure; set(gcf,'Position',[1     8   230   700])
 varNames={'# blinks', '# sacc',  'amp sacc', 'vel sacc'};
-varCol=[19 21 22 23];
+varCol=[20 21 22 23];
 for nvar=1:4
     subplot(4,1,nvar);
     simpleCorPlotsetbin(all_eyet_probes(:,13),all_eyet_probes(:,varCol(nvar)),1:4,{'o','b','b',72,4},[],0,1);
     if nvar==4
         xlabel('Sleepiness?')
-    set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
+        set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
     else
-    set(gca,'xtick',[])
+        set(gca,'xtick',[])
     end
-%     ylabel(varNames{nvar})
+    %     ylabel(varNames{nvar})
     title('')
     xlim([0.5 4.5])
 end    % 14: resp Q8 Alterness (1 (alert) to 4 (sleepy))
 
-    
+%% Pupil and taks parameters
+myCols=[9 11 12 13];
+myColsNames={'Awa','Eng','Perf','Sleep'};
+myTaskNames={'F','D'};
+figure;
+for nvar=1:2
+    for task=1:2
+        subplot(2,2,2*(task-1)+nvar);  format_fig;
+        for nstate=3:-1:1
+            tempplot=(all_pup_mat(all_pup_mat(:,7)==nstate & all_pup_mat(:,4)==task,size(temp_behav,2)+1:end));
+            tempplot=nanmean(tempplot(:,xTime>-20 & xTime<0),2);
+            tempplot2=all_eyet_probes(all_eyet_probes(:,7)==nstate & all_eyet_probes(:,4)==task,myCols(nvar));
+            simpleCorPlotsetbin(tempplot2,tempplot,1:4,{'o',Colors(nstate,:),Colors(nstate,:),72,4},[],0,1);
+        end
+        title(sprintf('%s - %s',myTaskNames{task},myColsNames{nvar}))
+        if task==1
+        ylim([500 1500])
+        elseif task==2
+        ylim([800 2000]-200)
+        end
+    xlim([0.5 4.5])
+           set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
+ end
+end
+
+
+myCols=[9 11 12 13];
+myColsNames={'Awareness','Engagement','Performance','Sleepiness'};
+myTaskNames={'F','D'};
+figure; set(gcf,'Position',[  1         325        1392         480])
+for nvar=1:4
+    subplot(1,4,nvar);  format_fig;
+    for nstate=3:-1:1
+        tempplot=(all_pup_mat(all_pup_mat(:,7)==nstate,size(temp_behav,2)+1:end));
+        tempplot=nanmean(tempplot(:,xTime>-20 & xTime<0),2);
+        tempplot2=all_eyet_probes(all_eyet_probes(:,7)==nstate,myCols(nvar));
+        simpleCorPlotsetbin(tempplot2,tempplot,1:4,{'o',Colors(nstate,:),Colors(nstate,:),72,4},[],0,1);
+    end
+    title(sprintf('%s',myColsNames{nvar}))
+    if task==1
+        ylim([500 1500])
+    elseif task==2
+        ylim([800 2000]-200)
+    end
+    if nvar==1
+        ylabel('Pupil size')
+    end
+    xlim([0.5 4.5])
+        set(gca,'xtick',[1 4],'xticklabel',{'Low','High'})
+end
+
+%%
+figure
+format_fig;
+% for task=1:2
+    for nstate=1:3
+        if nstate~=2
+        tempplot=(all_pup_mat(all_pup_mat(:,7)==nstate & all_pup_mat(:,4)==task,size(temp_behav,2)+1:end));
+        else
+        tempplot=(all_pup_mat(all_pup_mat(:,7)==nstate & all_pup_mat(:,8)==nstate & all_pup_mat(:,4)==task,size(temp_behav,2)+1:end));
+        end
+        tempplot=nanmean(tempplot(:,xTime>-5 & xTime<0),2);
+%         if task==1
+            simpleBarPlot(nstate,tempplot,[Colors(nstate,:)],0.9,'k',[],2);
+%         elseif task==2
+%             simpleBarPlot(nstate+0.2*(task*2-3),tempplot,[1 1 1;Colors(nstate,:)],0.35,'k',[],2);
+%         end
+    end
+% end
+ylabel('Pupil before')
+ylim([400 1400])
+xlim([0.2 3.8])
+set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
+xlim([0.2 3.8])

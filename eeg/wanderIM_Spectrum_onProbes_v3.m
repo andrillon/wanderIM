@@ -37,7 +37,7 @@ for n=1:length(bsl_files)
     param.method='fft'; % fast fourier transform
     param.mindist=1; % we want to be able to separate peaks separated by at least 1 Hz
     these_times=D.indsample(-20):D.indsample(0)-1;
-%     these_times=D.indsample(0)+1:D.indsample(20);
+    %     these_times=D.indsample(0)+1:D.indsample(20);
     temp_data=D(1:63,these_times,:); % D contains the data with channels * time * trials
     
     [logSNR, faxis, logpow]=get_logSNR(temp_data,D.fsample,param);
@@ -61,29 +61,31 @@ for n=1:length(bsl_files)
             idx_trials=find_trials(D.conditions,'DT');
         end
         temp_data=D(1:63,these_times,idx_trials); % D contains the data with channels * time * trials
-%         % RESS logSNR
-%         myFreqs=[6 7.5 12 15 13.5];
-%         for nf=1:length(myFreqs)
-% %             paramRESS=[];
-% %             paramRESS.peakfreq1=myFreqs(nf);
-% %             paramRESS.peakwidt=0.2;
-% %             paramRESS.neighfreq=1;
-% %             paramRESS.neighwidt=1;
-% %             paramRESS.fft_res=0.1; %0.1 default
-% %             paramRESS.mindist=0.3; %0.5Hz default
-% %             paramRESS.lowerfreq=1; %2Hz default
-% %             [snrR, snrE, faxis2, maps, components]=get_logSNR_RESS(temp_data,D.fsample,paramRESS);
-%             
-%             param=[];
-%             param.method='fft'; % fast fourier transform
-%             param.mindist=1;
-%             RESS_comp(1,:,:)=components;
-%             [logSNR_comp, faxis_comp, logpow_comp]=get_logSNR(RESS_comp,D.fsample,param);
-%             
-%             onprobe_logSNR_RESS(n,nT,nf,:,:)=logSNR_comp;
-%             onprobe_Comp_RESS(n,nT,nf,:,:)=components;
-%             onprobe_Maps_RESS(n,nT,nf,:)=maps;
-%         end
+        %         % RESS logSNR
+        myFreqs=[6 7.5 12 15 13.5];
+        for nf=1:length(myFreqs)
+            paramRESS=[];
+            paramRESS.peakfreq1=myFreqs(nf);
+            paramRESS.peakwidt=0.2;
+            paramRESS.neighfreq=1;
+            paramRESS.neighwidt=1;
+            paramRESS.fft_res=0.1; %0.1 default
+            paramRESS.mindist=0.3; %0.5Hz default
+            paramRESS.lowerfreq=1; %2Hz default
+            [snrR, snrE, faxis2, maps, components]=get_logSNR_RESS(temp_data,D.fsample,paramRESS);
+            
+            param=[];
+            param.method='fft'; % fast fourier transform
+            param.mindist=1;
+            RESS_comp(1,:,:)=components;
+            [logSNR_comp, faxis_comp, logpow_comp]=get_logSNR(RESS_comp,D.fsample,param);
+            
+            onprobe_logSNR_RESS(n,nT,nf,:,:)=logSNR_comp;
+            onprobe_Comp_RESS(n,nT,nf,:,:)=components;
+            onprobe_Maps_RESS(n,nT,nf,:)=maps;
+            onprobe_snrR_RESS(n,nT,nf,:)=snrR;
+            onprobe_snrE_RESS(n,nT,nf,:,:)=snrE;
+        end
         [logSNR_dat, faxis_dat, logpow_dat]=get_logSNR(temp_data,D.fsample,param);
         onprobe_logSNR_chan(n,nT,:,:,:)=logSNR_dat;
     end
@@ -227,3 +229,113 @@ for nfre=1:5
     simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
     caxis([-1 1]*max(max((mean(zscore(onprobe_Maps_RESS(:,2,:,:),[],4),1)))))
 end
+
+%%
+%% RESS component
+% F1, F2, IM for left
+% F1, F2, IM for right
+% myFreqs=[6 7.5 12 15 13.5];
+L_F_FMaps=[];
+R_F_FMaps=[];
+IM_FMaps=[];
+L_F_DMaps=[];
+R_F_DMaps=[];
+IM_DMaps=[];
+L_2F_FMaps=[];
+R_2F_FMaps=[];
+L_2F_DMaps=[];
+R_2F_DMaps=[];
+for n=1:9 %length(bsl_files)
+    if left_freq(n)==15
+        L_F_FMaps=[L_F_FMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,1,2,:),2)))'];
+        R_F_FMaps=[R_F_FMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,1,1,:),2)))'];
+        
+        L_2F_FMaps=[L_2F_FMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,1,4,:),2)))'];
+        R_2F_FMaps=[R_2F_FMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,1,3,:),2)))'];
+    else
+        L_F_FMaps=[L_F_FMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,1,1,:),2)))'];
+        R_F_FMaps=[R_F_FMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,1,2,:),2)))'];
+        
+        L_2F_FMaps=[L_2F_FMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,1,3,:),2)))'];
+        R_2F_FMaps=[R_2F_FMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,1,4,:),2)))'];
+    end
+    IM_FMaps=[IM_FMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,1,5,:),2)))'];
+    
+    if left_freq(n)==15
+        L_F_DMaps=[L_F_DMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,2,2,:),2)))'];
+        R_F_DMaps=[R_F_DMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,2,1,:),2)))'];
+        
+        L_2F_DMaps=[L_2F_DMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,1,4,:),2)))'];
+        R_2F_DMaps=[R_2F_DMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,1,3,:),2)))'];
+    else
+        L_F_DMaps=[L_F_DMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,2,1,:),2)))'];
+        R_F_DMaps=[R_F_DMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,2,2,:),2)))'];
+        
+        L_2F_DMaps=[L_2F_DMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,2,3,:),2)))'];
+        R_2F_DMaps=[R_2F_DMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,2,4,:),2)))'];
+    end
+    IM_DMaps=[IM_DMaps ; real(squeeze(mean(onprobe_Maps_RESS(n,2,5,:),2)))'];
+end
+
+figure;
+subplot(2,5,1); format_fig;
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(L_F_FMaps), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+title('FACE - Right Fund')
+
+subplot(2,5,2); format_fig;
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(R_F_FMaps), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+title('FACE - Left Fund')
+
+subplot(2,5,3); format_fig;
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(L_2F_FMaps), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+title('FACE - Right 2F')
+
+subplot(2,5,4); format_fig;
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(R_2F_FMaps), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+title('FACE - Left 2F')
+
+
+subplot(2,5,5); format_fig;
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(IM_FMaps), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+title('FACE - IM: F2-F1')
+
+subplot(2,5,5+1); format_fig;
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(L_F_DMaps), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+title('DIGIT - Right Fund')
+
+subplot(2,5,5+2); format_fig;
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(R_F_DMaps), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+title('DIGIT - Left Fund')
+
+subplot(2,5,5+3); format_fig;
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(L_2F_DMaps), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+title('DIGIT - Right 2F')
+
+subplot(2,5,5+4); format_fig;
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(R_2F_DMaps), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+title('DIGIT - Left 2F')
+
+subplot(2,5,5+5); format_fig;
+addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+topoplot(mean(IM_DMaps), layout.chaninfo,'style','both','whitebk','on','electrodes','off');
+rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
+title('DIGIT - IM: F2-F1')
+

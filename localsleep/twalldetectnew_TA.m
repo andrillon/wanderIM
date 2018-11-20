@@ -33,9 +33,9 @@ clear pos_index neg_index troughs peaks poscross negcross wndx b bx c cx nump ma
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 disp([' Analyzing ', num2str(size(LoadedEEG.data,1)),' channels']);
-h = waitbar(0,'Detection Progress');
+% h = waitbar(0,'Detection Progress');
 for i=1:size(LoadedEEG.data,1) % (i) is the number of the channel
-    waitbar(i/size(LoadedEEG.data,1),h,'Detection Progress')
+%     waitbar(i/size(LoadedEEG.data,1),h,'Detection Progress')
     % Data Extraction, Resample and Filtering
     datax = squeeze(LoadedEEG.data(i,1:size(LoadedEEG.data,2),1));
 	signal = resample(double(datax),fs,orig_fs);
@@ -166,6 +166,6 @@ end; %end channel loop
 %% Save Output
 
 twa_results.channels=channels;
-close(h)
+% close(h)
 
 disp(['**** Detection Completed ****']);
