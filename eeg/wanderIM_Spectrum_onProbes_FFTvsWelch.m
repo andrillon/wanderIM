@@ -38,7 +38,14 @@ for n=1:length(bsl_files)
     param.mindist=1; % we want to be able to separate peaks separated by at least 1 Hz
     these_times=D.indsample(-20):D.indsample(0)-1;
     temp_data=D(1:63,these_times,:); % D contains the data with channels * time * trials
-    
+    fprintf('... hp filtering ...')
+    for ntr=1:size(temp_data,3)
+        for nch=1:63
+            temp_data(nch,:,ntr)=highpass(temp_data(nch,:,ntr), D.fsample, 1, 4);
+        end
+    end
+        fprintf('... DONE\n')
+
     [logSNR, faxis, logpow]=get_logSNR(temp_data,D.fsample,param);
  
     param2=[];

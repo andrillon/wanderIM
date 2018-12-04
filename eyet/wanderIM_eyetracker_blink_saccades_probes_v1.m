@@ -123,8 +123,8 @@ for task=1:2
     format_fig;
     for nstate=1:3
         tempplot=nanmean(all_pup_mat(all_pup_mat(:,7)==nstate & all_pup_mat(:,4)==task,size(temp_behav,2)+1:end));
-        tempplot=tempplot-nanmean(tempplot(xTime>0));
-        simpleTplot(xTime,tempplot,0,Colors(nstate,:),0,'-',1,0.5,20,0,2);
+%         tempplot=tempplot-nanmean(tempplot(xTime>0));
+        simpleTplot(xTime,tempplot,0,Colors(nstate,:),0,'-',1,0.5,500,0,2);
     end
     legend({'ON','MW','MB'})
 end
@@ -474,7 +474,7 @@ myTaskNames={'F','D'};
 figure; set(gcf,'Position',[  1         325        1392         480])
 for nvar=1:4
     subplot(1,4,nvar);  format_fig;
-    for nstate=3:-1:1
+    for nstate=2:-1:1
         tempplot=(all_pup_mat(all_pup_mat(:,7)==nstate,size(temp_behav,2)+1:end));
         tempplot=nanmean(tempplot(:,xTime>-20 & xTime<0),2);
         tempplot2=all_eyet_probes(all_eyet_probes(:,7)==nstate,myCols(nvar));

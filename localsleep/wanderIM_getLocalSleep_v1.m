@@ -35,9 +35,6 @@ for n=1:length(bsl_files)
     left_freq(n)=SubjectInfo.FlickerR; % CAREFUL this is inverted
     right_freq(n)=SubjectInfo.FlickerL;
     
-    param=[];
-    param.method='fft'; % fast fourier transform
-    param.mindist=1; % we want to be able to separate peaks separated by at least 1 Hz
     these_times=D.indsample(-20):D.indsample(0)-1;
     temp_data=D(1:63,these_times,:); % D contains the data with channels * time * trials
     temp_data=temp_data-repmat(mean(temp_data([41 54],:,:),1),[size(temp_data,1) 1 1]); % D contains the data with channels * time * trials
