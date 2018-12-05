@@ -37,7 +37,7 @@ for n=1:length(bsl_files)
     
     these_times=D.indsample(-20):D.indsample(0)-1;
     temp_data=D(1:63,these_times,:); % D contains the data with channels * time * trials
-    temp_data=temp_data-repmat(mean(temp_data([41 54],:,:),1),[size(temp_data,1) 1 1]); % D contains the data with channels * time * trials
+    temp_data=temp_data-repmat(mean(temp_data([10 21],:,:),1),[size(temp_data,1) 1 1]); % D contains the data with channels * time * trials
 
     all_Waves=[];
     for npr=1:size(temp_data,3)
