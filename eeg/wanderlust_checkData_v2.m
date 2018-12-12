@@ -2,12 +2,12 @@
 clear all
 % close all
 
-addpath(genpath('/Users/Thomas/Work/local/toolbox/spm12/'));
-eeg_path='/Users/Thomas/temp_data/WanderIM/';
+addpath(genpath('/Users/tand0009/Work/local/spm12/'));
+eeg_path='/Users/tand0009/Data/WanderIM/eeg/';
 
-files={'MWI303_30_05_2018.eeg'};
+files={'MWI666_12_12_2018.eeg'};
 
-save_names={{'MWI303',''}};
+save_names={{'MWI666',''}};
 %% Loop on files
 
 n=1;
@@ -46,14 +46,15 @@ din_dist=din_start(1:end)-[0 din_start(1:end-1)];
 
 fprintf('... ... %g triggers found\n',length(din_start));
  figure;
- plot(din_chan);
+ plot(D.time,din_chan);
  hold on
- scatter(din_start,din_chan(din_start))
+%  scatter(din_start,din_chan(din_start))
  
 %%
 trialonset=[myev(match_str({myev.type},'T')).time];
 trialidx=trialonset*D.fsample+1;
 erp_diode1=nan(length(trialonset),length((-0.2*D.fsample:10*D.fsample)));
+diffdin=[];
 for nTr=1:length(trialonset)
     [closestdin, closestidx]=findclosest(din_start,trialidx(nTr));
     diffdin(nTr)=closestdin-trialidx(nTr);
@@ -97,8 +98,8 @@ for nBase=1:8
 end
 
 %%
-data=D(1:64,:,:);
-data=data-repmat(mean(data,1),[64 1 1]);
+data=D(1:63,:,:);
+data=data-repmat(mean(data,1),[63 1 1]);
 baseline_allE=[];
 baseline_allC=[];
 baseline_SNR_all=[];
@@ -107,7 +108,7 @@ for nBase=1:8
     fprintf('... Baseline block %g\n',nBase)
     pow_tp=[];
     snr_tp=[];
-    for nCh=1:64
+    for nCh=1:63
         for k=1:3
             temp=data(nCh,D.indsample(blockonset(nBase))+(k-1)*10*D.fsample+(1:10*D.fsample),1);
             [faxis, pow_tp(nCh,k,:)]=get_PowerSpec(temp,D.fsample,0,0);
@@ -130,8 +131,8 @@ end
 
 %%
 tempall=baseline_SNR_all;
-load('/Users/Thomas/Work/PostDoc/Monash/Wanderlust/Analyses/BrainVision/CMA-64_REF.mat')
-load('/Users/Thomas/Work/PostDoc/Monash/Wanderlust/Analyses/BrainVision/myLayout_BV64.mat')
+load('/Users/tand0009/Work/PostDoc/Monash/Wanderlust/Analyses/BrainVision/CMA-64_REF.mat')
+load('/Users/tand0009/Work/PostDoc/Monash/Wanderlust/Analyses/BrainVision/myLayout_BV64.mat')
 lay=lay_BV64;
 figure;
 % topo 6Hz
