@@ -34,8 +34,8 @@ for n=1:length(bsl_files)
     thr_wave = prctile(all_Waves(all_Waves(:,3)==2,4),80);
     Fz_Waves = all_Waves(all_Waves(:,3)==2,:);
     halfw_samples = Fz_Waves(Fz_Waves(:,4)>=thr_wave,6) - Fz_Waves(Fz_Waves(:,4)>=thr_wave,5);
-    % ^ Half-period in samples --> convert to period in Hz
-    period = 1./(halfw_samples*2/500);
+    
+    period = 1./(halfw_samples*2/500); % ^ Half-period in samples --> convert to period in Hz
     % Plotting time
     [N edges] = histcounts(period,0:0.1:5.1); % output 'edges' includes rightmost bin
     histc_record(n,:)= N;
@@ -95,7 +95,7 @@ for n=1:length(bsl_files)
     load([eeg_path filesep 'wanderIM_twa2_' SubID])
     
     all_Waves = double(all_Waves); 
-    thr_wave = prctile(all_Waves(all_Waves(:,3)==2,4),80);
+    thr_wave = prctile(all_Waves(all_Waves(:,3)==2,4),90);
     Fz_Waves = all_Waves(all_Waves(:,3)==2,:);
     halfw_samples = Fz_Waves(Fz_Waves(:,4)>=thr_wave,6) - Fz_Waves(Fz_Waves(:,4)>=thr_wave,5);
   
@@ -106,11 +106,10 @@ for n=1:length(bsl_files)
        
 end
 
-
 simpleCorPlot(all_period,all_p2p,[],'pearson');
 xlabel('Period (Hz)')
 ylabel('Peak-to-peak Amplitude')
-title('Correlation between Period of Theta(80) Waves and Peak-to-peak Amplitude in Fz(Ch2)')
+title('Correlation between Period of Theta(90) Waves and Peak-to-peak Amplitude in Fz(Ch2) ')
 
 
 
