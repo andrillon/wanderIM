@@ -5,9 +5,9 @@ clear all
 addpath(genpath('/Users/tand0009/Work/local/spm12/'));
 eeg_path='/Users/tand0009/Data/WanderIM/eeg/';
 
-files={'MWI666_12_12_2018.eeg'};
+files={'MWI333_18_12_2018.eeg'};
 
-save_names={{'MWI666',''}};
+save_names={{'MWI333',''}};
 %% Loop on files
 
 n=1;

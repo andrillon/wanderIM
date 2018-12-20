@@ -306,7 +306,7 @@ end
 
 %%
 prop_wave=[];
-bintime=0:2500:10000;
+bintime=0:500:10000;
 for nt=1:2
     for nstate=1:3
         temp=all_Waves_byProbes3(all_Waves_byProbes3(:,4)==nt & all_Waves_byProbes3(:,6)==nstate,end);
