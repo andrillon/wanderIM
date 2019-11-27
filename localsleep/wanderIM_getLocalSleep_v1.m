@@ -19,7 +19,7 @@ bsl_files=dir([eeg_path filesep 'probe_nfEEG_S3*.mat']);
 
 %% loop across trials for baseline blocks
 all_amp_Waves=[];
-for n=1:length(bsl_files)
+for n=21:length(bsl_files)
     % load file with spm
     filename=bsl_files(n).name;
     D=spm_eeg_load([eeg_path filesep filename]);
@@ -43,6 +43,7 @@ for n=1:length(bsl_files)
     for npr=1:size(temp_data,3)
         datainput=squeeze(temp_data(:,:,npr));
         [twa_results]=twalldetectnew_TA(datainput,D.fsample,0);
+        save([eeg_path filesep 'wanderIM_twa_raw_' SubID '_P' num2str(npr)],'twa_results')
         for nE=1:63
             all_Waves=[all_Waves ; [repmat([n npr nE],length(abs(cell2mat(twa_results.channels(nE).maxnegpkamp))),1) abs(cell2mat(twa_results.channels(nE).maxnegpkamp))'+abs(cell2mat(twa_results.channels(nE).maxpospkamp))' ...
                 cell2mat(twa_results.channels(nE).negzx)' ...
@@ -57,11 +58,11 @@ for n=1:length(bsl_files)
                 ]];
         end
     end
-    save([eeg_path filesep 'wanderIM_twa2_' SubID],'all_Waves')
-    for nE=1:63
-        thr_Wave1(n,nE)=prctile(all_Waves(all_Waves(:,3)==nE,4),80);
-        thr_Wave2(n,nE)=prctile(all_Waves(all_Waves(:,3)==nE,4),90);
-    end
+    save([eeg_path filesep 'wanderIM_twa3_' SubID],'all_Waves')
+%     for nE=1:63
+%         thr_Wave1(n,nE)=prctile(all_Waves(all_Waves(:,3)==nE,4),80);
+%         thr_Wave2(n,nE)=prctile(all_Waves(all_Waves(:,3)==nE,4),90);
+%     end
     
 %                 num_Waves(nE,npr)=length(cell2mat(twa_results.channels(nE).maxnegpkamp));
 %             amp_Waves(nE,npr)=mean(abs(cell2mat(twa_results.channels(nE).maxnegpkamp))+abs(cell2mat(twa_results.channels(nE).maxpospkamp)));

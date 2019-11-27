@@ -267,6 +267,7 @@ for nQ=1:length(myQ)
         thisQ=squeeze(nanmean(probes_quest(:,:,nstate,myQ(nQ)),2));
         end
         toplot(nstate,nQ)=nanmean(thisQ);
+        tostat{nstate,nQ}=(thisQ);
     end
 end
 % plot the axis

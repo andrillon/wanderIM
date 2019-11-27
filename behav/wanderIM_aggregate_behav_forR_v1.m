@@ -50,11 +50,16 @@ for n=1:length(files)
         corr_go(n,nbt)=nanmean(tp_gos);
         corr_nogo(n,nbt)=nanmean(tp_nogos);
     end
-    temp_perf=min(test_res(:,11:12),[],2);
-    temp_cat=(test_res(:,5)==test_res(:,6));
+    temp_perf=min(test_res(:,11:12),[],2);    
+      temp_cat=(test_res(:,5)==test_res(:,6));
+  code_resp=nan(length(temp_perf),1);
+    code_resp(temp_perf==1 & temp_cat==0)=1;
+    code_resp(temp_perf==1 & temp_cat==1)=0;
+    code_resp(temp_perf==0 & temp_cat==0)=0;
+    code_resp(temp_perf==0 & temp_cat==1)=1;
     temp_RT=(test_res(:,10)-test_res(:,8));
-    all_test_res=[all_test_res ; [str2num(SubID)*ones(size(test_res,1),1) test_res(:,[1 2 4 5]) temp_perf temp_RT temp_cat]];
-    all_test_headers={'SubID','nBlock','Task','nTrial','StimID','Corr','RT','TrCat'};
+    all_test_res=[all_test_res ; [str2num(SubID)*ones(size(test_res,1),1) test_res(:,[1 2 4 5]) temp_perf temp_RT temp_cat code_resp]];
+    all_test_headers={'SubID','nBlock','Task','nTrial','StimID','Corr','RT','TrCat','Resp'};
 
     % probe
     %  1: num probe within block
@@ -146,6 +151,7 @@ for n=1:length(files)
 end
 
 %% transform into tables and export
+all_test_res(:,end-1)=all_test_res(:,end-1)==0;
 tbl_test=array2table(all_test_res,'VariableNames',all_test_headers);
 % 'SubID','nBlock','Task','nTrial','StimID','Corr','RT','TrCat'
 tbl_test.SubID=categorical(tbl_test.SubID);
@@ -153,7 +159,12 @@ tbl_test.Task=categorical(tbl_test.Task);
 tbl_test.StimID=categorical(tbl_test.StimID);
 tbl_test.TrCat=categorical(tbl_test.TrCat);
 
-writetable(tbl_test,[data_path filesep 'WanderIM_TestResults.txt']);
+tbl_test.cond_v=cell(length(tbl_test.TrCat),1);
+tbl_test.cond_v(tbl_test.TrCat=="1" & tbl_test.Task=="1")={'goF'};
+tbl_test.cond_v(tbl_test.TrCat=="0" & tbl_test.Task=="1")={'nogoF'};
+tbl_test.cond_v(tbl_test.TrCat=="1" & tbl_test.Task=="2")={'goD'};
+tbl_test.cond_v(tbl_test.TrCat=="0" & tbl_test.Task=="2")={'nogoD'};
+writetable(tbl_test,[data_path filesep 'WanderIM_TestResults2.txt']);
 
 
 tbl_probe=array2table(all_probes_mat,'VariableNames',all_probes_headers);
@@ -165,8 +176,38 @@ tbl_probe.State=categorical(tbl_probe.State);
 tbl_probe.Orig=categorical(tbl_probe.Orig);
 tbl_probe.TrCat=categorical(tbl_probe.TrCat);
 
-writetable(tbl_probe,[data_path filesep 'WanderIM_ProbeResults.txt']);
 
+tbl_probe.response=nan(length(tbl_probe.TrCat),1);
+tbl_probe.response(tbl_probe.TrCat=="1" & tbl_probe.Corr==1)=0;
+tbl_probe.response(tbl_probe.TrCat=="1" & tbl_probe.Corr==0)=1;
+tbl_probe.response(tbl_probe.TrCat=="0" & tbl_probe.Corr==1)=1;
+tbl_probe.response(tbl_probe.TrCat=="0" & tbl_probe.Corr==0)=0;
+
+tbl_probe.stimulus=nan(length(tbl_probe.TrCat),1);
+tbl_probe.stimulus=tbl_probe.TrCat=="0";
+
+tbl_probe.vigcat=tbl_probe.Vig>=3;
+
+tbl_probe.cond_v=cell(length(tbl_probe.TrCat),1);
+tbl_probe.cond_v(tbl_probe.TrCat=="1" & tbl_probe.State=="1")={'nogo_on'};
+tbl_probe.cond_v(tbl_probe.TrCat=="1" & tbl_probe.State=="2")={'nogo_mw'};
+tbl_probe.cond_v(tbl_probe.TrCat=="1" & tbl_probe.State=="3")={'nogo_mb'};
+tbl_probe.cond_v(tbl_probe.TrCat=="0" & tbl_probe.State=="1")={'go_on'};
+tbl_probe.cond_v(tbl_probe.TrCat=="0" & tbl_probe.State=="2")={'go_mw'};
+tbl_probe.cond_v(tbl_probe.TrCat=="0" & tbl_probe.State=="3")={'go_mb'};
+
+
+writetable(tbl_probe,[data_path filesep 'WanderIM_ProbeResults2_MW.txt']);
+
+uniSub=(unique(tbl_probe.SubID));
+for nS=1:length(uniSub)
+    for nSt=1:3
+        numberState(nS,nSt)=length(unique(tbl_probe.nProbe(tbl_probe.State==num2str(nSt) &tbl_probe.SubID==uniSub(nS))));
+    end
+    for nVg=1:4
+        numberVig(nS,nVg)=length(unique(tbl_probe.nProbe(tbl_probe.Vig==(nVg) & tbl_probe.SubID==uniSub(nS))));
+    end
+end
 %% Examples of models (to do in R)
 lme_0= fitlme(tbl_probe,'Corr~1+(1|SubID)');
 lme_1= fitlme(tbl_probe,'Corr~1+(1|SubID)');

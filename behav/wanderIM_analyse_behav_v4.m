@@ -26,7 +26,7 @@ for n=1:length(files)
     % load
     load([data_path filesep files(n).name]);
     SubID=SubjectInfo.subID;
-    fprintf('... %s\n',SubID)
+    fprintf('... %s duration of task %3.1f min\n',SubID,(all_GrandEnd-all_GrandStart)/60)
 %    CARS_flag(n)=CARS_bool(CARS_bool(:,1)==str2num(SubID),2);
     % SART
     %  1: num block
@@ -87,7 +87,7 @@ for n=1:length(files)
         pption_MS(n,nbt,:)=pption;
         pption_Ori(n,nbt,:)=pption2;
     end
-    for nb=1:max(probe_res(:,3))
+    for nb=1:max(probe_res(:,4))
         temp=probe_res(probe_res(:,4)==nb,[5 31:38]);
         temp2=test_res(test_res(:,1)==nb,[11 12]);
         %             pption=[];
@@ -135,7 +135,7 @@ for n=1:length(files)
             %             else
             %                 last_pr_tridx=these_probes(npr-1,6);
             %             end
-            last_pr_tridx=20;
+            last_pr_tridx=this_pr_tridx-21;
             number_STD(n,nbl,npr)=sum(these_trials(these_trials(:,4)>last_pr_tridx & these_trials(:,4)<this_pr_tridx,5)~=3);
             number_DEV(n,nbl,npr)=sum(these_trials(these_trials(:,4)>last_pr_tridx & these_trials(:,4)<this_pr_tridx,5)==3);
             
@@ -698,7 +698,7 @@ figure; format_fig;
 radar_data=[nanmean(squeeze(mean(mean_byprobe_awa(:,:,:),2))); nanmean(squeeze(mean(mean_byprobe_wil(:,:,:),2))); nanmean(squeeze(mean(mean_byprobe_eng(:,:,:),2))); nanmean(squeeze(mean(mean_byprobe_prf(:,:,:),2))); nanmean(squeeze(mean(mean_byprobe_vig(:,:,:),2)))];
 %radar_colors={'r', 'g', 'b'};
 radar_colors={state_colours(1, :), state_colours(2, :), state_colours(3,:)};
-radarplot(transpose(radar_data), {'Engagement','Awareness','Intention','Vigilance','Performance'}, radar_colors, radar_colors);
+radarPlot(transpose(radar_data), {'Engagement','Awareness','Intention','Vigilance','Performance'}, radar_colors, radar_colors);
 legend('on-tasks', 'mind-wandering', 'mind-blanking');
 
 %%
