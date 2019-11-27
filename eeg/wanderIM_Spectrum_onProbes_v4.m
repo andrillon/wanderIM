@@ -121,30 +121,33 @@ end
 
 %%
 figure;
-subplot(1,2,1)
+subplot(1,2,1); format_fig;
 plot(faxis,squeeze(mean(onprobe_logSNR(:,match_str(D.chanlabels,'Oz'),:),1)),'b')
-xlim([1 30])
+xlim([1 30]); format_fig;
 
-subplot(1,2,2)
+
+subplot(1,2,2); format_fig;
 plot(faxis,squeeze(nanmean(onprobe_logPow(:,match_str(D.chanlabels,'Oz'),:),1)),'r')
-xlim([1 30])
-
-%%
+xlim([1 30]); format_fig;
 
 
-subplot(1,2,1)
+subplot(1,2,1); format_fig;
 plot(faxis,squeeze(mean(onprobe_logSNR_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
 hold on;
 plot(faxis,squeeze(mean(onprobe_logSNR_DG(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','r')
 xlim([1 30])
-legend({'Face','Digit'})
+legend({'Face','Digit'}); format_fig;
+xlabel('Freq (Hz)')
+ylabel('SNR')
 
-subplot(1,2,2)
+subplot(1,2,2); format_fig;
 plot(faxis,squeeze(mean(onprobe_logPow_FA(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','b')
 hold on;
 plot(faxis,squeeze(mean(onprobe_logPow_DG(:,match_str(D.chanlabels,'Oz'),:),1)),'Color','r')
 xlim([1 30])
-legend({'Face','Digit'})
+legend({'Face','Digit'}); format_fig;
+xlabel('Freq (Hz)')
+ylabel('Power')
 
 %%
 load('../BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
@@ -254,32 +257,3 @@ caxis([-2 2])
 title('Right-Left 2F')
 
 
-%%
-figure;
-format_fig;
-
-temp_topo=zscore(squeeze(mean(mean(onprobe_logPow(:,:,faxis>8 & faxis<11 & (faxis~=9 | faxis~=10.5)),3),1)));
-
-simpleTopoPlot2(mean(temp_topo,1), pos', labels,0,[],0,lay,[]);
-% caxis([-2 2])
-title('Alpha')
-
-
-%% Where are the tags on the scalp ?
-% retrieve the channels position
-load('../BrainVision_63ChLayout.mat') % the position are not ideal here - to be modified
-% pos=D.coor2D';
-% labels=D.chanlabels(1:63);
-figure;
-for nfre=1:5
-    subplot(2,5,nfre); format_fig; % left fondamental
-    temp_topo=(squeeze(mean(zscore(onprobe_Maps_RESS(:,1,nfre,:),[],4),1)));
-    simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
-    caxis([-1 1]*max(max((mean(zscore(onprobe_Maps_RESS(:,1,:,:),[],4),1)))))
-    % title('Left F')
-    
-    subplot(2,5,5+nfre); format_fig; % left fondamental
-    temp_topo=(squeeze(mean(zscore(onprobe_Maps_RESS(:,2,nfre,:),[],4),1)));
-    simpleTopoPlot2(temp_topo, pos', labels,0,[],0,lay,[]);
-    caxis([-1 1]*max(max((mean(zscore(onprobe_Maps_RESS(:,2,:,:),[],4),1)))))
-end

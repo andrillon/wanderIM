@@ -17,6 +17,8 @@ eeg_path=[root_path filesep 'preproc_eeg'];
 behav_path=[root_path filesep 'behav'];
 bsl_files=dir([eeg_path filesep 'lprobe_nfEEG_S3*.mat']);
 
+LimFrqW=[1 4]; %formerly >4 Hz
+prticle_Thr=95;
 %% loop across trials for baseline blocks
 all_Waves_byProbes=[];
 all_Waves_byProbes2=[];
@@ -48,7 +50,7 @@ for n=1:length(bsl_files)
     % nSub nProbe nE P2Pamp negX posX WaveEnd MaxNegPeak MaxPosPeak
     % PaxsPosPeakAmp MaxDownSlope MaxUpSlope
     
-    load([eeg_path filesep 'wanderIM_twa2_' SubID])
+    load([eeg_path filesep 'wanderIM_twa3_' SubID])
     
     for nE=1:63
         thisE_Waves=all_Waves(all_Waves(:,3)==nE,:);
@@ -60,12 +62,13 @@ for n=1:length(bsl_files)
         %         all_len=[all_len ; [repmat([n nE],length(temp_len),1) temp_len temp_abs]];
         %         thr_Wave1(n,nE)=prctile(all_Waves(all_Waves(:,3)==nE,4),80);
         %         thr_Wave2(n,nE)=prctile(temp_p2p(temp_freq>5),80);
-        thr_Wave2(n,nE)=prctile(all_Waves(temp_freq>5,4),80);
+        thr_Wave2(n,nE)=prctile(all_Waves((temp_freq>=LimFrqW(1) & temp_freq<=LimFrqW(2)),4),prticle_Thr);
         num_Waves(n,nE)=sum(temp_p2p>thr_Wave2(n,nE));
         %           len_Waves(n,nE)=sum(all_Waves(all_Waves(:,3)==nE,4)>thr_Wave2(n,nE));
         upSlope_Waves(n,nE)=mean(thisE_Waves(temp_p2p>thr_Wave2(n,nE),12));
         downSlope_Waves(n,nE)=mean(thisE_Waves(temp_p2p>thr_Wave2(n,nE),11));
         
+        probe_res=[probe_res (probe_res(:,4)-1)*10+probe_res(:,1)];
         for npr=1:60
             thisE_Waves=all_Waves(all_Waves(:,3)==nE & all_Waves(:,2)==npr,:);
             temp_len=abs((thisE_Waves(:,5)-thisE_Waves(:,7)))./500;
@@ -73,15 +76,29 @@ for n=1:length(bsl_files)
             temp_abs=1./temp_len;
             temp_p2p=thisE_Waves(:,4);
             
-            tp_num_Start=thisE_Waves((temp_p2p>thr_Wave2(n,nE) & temp_freq>4),5);
-            tp_num_Waves=sum(temp_p2p>thr_Wave2(n,nE) & temp_freq>4);
-            tp_P2P_Waves=nanmean(temp_p2p((temp_p2p>thr_Wave2(n,nE) & temp_freq>4)));
-            tp_posAmp_Waves=nanmean(thisE_Waves((temp_p2p>thr_Wave2(n,nE) & temp_freq>4),10));
+            tp_num_Start=thisE_Waves((temp_p2p>thr_Wave2(n,nE) & (temp_freq>=LimFrqW(1) & temp_freq<=LimFrqW(2))),5);
+            tp_num_Waves=sum(temp_p2p>thr_Wave2(n,nE) & (temp_freq>=LimFrqW(1) & temp_freq<=LimFrqW(2)));
+            tp_P2P_Waves=nanmean(temp_p2p((temp_p2p>thr_Wave2(n,nE) & (temp_freq>=LimFrqW(1) & temp_freq<=LimFrqW(2)))));
+            tp_posAmp_Waves=nanmean(thisE_Waves((temp_p2p>thr_Wave2(n,nE) & (temp_freq>=LimFrqW(1) & temp_freq<=LimFrqW(2))),10));
             %             tp_negAmp_Waves=nanmean(temp_p2p((temp_p2p>thr_Wave2(n,nE) & temp_freq>4)));
             
-            tp_upSlope_Waves=nanmean(thisE_Waves(thisE_Waves(:,2)==npr & temp_p2p>thr_Wave2(n,nE) & temp_freq>5,12));
-            tp_downSlope_Waves=nanmean(thisE_Waves(thisE_Waves(:,2)==npr & temp_p2p>thr_Wave2(n,nE) & temp_freq>5,11));
-            all_Waves_byProbes=[all_Waves_byProbes ; [n npr probe_res(npr,[4 5 6 32 38]) nE probe_res(npr,32) tp_num_Waves tp_upSlope_Waves tp_downSlope_Waves tp_P2P_Waves tp_posAmp_Waves]];
+            tp_upSlope_Waves=nanmean(thisE_Waves(thisE_Waves(:,2)==npr & temp_p2p>thr_Wave2(n,nE) & (temp_freq>=LimFrqW(1) & temp_freq<=LimFrqW(2)),12));
+            tp_downSlope_Waves=nanmean(thisE_Waves(thisE_Waves(:,2)==npr & temp_p2p>thr_Wave2(n,nE) & (temp_freq>=LimFrqW(1) & temp_freq<=LimFrqW(2)),11));
+            
+            these_probes=probe_res(probe_res(:,end)==npr,:);
+            these_trials=test_res(test_res(:,1)==these_probes(4),:);
+            this_pr_tridx=these_probes(1,6);
+            last_pr_tridx=this_pr_tridx-21;
+            temp_testres=these_trials(these_trials(:,4)>last_pr_tridx & these_trials(:,4)<this_pr_tridx,:);
+            %             temp_testres(1:round(size(temp_testres,1)/2),:)=[];
+            tcorr_go=nanmean(temp_testres(:,12));%/corr_go(n,these_probes(npr,5));
+            tcorr_nogo=nanmean(temp_testres(:,11));%/corr_nogo(n,these_probes(npr,5));
+            num_go=sum(~isnan(temp_testres(:,12)));
+            num_nogo=sum(~isnan(temp_testres(:,11)));
+            rt_go=nanmean(temp_testres(~isnan(temp_testres(:,12)),10)-temp_testres(~isnan(temp_testres(:,12)),8));
+            rt_nogo=nanmean(temp_testres(~isnan(temp_testres(:,11)),10)-temp_testres(~isnan(temp_testres(:,11)),8));
+          
+            all_Waves_byProbes=[all_Waves_byProbes ; [n npr probe_res(npr,[4 5 6 32 38]) nE probe_res(npr,32) tp_num_Waves tp_upSlope_Waves tp_downSlope_Waves tp_P2P_Waves tp_posAmp_Waves rt_go tcorr_go tcorr_nogo]];
             all_Waves_byProbes2=[all_Waves_byProbes2 ; [n npr probe_res(npr,[4 5 6 32 33 34 35 36 37 38]) nE probe_res(npr,32) tp_num_Waves tp_upSlope_Waves tp_downSlope_Waves tp_P2P_Waves tp_posAmp_Waves]];
             all_Waves_byProbes3=[all_Waves_byProbes3 ; [repmat([n npr probe_res(npr,[4 5 6 32 33 34 35 36 37 38]) nE probe_res(npr,32)],length(tp_num_Start),1) tp_num_Start]];
         end
@@ -117,7 +134,7 @@ end
 addpath(genpath(path_eeglab));
 topoplot(temp_topo, layout.chaninfo,'style','map','whitebk','on','electrodes','on');
 cmap=colormap('hot'); cmap=flipud(cmap); colormap(cmap);
-caxis([0 2.5])
+% caxis([0 2.5])
 rmpath(genpath(path_eeglab));
 
 figure;
@@ -131,7 +148,7 @@ for nt=1:2
         addpath(genpath(path_eeglab));
         topoplot(temp_topo, layout.chaninfo,'style','map','whitebk','on','electrodes','on');
         cmap=colormap('hot'); cmap=flipud(cmap); colormap(cmap);
-        caxis([0 2.5])
+        caxis([0 12])
         rmpath(genpath(path_eeglab));
     end
 end
@@ -163,7 +180,7 @@ end
 
 %%
 %[n npr probe_res(npr,[4 5 6 32 38]) nE probe_res(npr,32) tp_num_Waves tp_upSlope_Waves tp_downSlope_Waves]
-tbl=array2table(all_Waves_byProbes,'VariableNames',{'SubID','nProbe','nBlock','Task','nTrial','State','Vig','Chan','State2','nWave','UpSlope','DownSlope','P2P','PosAmp'});
+tbl=array2table(all_Waves_byProbes,'VariableNames',{'SubID','nProbe','nBlock','Task','nTrial','State','Vig','Chan','State2','nWave','UpSlope','DownSlope','P2P','PosAmp','RT','GO','NOGO'});
 tbl(tbl.State==4,:)=[];
 tbl.SubID=categorical(tbl.SubID);
 % tbl.nBlock=categorical(tbl.nBlock);
@@ -172,7 +189,7 @@ tbl.State=categorical(tbl.State);
 % tbl.Chan=categorical(tbl.Chan);
 tbl.pWave=tbl.nWave;
 tbl.pWave(tbl.nWave>0)=1;
-tbl.pWave(tbl.nWave==0)=0;
+tbl.pWave(tbl.nWave<=0)=0;
 % tbl.Rand=rand(length(tbl.Rand),1);
 
 writetable(tbl,'/Users/tand0009/Data/WanderIM/preproc_eeg/wanderIM_table_localsleep.txt')
@@ -181,6 +198,68 @@ writetable(tbl,'/Users/tand0009/Data/WanderIM/preproc_eeg/wanderIM_table_localsl
 % mdl1= fitglme(tbl,'nWave~nBlock+(1|SubID)','Distribution','poisson');
 % mdl2= fitlme(tbl,'nWave~nBlock+Task*Chan*State+(1|SubID)');
 
+%%
+for nE=1:63
+    [r_NOGO(nE) pV_NOGO(nE)]=corr(tbl.nWave(tbl.Chan==nE),1-tbl.NOGO(tbl.Chan==nE),'type','spearman');
+    [r_GO(nE) pV_GO(nE)]=corr(tbl.nWave(tbl.Chan==nE),tbl.GO(tbl.Chan==nE),'type','spearman');
+    [r_RT(nE) pV_RT(nE)]=corr(tbl.nWave(tbl.Chan==nE),tbl.RT(tbl.Chan==nE),'type','spearman');
+end
+filename = '/Users/tand0009/Data/WanderIM/preproc_eeg/wanderIM_table_localsleep_results3.txt';
+res=import_localSleepRes_fromR(filename);
+
+figure;
+subplot(1,3,1)
+addpath(genpath(path_eeglab));
+temp_topo=r_GO;
+tempplotpV=pV_GO;
+stat_thr=fdr(tempplotpV,0.05);
+topoplot(temp_topo, layout.chaninfo,'style','map','whitebk','on','electrodes','off','emarker2',{find(tempplotpV<=stat_thr),'.','w',24,2});
+rmpath(genpath(path_eeglab));
+colorbar;
+title('Hits')
+
+subplot(1,3,2)
+addpath(genpath(path_eeglab));
+temp_topo=r_NOGO;
+tempplotpV=pV_NOGO;
+stat_thr=fdr(tempplotpV,0.05);
+topoplot(temp_topo, layout.chaninfo,'style','map','whitebk','on','electrodes','off','emarker2',{find(tempplotpV<=stat_thr),'.','w',24,2});
+rmpath(genpath(path_eeglab));
+colorbar;
+title('False Alarms')
+
+subplot(1,3,3)
+addpath(genpath(path_eeglab));
+temp_topo=r_RT;
+tempplotpV=pV_RT;
+stat_thr=fdr(tempplotpV,0.05);
+topoplot(temp_topo, layout.chaninfo,'style','map','whitebk','on','electrodes','off','emarker2',{find(tempplotpV<=stat_thr),'.','w',24,2});
+rmpath(genpath(path_eeglab));
+colorbar;
+title('RT')
+
+figure; format_fig;
+simpleCorPlotsetbin(tbl.nWave(tbl.Chan==47),tbl.RT(tbl.Chan==47),0:1:4);
+xlabel('Number of Waves')
+ylabel('RT')
+set(gca,'XTick',0:1:4,'XTickLabel',{'0','1','2','3','4+'})
+xlim([-0.5 4.5])
+
+%%
+figure;
+hb=[];
+hb(1)=simpleBarPlot(1-0.2,tbl.RT(tbl.Vig<=2 & tbl.Chan==17),'b',0.35,'k',[],4);
+simpleBarPlot(2-0.2,tbl.RT(tbl.nWave==0 & tbl.Chan==17),[1 1 1;0 0 1],0.35,'k',[],4);
+
+hb(2)=simpleBarPlot(1+0.2,tbl.RT(tbl.Vig>2 & tbl.Chan==17),'r',0.35,'k',[],4);
+simpleBarPlot(2+0.2,tbl.RT(tbl.nWave>0 & tbl.Chan==17),[1 1 1;1 0 0],0.35,'k',[],4);
+xlim([0.2 2.8])
+ylim([0.5 0.6])
+format_fig
+set(gca,'XTick',1:2,'XTickLabel',{'subj','obj'})
+xlabel('Tiredness')
+ylabel('RT (s)')
+legend(hb,{'alert','tired'})
 
 %%
 filename = '/Users/tand0009/Data/WanderIM/preproc_eeg/wanderIM_table_localsleep_results3.txt';
@@ -220,7 +299,7 @@ for ntask=1:2
         end
         simpleBarPlot(nstate,mean(temp,2),Colors(nstate,:),0.9,'k',[],2);
     end
-    ylim([20 35])
+%     ylim([20 35])
     set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
     xlim([0.2 3.8])
     ylabel('ampl. theta-waves')
@@ -235,11 +314,48 @@ for ntask=1:2
         end
         simpleBarPlot(nstate,mean(temp,2),Colors(nstate,:),0.9,'k',[],2);
     end
-    ylim([20 35])
+%     ylim([20 35])
     set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
     xlim([0.2 3.8])
     ylabel('ampl. theta-waves')
 end
+
+figure;
+for ntask=1:2
+%     subplot(1,2,ntask);
+    format_fig;
+    for nstate=1:3
+        temp=[];
+        for nE=EOI'
+            temp=[temp tbl.nWave(tbl.Task==num2str(ntask) & tbl.State==num2str(nstate) & ismember(tbl.Chan,nE))];
+        end
+        if ntask==1
+thisC=Colors(nstate,:);
+        else
+thisC=[1 1 1;Colors(nstate,:)];
+        end
+        simpleBarPlot(nstate+0.2*(2*ntask-3),mean(temp,2),thisC,0.35,'k',[],4);
+    end
+    ylim([4 8])
+    set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
+    xlim([0.2 3.8])
+    ylabel('Numb. theta-waves')
+end
+% for ntask=1:2
+%     subplot(2,2,2+ntask);
+%     format_fig;
+%     for nstate=1:3
+%         temp=[];
+%         for nE=EOI2'
+%             temp=[temp tbl.nWave(tbl.Task==num2str(ntask) & tbl.State==num2str(nstate) & ismember(tbl.Chan,nE))];
+%         end
+%         simpleBarPlot(nstate,mean(temp,2),Colors(nstate,:),0.9,'k',[],2);
+%     end
+% %     ylim([20 35])
+%     set(gca,'XTick',1:3,'XTickLabel',{'ON','MW','MB'})
+%     xlim([0.2 3.8])
+%     ylabel('Numb. theta-waves')
+% end
 % subplot(1,3,2)
 % addpath(genpath(path_eeglab));
 % temp_topo=res.MWvsON;

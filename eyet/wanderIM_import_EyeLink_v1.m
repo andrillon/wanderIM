@@ -12,7 +12,7 @@ files=dir([eyet_path filesep 'wanderIM_eyelink_s3*.edf']);
 
 %% Loop on files
 redo=0;
-for n=2:length(files)
+for n=1:length(files)
     subID=files(n).name;
     bound=findstr(subID,'wanderIM_eyelink_s');
     subID=subID(length('wanderIM_eyelink_s')+(1:3));
@@ -89,34 +89,36 @@ for n=2:length(files)
     % Clean ET data
     blinks=EL_events.Blinks;
     fprintf('... ... cleaning blinks (NaN replacement)\n')
-    fprintf('%3.0f%%\n',0)
-    data_time=EL_data.time;
-    data_pupil=EL_data.pupilSize;
-    data_posX=EL_data.posX;
-    data_posY=EL_data.posY;
-    %         beg_ERP=nan(length(blinks.start),2000);
-    %         end_ERP=nan(length(blinks.start),2000);
-    for nbl=1:length(blinks.start)
-        fprintf('\b\b\b\b\b%3.0f%%\n',nbl/length(blinks.start)*100)
-        startB=max(find(data_time==blinks.start(nbl))-50,1);
-        endB=min(find(data_time==blinks.end(nbl))+50,length(data_time));
-        
-        %%%%%
-        %             beg_ERP(nbl,:)=data_pupil(startB(1)+(-1000:999))-nanmean(data_pupil(startB(1)+(-1000:-500)));
-        %             end_ERP(nbl,:)=data_pupil(endB(1)+(-999:1000))-nanmean(data_pupil(endB(1)+(500:1000)));
-        
-        data_pupil(startB(1):endB(1))=nan;
-        data_posX(startB(1):endB(1))=nan;
-        data_posY(startB(1):endB(1))=nan;
-    end
-    fprintf('... ... done\n')
+    %     fprintf('%3.0f%%\n',0)
+    %     data_time=EL_data.time;
+    %     data_pupil=EL_data.pupilSize;
+    %     data_posX=EL_data.posX;
+    %     data_posY=EL_data.posY;
+    %     %         beg_ERP=nan(length(blinks.start),2000);
+    %     %         end_ERP=nan(length(blinks.start),2000);
+    %     for nbl=1:length(blinks.start)
+    %         fprintf('\b\b\b\b\b%3.0f%%\n',nbl/length(blinks.start)*100)
+    %         startB=max(find(data_time==blinks.start(nbl))-100,1);
+    %         endB=min(find(data_time==blinks.end(nbl))+100,length(data_time));
+    %
+    %         %%%%%
+    %         %             beg_ERP(nbl,:)=data_pupil(startB(1)+(-1000:999))-nanmean(data_pupil(startB(1)+(-1000:-500)));
+    %         %             end_ERP(nbl,:)=data_pupil(endB(1)+(-999:1000))-nanmean(data_pupil(endB(1)+(500:1000)));
+    %
+    %         data_pupil(startB(1):endB(1))=nan;
+    %         data_posX(startB(1):endB(1))=nan;
+    %         data_posY(startB(1):endB(1))=nan;
+    %     end
+    %     fprintf('... ... done\n')
+    data_pupil=get_EyeLink_cleanpupil(EL_data.pupilSize,EL_headers.Fs,EL_data.time,EL_events);
     EL_data.clean_pupilSize=data_pupil;
-    EL_data.clean_posX=data_posX;
-    EL_data.clean_posY=data_posY;
+    EL_data.filt_pupilSize=lowpass(EL_data.clean_pupilSize, EL_headers.Fs, 6, 4);
+        %     EL_data.clean_posX=data_posX;
+    %     EL_data.clean_posY=data_posY;
     
     save([eyet_path filesep savename '_clean'],'EL_headers','EL_data','EL_events');
-%     else
-%         fprintf('... %s already imported\n',subID)
-% end
+    %     else
+    %         fprintf('... %s already imported\n',subID)
+    % end
 end
 
