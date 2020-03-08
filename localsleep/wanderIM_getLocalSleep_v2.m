@@ -19,7 +19,7 @@ bsl_files=dir([eeg_path filesep 'probe_nfEEG_S3*.mat']);
 
 %% loop across trials for baseline blocks
 all_amp_Waves=[];
-for n=21:length(bsl_files)
+for n=1:20 %21:length(bsl_files)
     % load file with spm
     filename=bsl_files(n).name;
     D=spm_eeg_load([eeg_path filesep filename]);

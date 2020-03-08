@@ -3,7 +3,7 @@
 
 %% Init
 clear all;
-close all;
+% close all;
 run ../localdef_wanderIM
 
 % adding relevant toolboxes to the path
@@ -14,6 +14,7 @@ addpath(path_localsleep)
 
 % select relevant files, here baseline blocks
 eeg_path=[root_path filesep 'preproc_eeg'];
+eeg_path2=[root_path filesep 'preproc_ica'];
 behav_path=[root_path filesep 'behav'];
 bsl_files=dir([eeg_path filesep 'nfEEG_S3*.mat']);
 bsl_files(5,:)=[];
@@ -27,17 +28,18 @@ fixThr=[];
 art_ampl=200;
 max_Freq=7;
 frontalElecs=[1 32 33 60];
-for n=1:19 %length(bsl_files)
+for n=1:length(bsl_files)
     % load file with spm
     filename=bsl_files(n).name;
     
     % load behavioural results
     SubID=filename;
     SubID=SubID(findstr(SubID,'_S3')+2:findstr(SubID,'_S3')+4);
-    if exist([eeg_path filesep 'wanderIM_cont_twa2_' SubID '.mat'])~=0
+    if exist([eeg_path filesep 'wanderIM_cont_twa2_' SubID '.mat'])~=0 && exist([eeg_path2 filesep 'wanderIM_twa4_' SubID '.mat'])~=0
         fprintf('... load local sleep detection for subject %s\n',SubID)
         
         load([eeg_path filesep 'wanderIM_twa3_' SubID]);
+%         load([eeg_path2 filesep 'wanderIM_twa4_' SubID]);
     else
         fprintf('... load local sleep detection subject %s DOES NOT EXIST\n',SubID)
         continue;
@@ -190,6 +192,7 @@ title('SW density /min')
 figure;
 % subplot(1,3,1)
 addpath(genpath(path_eeglab));
+rmpath(genpath([path_eeglab filesep 'plugins/Biosig3.3.0']))
 temp_topo=mean(thr_Wave,1);
 topoplot(temp_topo, layout.chaninfo,'style','map','whitebk','on','electrodes','off');
 rmpath(genpath(path_eeglab));

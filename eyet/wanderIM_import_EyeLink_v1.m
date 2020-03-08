@@ -110,13 +110,20 @@ for n=1:length(files)
     %         data_posY(startB(1):endB(1))=nan;
     %     end
     %     fprintf('... ... done\n')
-    data_pupil=get_EyeLink_cleanpupil(EL_data.pupilSize,EL_headers.Fs,EL_data.time,EL_events);
+    [data_pupil, filt_data_pupil]=get_EyeLink_cleanpupil(EL_data.pupilSize,EL_headers.Fs,EL_data.time,EL_events);
     EL_data.clean_pupilSize=data_pupil;
-    EL_data.filt_pupilSize=lowpass(EL_data.clean_pupilSize, EL_headers.Fs, 6, 4);
+    EL_data.filt_pupilSize=filt_data_pupil; %lowpass(EL_data.clean_pupilSize, EL_headers.Fs, 6, 4);
         %     EL_data.clean_posX=data_posX;
     %     EL_data.clean_posY=data_posY;
-    
+%     if sum(isnan(EL_data.filt_pupilSize))>0
+%         warning('NaNs values found\n')
+%     end
     save([eyet_path filesep savename '_clean'],'EL_headers','EL_data','EL_events');
+%     figure;
+%     hold on
+%     plot(EL_data.pupilSize)
+%     plot(EL_data.clean_pupilSize)
+%     plot(EL_data.filt_pupilSize)
     %     else
     %         fprintf('... %s already imported\n',subID)
     % end
