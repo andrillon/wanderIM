@@ -99,7 +99,7 @@ allKC=[];
 allSW=[];
 
 %% Loop on subjects
-nSc=0;
+nSc=0; nSc2=0;
 for nS=1:numel(subList)
     %%% Import in SPM
     subName=ListSubj(subList(nS)).name;
@@ -126,7 +126,7 @@ for nS=1:numel(subList)
     nEc=0;
     iteChange = ones(1,4);
     tempSW=[];
-    tempKC=[];
+    tempKC=[]; nSc2=nSc2+1;
     for nE=13:length(SubjectBehavData.TrialsCaracs)
         if exepts(nE)==1
             nEc=nEc+1;
@@ -165,7 +165,9 @@ for nS=1:numel(subList)
             trial_SO=[];
         end
         fprintf('%d/%d ... %g\n',nE,length(SubjectBehavData.TrialsCaracs),size(trial_SO,1));
-    end
+        SOelecs=new_slowWaves(:,1);SOelecs(SOelecs==0)=[];
+           countSO2(nSc2,:)=hist(SOelecs,1:63);
+ end
     if ~isempty(tempSW) && ~isempty(tempKC)
         nSc=nSc+1;
         allKC(nSc,:,:)=squeeze(nanmean(tempKC,1));
@@ -183,7 +185,7 @@ timeP=-1.0:1/100:1.0;
 figure; format_fig;
 % simpleTplot(timeP,squeeze(allKC(countKC>16,:,65)),0,[1 1 1]*0.5,0,'-',0.5,1,4);
 simpleTplot(timeP,squeeze(allSO(countSO>16,:,65)),0,'k',0,'-',0.5,1,4);
-export_fig('/Users/tand0009/Desktop/SW_ERP_fromSCP.eps')
+% export_fig('/Users/tand0009/Desktop/SW_ERP_fromSCP.eps')
 
 
 addpath(genpath('/Users/tand0009/Work/local/fieldtrip/'))
@@ -193,4 +195,4 @@ figure;
 load('/Users/tand0009/WorkGit/projects/done/whitenoise/Pilot/ProjectData/EGI64_ft_layout.mat')
 temp_topo=squeeze(nanmean(nanmean(allSO(countSO>16,timeP>-0.05 & timeP<0.05,:),2),1));
 simpleTopoPlot_ft(temp_topo(setdiff(1:65,[62 63])), layout,'off','parula',0,0);
-export_fig('/Users/tand0009/Desktop/SW_topo_fromSCP.eps')
+% export_fig('/Users/tand0009/Desktop/SW_topo_fromSCP.eps')

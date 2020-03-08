@@ -103,17 +103,17 @@ continue;
             % Eye-Tracker - pupil
             this_probe_time=probe_times(nbl,npr);
             [~,idx_this_probe]=findclosest(EL_data.time,this_probe_time);
-            temp_Pupil=EL_data.clean_pupilSize((-20*Fs:5*Fs)+idx_this_probe);
+            temp_Pupil=EL_data.filt_pupilSize((-20*Fs:5*Fs)+idx_this_probe);
             all_pup_mat(ntotprobe,:)=[temp_behav temp_Pupil'];
             temp_Pupil_bef=nanmean(temp_Pupil(xTime>-4 & xTime<0));
             temp_Pupil_after=nanmean(temp_Pupil(xTime>0 & xTime<4))-temp_Pupil_bef;
             
-            % Eye-Tracker - pos X, Y
-            temp_PosX=EL_data.clean_posX((-20*Fs:5*Fs)+idx_this_probe);
-            all_PosX_mat(ntotprobe,:)=[temp_behav temp_PosX'];
-            temp_PosY=EL_data.clean_posY((-20*Fs:5*Fs)+idx_this_probe);
-            all_PosY_mat(ntotprobe,:)=[temp_behav temp_PosY'];
-            
+%             % Eye-Tracker - pos X, Y
+%             temp_PosX=EL_data.clean_posX((-20*Fs:5*Fs)+idx_this_probe);
+%             all_PosX_mat(ntotprobe,:)=[temp_behav temp_PosX'];
+%             temp_PosY=EL_data.clean_posY((-20*Fs:5*Fs)+idx_this_probe);
+%             all_PosY_mat(ntotprobe,:)=[temp_behav temp_PosY'];
+%             
             
             ampSac=sqrt((EL_events.Sacc.posX_end(all_sacc_idx)+EL_events.Sacc.posX_start(all_sacc_idx)).^2+(EL_events.Sacc.posY_end(all_sacc_idx)+EL_events.Sacc.posY_start(all_sacc_idx)).^2);
             all_eyet_probes=[all_eyet_probes ; [temp_behav sum(temp_blinks(:,end)<400) mean(temp_blinks(temp_blinks(:,end)<400,end)) size(temp_sacc,1) mean(ampSac) mean(temp_sacc(:,end)) temp_Pupil_bef temp_Pupil_after]];
@@ -137,8 +137,8 @@ for task=1:2
     format_fig;
     for nstate=1:3
         tempplot=nanmean(all_pup_mat(all_pup_mat(:,7)==nstate & all_pup_mat(:,4)==task,size(temp_behav,2)+1:end));
-        %         tempplot=tempplot-nanmean(tempplot(xTime>0));
-        simpleTplot(xTime,tempplot,0,Colors(nstate,:),0,'-',1,0.5,500,0,2);
+                tempplot=tempplot-nanmean(tempplot(xTime>0 & xTime<3));
+        simpleTplot(xTime,tempplot,0,Colors(nstate,:),0,'-',1,0.5,500,1,2);
     end
     legend({'ON','MW','MB'})
     
@@ -147,7 +147,7 @@ for task=1:2
     for nstate=1:3
         tempplot=nanmean(all_pup_mat(all_pup_mat(:,7)==nstate & all_pup_mat(:,4)==task,size(temp_behav,2)+1:end));
         tempplot=tempplot-nanmean(tempplot(xTime>-2 & xTime<0));
-        simpleTplot(xTime,tempplot,0,Colors(nstate,:),0,'-',1,0.5,500,0,2);
+        simpleTplot(xTime,tempplot,0,Colors(nstate,:),0,'-',1,0.5,500,1,2);
         xlim([-2 5])
     end
     legend({'ON','MW','MB'})

@@ -14,8 +14,9 @@ addpath(path_localsleep)
 
 % select relevant files, here baseline blocks
 eeg_path=[root_path filesep 'preproc_eeg'];
+eeg_path2=[root_path filesep 'preproc_ica'];
 behav_path=[root_path filesep 'behav'];
-bsl_files=dir([eeg_path filesep 'probe_nfEEG_S3*.mat']);
+bsl_files=dir([eeg_path2 filesep 'probe_infEEG_S3*.mat']);
 
 prticle_Thr=90; % 80 or 90 or 95
 LimFrqW=[1 4]; % [1 4] or [4 10]
@@ -35,7 +36,7 @@ for n=1:length(bsl_files)
     nc=nc+1;
     % load file with spm
     filename=bsl_files(n).name;
-    D=spm_eeg_load([eeg_path filesep filename]);
+    D=spm_eeg_load([bsl_files(n).folder filesep filename]);
     these_times=D.indsample(-20):D.indsample(0)-1;
     temp_data=D(1:63,these_times,:); % D contains the data with channels * time * trials
     temp_data=temp_data-repmat(mean(temp_data([10 21],:,:),1),[size(temp_data,1) 1 1]);
@@ -60,7 +61,8 @@ for n=1:length(bsl_files)
     % nSub nProbe nE P2Pamp negX posX WaveEnd MaxNegPeak MaxPosPeak
     % PaxsPosPeakAmp MaxDownSlope MaxUpSlope
     
-    load([eeg_path filesep 'wanderIM_twa3_' SubID])
+%     load([eeg_path filesep 'wanderIM_twa3_' SubID])
+    load([eeg_path2 filesep 'wanderIM_twa4_' SubID])
     
     for nE=1:63
         thisE_Waves=all_Waves(all_Waves(:,3)==nE,:);

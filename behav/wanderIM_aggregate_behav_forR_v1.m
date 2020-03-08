@@ -12,6 +12,7 @@ files=dir([data_path filesep 'wanderIM_behavres_s3*.mat']);
 
 state_colours=[0 146 146 ; 182 109 255; 219 209 0]/255;
 cond_colours=[0.9 0.55 0.2 ; 0.2 0.55 0.9];
+load([pwd filesep '..' filesep 'paper' filesep 'paper_SubID'])
 
 % load([data_path filesep 'CARS_quest'])
 %%
@@ -21,8 +22,12 @@ RTs=[];
 for n=1:length(files)
     % load
     load([data_path filesep files(n).name]);
-    SubID=SubjectInfo.subID;
+       probe_res(probe_res(:,32)==4,32)=3;
+ SubID=SubjectInfo.subID;
     fprintf('... %s\n',SubID)
+     if ~ismember(SubID,GoodSudID)
+        continue;
+    end
 %     CARS_flag(n)=CARS_bool(CARS_bool(:,1)==str2num(SubID),2);
     % SART
     %  1: num block
@@ -197,7 +202,7 @@ tbl_probe.cond_v(tbl_probe.TrCat=="0" & tbl_probe.State=="2")={'go_mw'};
 tbl_probe.cond_v(tbl_probe.TrCat=="0" & tbl_probe.State=="3")={'go_mb'};
 
 
-writetable(tbl_probe,[data_path filesep 'WanderIM_ProbeResults2_MW.txt']);
+writetable(tbl_probe,[data_path filesep 'WanderIM_ProbeResults2_MW_new.txt']);
 
 uniSub=(unique(tbl_probe.SubID));
 for nS=1:length(uniSub)
