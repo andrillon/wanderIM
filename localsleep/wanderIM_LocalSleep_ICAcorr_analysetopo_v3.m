@@ -31,7 +31,7 @@ max_Freq=7;
 frontalElecs=[1 32 33 60];
 WavesAndVig=[];
 nSc=0;
-for n=1:length(bsl_files)
+for n=28 %s1:length(bsl_files)
     % load file with spm
     filename=bsl_files(n).name;
     
