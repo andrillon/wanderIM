@@ -10,8 +10,8 @@ addpath(genpath(lscpTools_path))
 data_path=[root_path filesep 'behav/'];
 files=dir([data_path filesep 'wanderIM_behavres_s3*.mat']);
 
-state_colours=[0 146 146 ; 182 109 255; 219 209 0]/255;
-cond_colours=[0.9 0.55 0.2 ; 0.2 0.55 0.9];
+% state_colours=[0 146 146 ; 182 109 255; 219 209 0]/255;
+% cond_colours=[0.9 0.55 0.2 ; 0.2 0.55 0.9];
 
 load([pwd filesep 'paper_SubID'])
 %%
@@ -251,8 +251,8 @@ for nPlot=1:3
             for nS=1:length(myS)
                 tempbyS(nS)=nanmean(temp(tempS==myS(nS)));
             end
-            data{i, j} = tempbyS;
-%             data{i, j} = temp;
+%             data{i, j} = tempbyS;
+            data{i, j} = temp;
         end
     end
     
