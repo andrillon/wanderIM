@@ -166,7 +166,7 @@ for nS=1:numel(subList)
         end
         fprintf('%d/%d ... %g\n',nE,length(SubjectBehavData.TrialsCaracs),size(trial_SO,1));
         SOelecs=new_slowWaves(:,1);SOelecs(SOelecs==0)=[];
-           countSO2(nSc2,:)=hist(SOelecs,1:63);
+           countSO2(nSc2,:)=hist(SOelecs,1:65);
  end
     if ~isempty(tempSW) && ~isempty(tempKC)
         nSc=nSc+1;
@@ -186,13 +186,14 @@ figure; format_fig;
 % simpleTplot(timeP,squeeze(allKC(countKC>16,:,65)),0,[1 1 1]*0.5,0,'-',0.5,1,4);
 simpleTplot(timeP,squeeze(allSO(countSO>16,:,65)),0,'k',0,'-',0.5,1,4);
 % export_fig('/Users/tand0009/Desktop/SW_ERP_fromSCP.eps')
+save('/Users/tand0009/Data/WanderIM/SWsleepComp/ERP_SW_Sleep','allSO','timeP','countSO')
 
-
+%%
 addpath(genpath('/Users/tand0009/Work/local/fieldtrip/'))
 rmpath(genpath('/Users/tand0009/Work/local/spm12/'))
 rmpath('/Users/tand0009/Work/local/fieldtrip/external/dmlt/external/utils/');
 figure;
 load('/Users/tand0009/WorkGit/projects/done/whitenoise/Pilot/ProjectData/EGI64_ft_layout.mat')
-temp_topo=squeeze(nanmean(nanmean(allSO(countSO>16,timeP>-0.05 & timeP<0.05,:),2),1));
-simpleTopoPlot_ft(temp_topo(setdiff(1:65,[62 63])), layout,'off','parula',0,0);
+temp_topo=squeeze(nanmedian(countSO2(countSO>16,:),1))';
+simpleTopoPlot_ft(temp_topo, layout,'off','parula',0,0);
 % export_fig('/Users/tand0009/Desktop/SW_topo_fromSCP.eps')

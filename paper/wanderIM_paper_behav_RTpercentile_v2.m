@@ -7,15 +7,14 @@ addpath(genpath(lscpTools_path))
 addpath(genpath(path_RainCloudPlot))
 addpath(genpath(path_export));
 %% load data
+
 filename = '/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_localsleep_amp_pup_thrE90P2P_Dec21_v5.txt';
 delimiter = ',';
 startRow = 2;
-formatSpec = '%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%[^\n\r]';
+formatSpec = '%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%[^\n\r]';
 fileID = fopen(filename,'r');
-
 dataArray = textscan(fileID, formatSpec, 'Delimiter', delimiter, 'TextType', 'string', 'EmptyValue', NaN, 'HeaderLines' ,startRow-1, 'ReturnOnError', false, 'EndOfLine', '\r\n');
 fclose(fileID);
-
 res_table = table;
 res_table.SubID = dataArray{:, 1};
 res_table.BlockN = dataArray{:, 2};
@@ -90,17 +89,85 @@ res_table.W_AF8 = dataArray{:, 70};
 res_table.W_AF4 = dataArray{:, 71};
 res_table.W_F2 = dataArray{:, 72};
 res_table.W_FCz = dataArray{:, 73};
-res_table.State = dataArray{:, 74};
-res_table.Vig = dataArray{:, 75};
-res_table.Pup = dataArray{:, 76};
-res_table.pcPup = dataArray{:, 77};
-res_table.pcRT = dataArray{:, 78};
-
-res_mat=table2array(res_table);
+res_table.A_Fp1 = dataArray{:, 74};
+res_table.A_Fz = dataArray{:, 75};
+res_table.A_F3 = dataArray{:, 76};
+res_table.A_F7 = dataArray{:, 77};
+res_table.A_FT9 = dataArray{:, 78};
+res_table.A_FC5 = dataArray{:, 79};
+res_table.A_FC1 = dataArray{:, 80};
+res_table.A_C3 = dataArray{:, 81};
+res_table.A_T7 = dataArray{:, 82};
+res_table.A_TP9 = dataArray{:, 83};
+res_table.A_CP5 = dataArray{:, 84};
+res_table.A_CP1 = dataArray{:, 85};
+res_table.A_Pz = dataArray{:, 86};
+res_table.A_P3 = dataArray{:, 87};
+res_table.A_P7 = dataArray{:, 88};
+res_table.A_O1 = dataArray{:, 89};
+res_table.A_Oz = dataArray{:, 90};
+res_table.A_O2 = dataArray{:, 91};
+res_table.A_P4 = dataArray{:, 92};
+res_table.A_P8 = dataArray{:, 93};
+res_table.A_TP10 = dataArray{:, 94};
+res_table.A_CP6 = dataArray{:, 95};
+res_table.A_CP2 = dataArray{:, 96};
+res_table.A_Cz = dataArray{:, 97};
+res_table.A_C4 = dataArray{:, 98};
+res_table.A_T8 = dataArray{:, 99};
+res_table.A_FT10 = dataArray{:, 100};
+res_table.A_FC6 = dataArray{:, 101};
+res_table.A_FC2 = dataArray{:, 102};
+res_table.A_F4 = dataArray{:, 103};
+res_table.A_F8 = dataArray{:, 104};
+res_table.A_Fp2 = dataArray{:, 105};
+res_table.A_AF7 = dataArray{:, 106};
+res_table.A_AF3 = dataArray{:, 107};
+res_table.A_F1 = dataArray{:, 108};
+res_table.A_F5 = dataArray{:, 109};
+res_table.A_FT7 = dataArray{:, 110};
+res_table.A_FC3 = dataArray{:, 111};
+res_table.A_C1 = dataArray{:, 112};
+res_table.A_C5 = dataArray{:, 113};
+res_table.A_TP7 = dataArray{:, 114};
+res_table.A_CP3 = dataArray{:, 115};
+res_table.A_P1 = dataArray{:, 116};
+res_table.A_P5 = dataArray{:, 117};
+res_table.A_PO7 = dataArray{:, 118};
+res_table.A_PO3 = dataArray{:, 119};
+res_table.A_POz = dataArray{:, 120};
+res_table.A_PO4 = dataArray{:, 121};
+res_table.A_PO8 = dataArray{:, 122};
+res_table.A_P6 = dataArray{:, 123};
+res_table.A_P2 = dataArray{:, 124};
+res_table.A_CPz = dataArray{:, 125};
+res_table.A_CP4 = dataArray{:, 126};
+res_table.A_TP8 = dataArray{:, 127};
+res_table.A_C6 = dataArray{:, 128};
+res_table.A_C2 = dataArray{:, 129};
+res_table.A_FC4 = dataArray{:, 130};
+res_table.A_FT8 = dataArray{:, 131};
+res_table.A_F6 = dataArray{:, 132};
+res_table.A_AF8 = dataArray{:, 133};
+res_table.A_AF4 = dataArray{:, 134};
+res_table.A_F2 = dataArray{:, 135};
+res_table.A_FCz = dataArray{:, 136};
+res_table.State = dataArray{:, 137};
+res_table.Vig = dataArray{:, 138};
+res_table.Pup = dataArray{:, 139};
+res_table.pcPup = dataArray{:, 140};
+res_table.pcRT = dataArray{:, 141};
+res_table.stimulus = dataArray{:, 142};
+res_table.response = dataArray{:, 143};
+clearvars filename delimiter startRow formatSpec fileID dataArray ans;
 
 %%
+cleanC=[[0 ; isnan(res_table.RT(1:end-1))] res_table.RT [0 ; double(res_table.StimCat(1:end-1))==1]]; 
 % clean RTs
 res_table.RT(res_table.RT<0.3)=NaN;
+warning('State-focused analysis, discarding trials further from 20s of Probe onset');
+% res_table(cleanC(:,1)==1 & cleanC(:,3)==1,:)=[];
+res_table(res_table.DistProbe<-20,:)=[];
 
 res_table.State=categorical(res_table.State);
 res_table.SubID=categorical(res_table.SubID);
@@ -177,7 +244,7 @@ for nS=1:length(Subs)
         temp = res_table.pcRT(res_table.SubID==Subs(nS) & res_table.ProbeN==(nPr));
         [nout]=hist(temp,1:1:10); nout=nout./sum(nout)*100;
         if maxBins==5
-        nout=nout(1:2:10)+nout(2:2:10);
+            nout=nout(1:2:10)+nout(2:2:10);
         end
         distrib_pcRT=[distrib_pcRT ; nout];
         temp2 = double(res_table.State(res_table.SubID==Subs(nS) & res_table.ProbeN==(nPr)));
@@ -207,29 +274,31 @@ for nTask=1:2
     end
 end
 
-%%
+
 figure; set(gcf,'Position',[ 440   315   800   360]);
 Tasks={'Face','Digit'};
+TMarkers={'d','o'};
 hs=[];
+
 for nTask=1:2
     subplot(1,2,nTask); format_fig; hold on;
-        line([0.5 maxBins+0.5],[1 1]*(100/maxBins),'LineStyle','--','Color',[1 1 1]*0.5,'LineWidth',3)
-for nState=2:3
+    line([0.5 maxBins+0.5],[1 1]*(100/maxBins),'LineStyle','--','Color',[1 1 1]*0.5,'LineWidth',3)
+    for nState=2:3
         temp=[];
         for k=1:maxBins
             line([1 1]*k+nState*0.2-0.4,[-1 1]*sem(data{nTask}{k,nState})+nanmean(data{nTask}{k,nState}),'Color',Colors(nState,:),'LineWidth',4);
             temp(k)=nanmean(data{nTask}{k,nState});
         end
         plot((1:maxBins)+nState*0.2-0.4,temp,'Color',Colors(nState,:),'LineWidth',4);
-        hs(nState)=scatter((1:maxBins)+nState*0.2-0.4,temp,'MarkerEdgeColor',Colors(nState,:),'MarkerFaceColor','w','SizeData',288,'LineWidth',4,'MarkerFaceAlpha',0.7);
+        hs(nState)=scatter((1:maxBins)+nState*0.2-0.4,temp,'Marker',TMarkers{nTask},'MarkerEdgeColor',Colors(nState,:),'MarkerFaceColor','w','SizeData',288,'LineWidth',4,'MarkerFaceAlpha',0.7);
     end
     set(gca,'XTick',1:maxBins,'XTickLabel',{'20^t^h','40^t^h','60^t^h','80^t^h','100^t^h'})
     xlim([0.5 maxBins+0.5])
     xlabel('RT percentile')
     ylabel('% trials')
     title(Tasks{nTask})
-    ylim([15 27])
-%     legend(hs(1:3),{'MW','MB'})
+    ylim([13 29])
+    %     legend(hs(1:3),{'MW','MB'})
 end
 export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_percentile.fig'])
 export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_percentile.eps'],'-r 300')

@@ -14,7 +14,7 @@ files=dir([data_path filesep 'wanderIM_behavres_s3*.mat']);
 
 state_colours=[0 146 146 ; 182 109 255; 219 209 0]/255;
 cond_colours=[0.9 0.55 0.2 ; 0.2 0.55 0.9];
-load([pwd filesep 'paper_SubID'])
+% load([pwd filesep 'paper_SubID'])
 
 %load([data_path filesep 'CARS_quest'])
 %%
@@ -35,7 +35,7 @@ for n=1:length(files)
     load([data_path filesep files(n).name]);
     probe_res(probe_res(:,32)==4,32)=3;
     SubID=SubjectInfo.subID;
-    if ~ismember(SubID,GoodSudID)
+    if ~ismember(SubID,GoodSubID)
         continue;
     end
     nc=nc+1;
@@ -291,8 +291,8 @@ end
 
 % make figure
 figure;
-set(gcf,'position',[1   1   2*330   2*475])
-h   = rm_raincloud(data, Colors(1:2,:));
+set(gcf,'position',[11   513   375   445])
+h   = rm_raincloud(data, Colors(1:2,:),0, 'ks', [],100);
 set(gca, 'XLim', [0 1],'YTick','');
 % title(['Figure M9' newline 'Repeated measures raincloud plot']);
 
@@ -301,7 +301,7 @@ for i=1:3
     % scatter
     h.s{i, 2}.MarkerFaceColor   = Colors(i,:);
     h.s{i, 2}.MarkerEdgeColor   = [1 1 1]*0.5;
-    h.s{i, 2}.SizeData          = 200;
+    h.s{i, 2}.SizeData          = 100;
     h.s{i, 2}.LineWidth          = 2;
     h.s{i,2}.YData=h.s{i,2}.YData-0.2;
     
@@ -310,21 +310,22 @@ for i=1:3
     h.p{i, 2}.LineWidth          = 2;
     
     % scatter mean
-    h.m(i,2).MarkerFaceAlpha=0.5;
-    h.m(i,2).MarkerFaceColor=Colors(i,:);
-    h.m(i,2).MarkerEdgeColor=[1 1 1]*0.5;
-    h.m(i,2).SizeData=400;
+    h.m(i,2).MarkerFaceAlpha=0.7;
+            h.m(i,2).MarkerFaceColor=[1 1 1]*0.5;
+            h.m(i,2).MarkerEdgeColor=[0 0 0];%[190 90 255]./255;
+            h.m(i,2).SizeData=300;
+            h.m(i,2).LineWidth=4;
     % line mean
     if i<3
-        h.l(i,2).Color=[1 1 1]*0.5;
+        h.l(i,2).Color=[1 1 1]*0;
     end
 end
 
 for i=1:3
     h.s{i, 1}.Marker         = 'd';
-    h.s{i, 1}.MarkerEdgeColor   = [1 1 1]*0;
+    h.s{i, 1}.MarkerEdgeColor   = [1 1 1]*0.5;
     h.s{i, 1}.MarkerFaceColor   = Colors(i,:);
-    h.s{i, 1}.SizeData          = 200;
+    h.s{i, 1}.SizeData          = 100;
     h.s{i, 1}.LineWidth          = 2;
     h.s{i,1}.YData=h.s{i,1}.YData+0.2;
     
@@ -337,11 +338,12 @@ for i=1:3
     
     
     h.m(i,1).Marker='d';
-    h.m(i,1).MarkerFaceAlpha=0.5;
-    h.m(i,1).MarkerFaceColor=Colors(i,:);
-    h.m(i,1).MarkerEdgeColor=[1 1 1]*0;
-    h.m(i,1).SizeData=400;
-    
+    h.m(i,1).MarkerFaceAlpha=0.7;
+    h.m(i,1).MarkerFaceColor=[1 1 1]*0.5;
+    h.m(i,1).MarkerEdgeColor=[0 0 0];
+    h.m(i,1).SizeData=300;
+    h.m(i,1).LineWidth=4;
+   
     if i<3
         h.l(i,1).Color=[1 1 1]*0;
         h.l(i,1).LineStyle='-';
@@ -353,7 +355,8 @@ export_fig([path_fig filesep 'WanderIM_behav_pption_byStateAndTask.eps'],'-r 300
 
 %% Dynamics within task
 figure;
-format_fig; set(gcf,'Position',[440   321   694   477])
+format_fig;
+set(gcf,'position',[1   1   480   380])
 for nstate=1:3
     templot=100*squeeze(pption_alongtask(:,:,nstate));
     errorbar(1:size(templot,2),nanmean(templot,1),sem(templot),'Color',Colors(nstate,:),'LineWidth',2); hold on;
@@ -361,7 +364,7 @@ for nstate=1:3
     hold on;
 end
 xlabel('Block #');
-title('Across block dynamics')
+title('Within block dynamics')
 ylabel('% of probes')
 format_fig;
 xlim([0.5 6.5])
@@ -370,7 +373,7 @@ ylim([0 70])
 
 %% Dynamics within block
 figure;
-format_fig; set(gcf,'Position',[440   321   694   477])
+format_fig; set(gcf,'Position',[440   321   480   380])
 for nstate=1:3
     templot=100*squeeze(pption_alongblock(:,:,nstate));
     errorbar(1:size(templot,2),nanmean(templot,1),sem(templot),'Color',Colors(nstate,:),'LineWidth',2); hold on;
@@ -443,7 +446,7 @@ end
 
 % make figure
 figure;
-set(gcf,'position',[1   1   2*330   2*475])
+set(gcf,'position',[11   513   375   445])
 h   = rm_raincloud(data, Colors(1:2,:));
 set(gca, 'XLim', [1 4],'YTick','');
 
@@ -452,7 +455,7 @@ for i=1:3
     % scatter
     h.s{i, 2}.MarkerFaceColor   = Colors(i,:);
     h.s{i, 2}.MarkerEdgeColor   = [1 1 1]*0.5;
-    h.s{i, 2}.SizeData          = 200;
+    h.s{i, 2}.SizeData          = 100;
     h.s{i, 2}.LineWidth          = 2;
     h.s{i,2}.YData=h.s{i,2}.YData-0.1;
     
@@ -461,21 +464,22 @@ for i=1:3
     h.p{i, 2}.LineWidth          = 2;
     
     % scatter mean
-    h.m(i,2).MarkerFaceAlpha=0.5;
-    h.m(i,2).MarkerFaceColor=Colors(i,:);
-    h.m(i,2).MarkerEdgeColor=[1 1 1]*0.5;
-    h.m(i,2).SizeData=400;
+  h.m(i,2).MarkerFaceAlpha=0.7;
+            h.m(i,2).MarkerFaceColor=[1 1 1]*0.5;
+            h.m(i,2).MarkerEdgeColor=[0 0 0];%[190 90 255]./255;
+            h.m(i,2).SizeData=300;
+            h.m(i,2).LineWidth=4;
     % line mean
     if i<3
-        h.l(i,2).Color=[1 1 1]*0.5;
+        h.l(i,2).Color=[1 1 1]*0;
     end
 end
 
 for i=1:3
     h.s{i, 1}.Marker         = 'd';
-    h.s{i, 1}.MarkerEdgeColor   = [1 1 1]*0;
+    h.s{i, 1}.MarkerEdgeColor   = [1 1 1]*0.5;
     h.s{i, 1}.MarkerFaceColor   = Colors(i,:);
-    h.s{i, 1}.SizeData          = 200;
+    h.s{i, 1}.SizeData          = 100;
     h.s{i, 1}.LineWidth          = 2;
     h.s{i,1}.YData=h.s{i,1}.YData+0.1;
     
@@ -488,11 +492,11 @@ for i=1:3
     
     
     h.m(i,1).Marker='d';
-    h.m(i,1).MarkerFaceAlpha=0.5;
-    h.m(i,1).MarkerFaceColor=Colors(i,:);
-    h.m(i,1).MarkerEdgeColor=[1 1 1]*0;
-    h.m(i,1).SizeData=400;
-    
+    h.m(i,1).MarkerFaceAlpha=0.7;
+    h.m(i,1).MarkerFaceColor=[1 1 1]*0.5;
+    h.m(i,1).MarkerEdgeColor=[0 0 0];
+    h.m(i,1).SizeData=300;
+    h.m(i,1).LineWidth=4;
     if i<3
         h.l(i,1).Color=[1 1 1]*0;
         h.l(i,1).LineStyle='-';

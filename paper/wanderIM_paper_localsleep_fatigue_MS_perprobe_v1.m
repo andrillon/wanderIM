@@ -223,8 +223,8 @@ res_table.MA_all=nanmean(table2array(res_table(:,[132:194])),2);
 
 %%
 % clean 334
-warning('removing 334')
-res_table(res_table.SubID==334,:)=[];
+% warning('removing 334')
+% res_table(res_table.SubID==334,:)=[];
 % res_table(res_table.SubID==334,:)=[];
 
 % res_table(res_table.SubID==29,:)=[];
@@ -248,8 +248,24 @@ mdl_2c= fitlme(res_table,sprintf('W_all~1+Task+Pup+(1|SubID)'));
 % mdl_3b= fitlme(res_table,sprintf('W_all~1+Task*State+(1|SubID)'));
 % mdl_3c= fitlme(res_table,sprintf('W_all~1+Task*pcPup+(1|SubID)'));
 
+%%
+mySubsID=unique(res_table.SubID);
+datplot=[];
+for nTask=1:2
+    for nVig=1:4
+        tempVal=res_table.W_all(res_table.Task==num2str(nTask) & res_table.Vig==nVig);
+        tempSub=res_table.SubID(res_table.Task==num2str(nTask) & res_table.Vig==nVig);
+        tempCell=[];
+        for nS=1:length(mySubsID)
+            tempCell(nS)=nanmean(tempVal(tempSub==mySubsID(nS)));
+        end
+        datplot{nVig,nTask}=tempCell(~isnan(tempCell));
+    end
+end
 
-
+figure;
+rm_raincloud(datplot, [1 0 0; 0 0 1]);
+xlim([0 4])
 %%
 
 % %%
