@@ -5,9 +5,10 @@ close all
 run ../localdef_wanderIM.m
 addpath(genpath(lscpTools_path))
 addpath(genpath(path_RainCloudPlot))
+addpath(genpath(path_export))
 
 %% load data
-filename = '/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_localsleep_amp_pup_Dec21_v5.txt';
+filename = '/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_localsleep_amp_pup_thrE90P2P_Dec21_v5.txt';
 % filename = '/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_localsleep_amp_pup_thrE90neg_Dec21_v5.txt';
 
 delimiter = ',';
@@ -193,10 +194,12 @@ mdl_3= fitlme(res_table(res_table.stimulus==1,:),sprintf('RT~1+W_all*Task+(1|Sub
 %% No SPLIT TASK
 GO_table=res_table(res_table.stimulus==1,:);
 GO_RT=double(GO_table.RT);
-GO_Perf=double(GO_table.Perf);
+GO_Perf=double(GO_table.Perf==0);
+GO_table.Perf=double(GO_table.Perf==0);
 NOGO_table=res_table(res_table.stimulus==0,:);
 NOGO_RT=double(NOGO_table.RT);
-NOGO_Perf=double(NOGO_table.Perf);
+NOGO_Perf=double(NOGO_table.Perf==0);
+NOGO_table.Perf=double(NOGO_table.Perf==0);
 
 rtGO_est{1}=[];
 perfGO_est{1}=[];
@@ -249,7 +252,7 @@ end
 
 
 %%
-Titles={'RT','GO','NOGO'};
+Titles={'RT','Miss','FAs'};
 for nP=1:length(Titles)
     figure;
     addpath((path_fieldtrip)); ft_defaults;
@@ -265,13 +268,15 @@ for nP=1:length(Titles)
     end
     % temp_topo(match_str(layout.label,{'TP9','TP10'}))=0;
     simpleTopoPlot_ft(temp_topo, path_PsychFTlayout,'on',[],0,1);
-    colorbar; caxis([-1 1]*max(abs(temp_topo)))
-    title(Titles{nP})
+    colorbar; caxis([-5 5]); %caxis([-1 1]*max(abs(temp_topo)))
     
     load(path_PsychFTlayout);
     if ~isempty(find(temp_pV<fdr(temp_pV,0.05)))
         ft_plot_lay_me(layout, 'chanindx',find(temp_pV<fdr(temp_pV,0.05)),'pointsymbol','o','pointcolor','r','pointsize',64,'box','no','label','no')
     end
+    title([Titles{nP} ' - FDR: ' num2str(fdr(temp_pV,0.05))])
+    export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.fig'])
+    export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.eps'],'-r 300')
 end
 
 % %%

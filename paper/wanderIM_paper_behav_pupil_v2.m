@@ -7,7 +7,8 @@ addpath(genpath(lscpTools_path))
 addpath(genpath(path_RainCloudPlot))
 
 %% load data
-filename = '/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_localsleep_pup_Dec21_v5.txt';
+% filename = '/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_localsleep_pup_Dec21_v5.txt';
+filename = '/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_localsleep_amp_pup_thrE90P2P_Dec21_v5.txt';
 delimiter = ',';
 startRow = 2;
 formatSpec = '%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%f%[^\n\r]';
