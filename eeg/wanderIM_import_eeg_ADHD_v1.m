@@ -6,11 +6,11 @@ run ../localdef_wanderIM;
 
 addpath(genpath(lscpTools_path));
 addpath(genpath(spm12_path));
-eeg_path=[root_path_adhd filesep 'eeg'];
-preproc_path=[root_path_adhd filesep 'preproc_eeg'];
-behav_path=[root_path_adhd filesep 'eeg'];
+eeg_path=[path_root_adhd filesep 'eeg'];
+preproc_path=[path_root_adhd filesep 'preproc_eeg'];
+behav_path=[path_root_adhd filesep 'eeg'];
 
-files=dir([eeg_path filesep '4*.eeg']);
+files=dir([eeg_path filesep '*.eeg']);
 
 %% Loop on files
 redo=0;

@@ -238,13 +238,64 @@ for nPlot=1 %:3
 end
 export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_perProbeAndState.fig'])
 export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_perProbeAndState.eps'],'-r 300')
+
+%% RT by probe
+plotNames={'RT'};
+plotCol=[12];
+thismat=all_probes_mat2;
+plotLims=[0.3 0.85];
+MarkersT={'d','o'};
+for nPlot=1 %:3
+    data=[];
+    for i = 1:3
+        for j = 1:2
+            temp=squeeze(thismat(thismat(:,4)==i & thismat(:,3)==j,plotCol(nPlot)));
+            tempS=squeeze(thismat(thismat(:,4)==i & thismat(:,3)==j,1));
+            tempbyS=[]; myS=unique(tempS);
+            tempbyS_n=[];
+            for nS=1:length(myS)
+                tempbyS(nS)=nanmean(temp(tempS==myS(nS)));
+                tempbyS_n(nS)=sum((tempS==myS(nS)));
+            end
+            data{i, j} = tempbyS;
+            data_n{i, j} = tempbyS_n;
+%             data{i, j} = temp;
+        end
+    end
+    
+    figure; set(gcf,'Position',[ 440   315   800   360]);
+    for ntask=1:2
+        subplot(1,2,ntask);
+        h1 = raincloud_plot(data{1,ntask}, 'box_on', 1, 'color', Colors(1,:), 'alpha', 0.5,...
+            'box_dodge', 1, 'box_dodge_amount', .15, 'dot_dodge_amount', .15,...
+            'box_col_match', 0,'size_data',data_n{1,ntask}); 
+        h1{2}.MarkerFaceAlpha=0.5; h1{2}.Marker=MarkersT{ntask};
+%         h1{7}.MarkerFaceAlpha=0.5; h1{7}.Marker=MarkersT{ntask};  h1{7}.MarkerFaceColor=[1 1 1]*0.5;   h1{7}.MarkerEdgeColor=Colors(1,:);    h1{7}.SizeData=144;
+        h2 = raincloud_plot(data{2,ntask}, 'box_on', 1, 'color', Colors(2,:), 'alpha', 0.5,...
+            'box_dodge', 1, 'box_dodge_amount', .35, 'dot_dodge_amount', .35, 'box_col_match', 0,'size_data',data_n{2,ntask});
+        h2{2}.MarkerFaceAlpha=0.5; h2{2}.Marker=MarkersT{ntask};
+        h3 = raincloud_plot(data{3,ntask}, 'box_on', 1, 'color', Colors(3,:), 'alpha', 0.5,...
+            'box_dodge', 1, 'box_dodge_amount', .55, 'dot_dodge_amount', .55, 'box_col_match', 0,'size_data',data_n{3,ntask});
+        h3{2}.MarkerFaceAlpha=0.5; h3{2}.Marker=MarkersT{ntask};
+        
+        if ntask==1
+            set(gca,'XLim', plotLims(nPlot,:), 'YLim', [-4.5 7],'YTick',''); xlabel(plotNames{nPlot});
+        else
+            set(gca,'XLim', plotLims(nPlot,:), 'YLim', [-4.5 7],'YTick',''); xlabel(plotNames{nPlot});
+        end
+        box off
+        format_fig;
+    end
+end
+export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_perSubjectAndState.fig'])
+export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_perSubjectAndState.eps'],'-r 300')
 %%
 for nTask=1:2
     temp=all_probes_mat2(all_probes_mat2(:,3)==nTask,:);
     tbl=array2table(temp,'VariableNames',{'SubID','nBl','Task','MS','nPr','GO','NOGO','nGO','nNOGO','tdp','vig','rtGO','rtNOGO','dp','crit'});
     tbl.MS=categorical(tbl.MS);
     tbl.Task=categorical(tbl.Task);
-    tbl.MS=reordercats(tbl.MS,[1 2 3]);
+    tbl.MS=reordercats(tbl.MS,[2 1 3]);
     %
     % mdl_0= fitlme(tbl,'crit~1+(1|SubID)');
     % mdl_1= fitlme(tbl,'crit~MS+(1|SubID)'); %wining model
@@ -283,5 +334,11 @@ mdl_B_2_3= fitlme(tbl,'GO~Task*MS+(1|SubID)');
 
 mdl_B_3_0= fitlme(tbl,'NOGO~1+(1|SubID)');
 mdl_B_3_1= fitlme(tbl,'NOGO~Task+(1|SubID)');
-mdl_B_3_2= fitlme(tbl,'NOGO~MS+(1|SubID)');   % winning model
+mdl_B_3_2= fitlme(tbl,'NOGO~Task+MS+(1|SubID)');   % winning model
+
+tbl.MS=reordercats(tbl.MS,[2 1 3]);
+mdl_B_1_2b= fitlme(tbl,'rtGO~Task+MS+(1|SubID)'); % winning model
+mdl_B_2_2b= fitlme(tbl,'GO~Task+MS+(1|SubID)');  % winning model
+mdl_B_3_2b= fitlme(tbl,'NOGO~Task+MS+(1|SubID)');   % winning model
+
 % mdl_B_3_3= fitlme(tbl,'NOGO~Task+MS+(1|SubID)');

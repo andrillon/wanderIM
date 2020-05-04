@@ -200,10 +200,10 @@ res_probe=[];
 mySubs=unique(res_table.SubID);
 for nS=1:length(mySubs)
     for nPr=1:60
-        for nSt=0:1
-            temp=res_mat(res_table.SubID==mySubs(nS) & res_table.ProbeN==nPr & res_table.StimCat==num2str(nSt),:);
+%         for nSt=0:1
+            temp=res_mat(res_table.SubID==mySubs(nS) & res_table.ProbeN==nPr,:);
             res_probe=[res_probe ; nanmean(temp,1)];
-        end
+%         end
     end
 end
 
@@ -295,7 +295,7 @@ for nvar=1:length(var_interest)
             h.s{i, 2}.MarkerEdgeColor   = [1 1 1]*0.5;
             %h.s{i, 2}.SizeData          = 100;%50+50*minmax(ndata{i,2})';
             h.s{i, 2}.LineWidth          = 2;
-            h.s{i,2}.YData=h.s{i,2}.YData-0.1;
+            h.s{i,2}.YData=h.s{i,2}.YData-0.05;
 %             h.s{i,2}.ZData=44.*(ndata{i,2})';
             
             % patch
@@ -345,6 +345,7 @@ end
             set(gca,'Xlim',[0.9 5.1],'XTick',1:5); %,'Ylim',[-0.75 2.5]);
         else
             set(gca,'Xlim',[0.9 5.1],'XTick',1:5);
+            ylim([-1.1 3.3])
         end
         title(sprintf('%s - %s','B',var_interest{nvar}))
     end
@@ -376,6 +377,7 @@ for ntask=1:2
     for nstate=1:3
         scatter(data_perS{1}{nstate,ntask},data_perS{2}{nstate,ntask},ndata_perS{1}{nstate,ntask},'Marker',TMarker{ntask},'MarkerFaceColor',Colors(nstate,:),'MarkerFaceAlpha',0.3,'MarkerEdgeColor',Colors(nstate,:),'LineWidth',2)
         all=[all ; [data_perS{1}{nstate,ntask} data_perS{2}{nstate,ntask}]];
+        
     end
 end
 for ntask=1:2
@@ -394,10 +396,12 @@ for ntask=1:2
     ylabel(var_interest{2})
     axis equal
 end
+xlim([1 5])
+ylim([1 5])
 export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_VigXPup_bothTaks_perState.fig'])
 export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_VigXPupbothTaks_perState.eps'],'-r 300')
 
-
+[rall, pVall]=corr(all(:,1),all(:,2),'Type','Pearson','Rows','Pairwise');
 % %% RT * Corr * pcPup
 % rtbins=10;
 % figure; hold on;
