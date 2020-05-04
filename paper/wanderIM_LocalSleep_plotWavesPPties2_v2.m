@@ -406,7 +406,7 @@ end
 Titles={'nWave','P2P','DownSlope','UpSlope'};
 for nT=1:length(Titles)
     figure; set(gcf,'Position',[ 562   669   325   316]);
-    simpleCorPlotbin(all_zval(:,1),all_zval(:,nT+1),{'o','k',[1 1 1]*0.5,288,10,4},'Pearson',0)
+    simpleCorPlotbin(-1*all_zval(:,1),all_zval(:,nT+1),{'o','k',[1 1 1]*0.5,288,10,4},'Pearson',0)
     format_fig;
     xlabel('Vig'); ylabel(Titles{nT});
     export_fig([path_fig filesep 'LocalSleep_SWppties_CorrZvalAllE_' Titles{nT} '.fig'])
@@ -459,6 +459,7 @@ for nP=1:4
         else
             MarkerCol='w';
         end
+        fprintf('... ... %s state %g pV=%1.6f\n',Titles{nP},nState,double(mdl1_State_PPwave{nP,3}.Coefficients(nState+1,6)))
         scatter((nState-1),double(mdl1_State_PPwave{nP,3}.Coefficients(nState+1,2)),'Marker','o','SizeData',200,'LineWidth',3,'MarkerFaceColor',MarkerCol,'MarkerEdgeColor',Colors(nState,:),'MarkerFaceAlpha',0.7)
     end
     format_fig;

@@ -1,4 +1,4 @@
-function [twa_results]=twalldetectnew_TA_v2(datainput,orig_fs,thramp)
+    function [twa_results]=twalldetectnew_TA_v2(datainput,orig_fs,thramp)
 %% Theta Wave Detection
 % Script modified on 2016.03.31 for Visual Deprivation Project (CIRS)
 %
