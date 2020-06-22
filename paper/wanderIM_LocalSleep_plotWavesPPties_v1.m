@@ -227,8 +227,8 @@ simpleTopoPlot_ft(temp_topo', path_PsychFTlayout,'on',[],0,1);
 colorbar; caxis([0 9])
 title('SW density /min')
 format_fig;
-export_fig([path_fig filesep 'LocalSleep_SWppties_DensityTopo.fig'])
-export_fig([path_fig filesep 'LocalSleep_SWppties_DensityTopo.eps'],'-r 300')
+%export_fig([path_fig filesep 'LocalSleep_SWppties_DensityTopo.fig'])
+%export_fig([path_fig filesep 'LocalSleep_SWppties_DensityTopo.eps'],'-r 300')
 % 
 % %%
 % figure;
@@ -257,8 +257,8 @@ for nE=1:4
     caxis([0 0.55]);
     title(myLabels{nE}); format_fig
 end
-export_fig([path_fig filesep 'LocalSleep_SWppties_NeighWaves.fig'])
-export_fig([path_fig filesep 'LocalSleep_SWppties_NeighWaves.eps'],'-r 300')
+%export_fig([path_fig filesep 'LocalSleep_SWppties_NeighWaves.fig'])
+%export_fig([path_fig filesep 'LocalSleep_SWppties_NeighWaves.eps'],'-r 300')
 
 %%
 load([root_path filesep 'SWsleepComp' filesep 'ERP_SW_Sleep.mat']);
@@ -279,8 +279,8 @@ xlabel('Time fron onset (s)')
 ylabel('Voltage (\muV)')
 format_fig;
 
-export_fig([path_fig filesep 'LocalSleep_SWppties_Waveform.fig'])
-export_fig([path_fig filesep 'LocalSleep_SWppties_Waveform.eps'],'-r 300')
+%export_fig([path_fig filesep 'LocalSleep_SWppties_Waveform.fig'])
+%export_fig([path_fig filesep 'LocalSleep_SWppties_Waveform.eps'],'-r 300')
 
 
  

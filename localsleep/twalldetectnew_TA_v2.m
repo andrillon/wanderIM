@@ -34,7 +34,9 @@ clear pos_index neg_index troughs peaks poscross negcross wndx b bx c cx nump ma
 
 disp([' Analyzing ', num2str(size(LoadedEEG.data,1)),' channels']);
 % h = waitbar(0,'Detection Progress');
+fprintf('\n');
 for i=1:size(LoadedEEG.data,1) % (i) is the number of the channel
+    fprintf('... channel %3.0f/%3.0f - %3.0f%%',i,size(LoadedEEG.data,1),0)
 %     waitbar(i/size(LoadedEEG.data,1),h,'Detection Progress')
     % Data Extraction, Resample and Filtering
     datax = squeeze(LoadedEEG.data(i,1:size(LoadedEEG.data,2),1));
@@ -92,6 +94,7 @@ for i=1:size(LoadedEEG.data,1) % (i) is the number of the channel
     %% Locate Peaks
 	wvi=1;
 	for wndx=start:length(negcross)-1
+    fprintf('\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b... channel %3.0f/%3.0f - %3.0f%%',i,size(LoadedEEG.data,1),round(100*wndx/(length(negcross)-1)))
 % 	disp([num2str(wndx)]);
     wavest=negcross(wndx); % Only used for neg/pos peaks
     wavend=negcross(wndx+1); % Only used for neg/pos peaks
@@ -168,6 +171,7 @@ for i=1:size(LoadedEEG.data,1) % (i) is the number of the channel
     
      end; %end wndx loop
      clear EEGder dataff signal;
+     fprintf('\n');
 end; %end channel loop
 
 %% Save Output

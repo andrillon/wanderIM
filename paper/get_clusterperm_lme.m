@@ -107,11 +107,17 @@ for nperm=1:totperm
     end
 end
 
-perm_tval=[];
+perm_tval=cell(1,2);
 for nsign=1:2
     for nperm=1:totperm
+        temp_tval=[];
         for nclus=1:size(perm_clus{nsign,nperm},1)
-            perm_tval=[perm_tval sum(perm_clus{nsign,nperm}{nclus,3})];
+            temp_tval=[temp_tval sum(perm_clus{nsign,nperm}{nclus,3})];
+        end
+        if nsign==1
+            perm_tval{nsign}=[perm_tval{nsign} max(temp_tval)];
+        else
+            perm_tval{nsign}=[perm_tval{nsign} min(temp_tval)];
         end
     end
 end
@@ -121,14 +127,14 @@ for nsign=1:2
     for nclus=1:size(real_clus{nsign},1)
         this_tval=sum(real_clus{nsign}{nclus,3});
         if nsign==1
-            if mean(this_tval<perm_tval)<montecarlo_alpha
+            if mean(this_tval<perm_tval{nsign})<montecarlo_alpha
                 nc=nc+1;
-                all_clus{nc}={'pos' real_clus{nsign}{nclus,1} this_tval mean(this_tval<perm_tval)};
+                all_clus{nc}={'pos' real_clus{nsign}{nclus,1} this_tval sum(this_tval<perm_tval{nsign})/totperm};
             end
         else
-            if mean(this_tval>perm_tval)<montecarlo_alpha
+            if mean(this_tval>perm_tval{nsign})<montecarlo_alpha
                 nc=nc+1;
-                all_clus{nc}={'neg' real_clus{nsign}{nclus,1} this_tval mean(this_tval>perm_tval)};
+                all_clus{nc}={'neg' real_clus{nsign}{nclus,1} this_tval sum(this_tval>perm_tval{nsign})/totperm};
             end
         end
     end

@@ -7,6 +7,7 @@ addpath(genpath(path_export))
 addpath(genpath(path_RainCloudPlot))
 addpath(genpath(lscpTools_path))
 
+recompute=0;
 %% Initialize variables.
 np=0;
 totperm=1000;
@@ -18,6 +19,7 @@ t_est=cell(1,2);
 z_est=cell(1,2);
 vGO_est=cell(1,2);
 vNOGO_est=cell(1,2);
+if recompute
 
 for nE=1:63
     fprintf('... ... Electrode %s\n',Elec_Labels{nE})
@@ -113,7 +115,9 @@ for nE=1:63
     z_est{2}=[z_est{2} ; [nE*ones(totperm,1) perm_out]];
 end
 save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_HDDM_LMEandPerm.mat','vGO_est','vNOGO_est','a_est','t_est','z_est')
-
+else
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_HDDM_LMEandPerm.mat')
+end
 %% Compute monte cartlo p
 clus_alpha=0.01;
 montecarlo_alpha=0.05/3;
@@ -163,8 +167,8 @@ for nP=1:length(Titles)
         end
     end
     title([Titles{nP}])
-    export_fig([path_fig filesep 'LocalSleep_HDDM_LMEbyTrial_' Titles{nP} '.fig'])
-    export_fig([path_fig filesep 'LocalSleep_HDDM_LMEbyTrial_' Titles{nP} '.eps'],'-r 300')
+%     export_fig([path_fig filesep 'LocalSleep_HDDM_LMEbyTrial_' Titles{nP} '.fig'])
+%     export_fig([path_fig filesep 'LocalSleep_HDDM_LMEbyTrial_' Titles{nP} '.eps'],'-r 300')
 end
 
 %%
