@@ -283,7 +283,8 @@ temp_topo=grpstats(table_all.nWave,table_all.Elec); %in seconds but for all prob
 temp_topo([10 21])=NaN;
 simpleTopoPlot_ft(temp_topo/20*60, path_PsychFTlayout,'on',[],0,1);
 hb=colorbar; %caxis([0 9])
-    set(hb,'YTick',[]);
+caxis([3 8])
+set(hb,'YTick',[]);
 title('SW density /min')
 format_fig;
 export_fig([path_fig filesep 'LocalSleep_SWppties_DensityTopo.fig'])
@@ -294,8 +295,8 @@ figure; set(gcf,'Position',[ 562   669   325   316]);
 temp_topo=grpstats(table_all.P2P,table_all.Elec); %in seconds but for all probes (60) so equivalent of in minutes
 temp_topo([10 21])=NaN;
 simpleTopoPlot_ft(temp_topo, path_PsychFTlayout,'on',[],0,1);
-hb=colorbar; %caxis([0 9])
-    set(hb,'YTick',[]);
+hb=colorbar; caxis([25 60])
+set(hb,'YTick',[]);
 
 title('P2P amp \muV')
 format_fig;
@@ -307,23 +308,12 @@ figure; set(gcf,'Position',[ 562   669   325   316]);
 temp_topo=grpstats(table_all.DownSlope,table_all.Elec); %in seconds but for all probes (60) so equivalent of in minutes
 temp_topo([10 21])=NaN;
 simpleTopoPlot_ft(temp_topo, path_PsychFTlayout,'on',[],0,1);
-hb=colorbar; %caxis([0 9])
-    set(hb,'YTick',[]);
+hb=colorbar; caxis([250 530])
+set(hb,'YTick',[]);
 title('Down Slope \muV.s^-^1')
 format_fig;
 export_fig([path_fig filesep 'LocalSleep_SWppties_DownSlopeTopo.fig'])
 export_fig([path_fig filesep 'LocalSleep_SWppties_DownSlopeTopo.eps'],'-r 300')
-
-figure; set(gcf,'Position',[ 562   669   325   316]);
-% subplot(1,3,1)
-temp_topo=grpstats(table_all.UpSlope,table_all.Elec); %in seconds but for all probes (60) so equivalent of in minutes
-temp_topo([10 21])=NaN;
-simpleTopoPlot_ft(temp_topo, path_PsychFTlayout,'on',[],0,1);
-colorbar; %caxis([0 9])
-title('Up Slope \muV.s^-^1')
-format_fig;
-%export_fig([path_fig filesep 'LocalSleep_SWppties_UpSlopeTopo.fig'])
-%export_fig([path_fig filesep 'LocalSleep_SWppties_UpSlopeTopo.eps'],'-r 300')
 
 %%
 fprintf('E:%2.0f/63\n',0)
@@ -569,11 +559,11 @@ for nState=1:3
     temp_topo=grpstats(table_all.nWave(table_all.State==num2str(nState)),table_all.Elec(table_all.State==num2str(nState))); %in seconds but for all probes (60) so equivalent of in minutes
     temp_topo([10 21])=NaN;
     simpleTopoPlot_ft(temp_topo/20*60, path_PsychFTlayout,'on',[],0,1);
-    hb=colorbar; caxis([2 9])
+    hb=colorbar; caxis([3 8])
     set(hb,'YTick',[]);
     title(sprintf('D - %s',States{nState}))
     format_fig; %set(gca,'FontSize',26,'FontWeight','normal');
-%     export_fig([path_fig filesep 'LocalSleep_SWppties_DensityTopo_PerState.fig'])
+    %     export_fig([path_fig filesep 'LocalSleep_SWppties_DensityTopo_PerState.fig'])
     export_fig([path_fig filesep 'LocalSleep_SWppties_DensityTopo_' States{nState} '.eps'],'-r 300')
 end
 
@@ -585,11 +575,11 @@ for nState=1:3
     simpleTopoPlot_ft(temp_topo, path_PsychFTlayout,'on',[],0,1);
     hb=colorbar; caxis([25 60])
     set(hb,'YTick',[]);
- title(sprintf('A - %s',States{nState}))
+    title(sprintf('A - %s',States{nState}))
     format_fig; %set(gca,'FontSize',22);
     
     
-%     export_fig([path_fig filesep 'LocalSleep_SWppties_P2PTopo_' '.fig'])
+    %     export_fig([path_fig filesep 'LocalSleep_SWppties_P2PTopo_' '.fig'])
     export_fig([path_fig filesep 'LocalSleep_SWppties_P2PTopo_' States{nState} '.eps'],'-r 300')
 end
 
@@ -600,11 +590,59 @@ for nState=1:3
     simpleTopoPlot_ft(temp_topo, path_PsychFTlayout,'on',[],0,1);
     hb=colorbar; caxis([250 530])
     set(hb,'YTick',[]);
- title(sprintf('S - %s',States{nState}))
+    title(sprintf('S - %s',States{nState}))
     format_fig; %set(gca,'FontSize',22);
     
-%     export_fig([path_fig filesep 'LocalSleep_SWppties_UpSlopeTopo_PerState.fig'])
+    %     export_fig([path_fig filesep 'LocalSleep_SWppties_UpSlopeTopo_PerState.fig'])
     export_fig([path_fig filesep 'LocalSleep_SWppties_UpSlopeTopo_' States{nState} '.eps'],'-r 300')
 end
 
 %%
+MarkersT={'d','o'};
+plotNames={'D','A','S'};
+data=[];
+XlimPlot=[1 3; 20 60; 200 450];
+    figure; set(gcf,'Position',[ 440   315   800   360]);
+for nvar=1:3
+    for i = 1:3
+        if nvar==1
+        temp=table_all.nWave(table_all.State==num2str(i) & table_all.ElecC=='63');
+        elseif nvar==2
+        temp=table_all.P2P(table_all.State==num2str(i) & table_all.ElecC=='63');
+        elseif nvar==3
+        temp=table_all.DownSlope(table_all.State==num2str(i) & table_all.ElecC=='63');
+        end
+        tempS=double(table_all.SubID(table_all.State==num2str(i) & table_all.ElecC=='63'));
+        tempbyS=[]; myS=unique(tempS);
+        tempbyS_n=[];
+        for nS=1:length(myS)
+            tempbyS(nS)=nanmean(temp(tempS==myS(nS)));
+            tempbyS_n(nS)=sum((tempS==myS(nS)));
+        end
+        data{i,nvar} = tempbyS;
+        data_n{i,nvar} = tempbyS_n;
+    end
+    
+    subplot(1,3,nvar)
+    h1 = raincloud_plot(data{1,nvar}, 'box_on', 1, 'color', Colors(1,:), 'alpha', 0.5,...
+        'box_dodge', 1, 'box_dodge_amount', .15, 'dot_dodge_amount', .15,...
+        'box_col_match', 0,'size_data',data_n{1,nvar});
+    h1{2}.MarkerFaceAlpha=0.5; h1{2}.Marker=MarkersT{1};
+    %         h1{7}.MarkerFaceAlpha=0.5; h1{7}.Marker=MarkersT{ntask};  h1{7}.MarkerFaceColor=[1 1 1]*0.5;   h1{7}.MarkerEdgeColor=Colors(1,:);    h1{7}.SizeData=144;
+    h2 = raincloud_plot(data{2,nvar}, 'box_on', 1, 'color', Colors(2,:), 'alpha', 0.5,...
+        'box_dodge', 1, 'box_dodge_amount', .35, 'dot_dodge_amount', .35, 'box_col_match', 0,'size_data',data_n{2,nvar});
+    h2{2}.MarkerFaceAlpha=0.5; h2{2}.Marker=MarkersT{1};
+    h3 = raincloud_plot(data{3,nvar}, 'box_on', 1, 'color', Colors(3,:), 'alpha', 0.5,...
+        'box_dodge', 1, 'box_dodge_amount', .55, 'dot_dodge_amount', .55, 'box_col_match', 0,'size_data',data_n{3,nvar});
+    h3{2}.MarkerFaceAlpha=0.5; h3{2}.Marker=MarkersT{1};
+    
+    if nvar==1
+        set(gca,'XLim', XlimPlot(nvar,:),'YTick',''); xlabel(plotNames{nvar});
+    elseif nvar==2
+        set(gca,'XLim', XlimPlot(nvar,:),'YTick',''); xlabel(plotNames{nvar});
+    elseif nvar==3
+        set(gca,'XLim', XlimPlot(nvar,:),'YTick',''); xlabel(plotNames{nvar});
+    end
+    box off
+    format_fig;
+end

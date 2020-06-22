@@ -6,6 +6,7 @@ run ../localdef_wanderIM
 
 addpath(genpath(lscpTools_path))
 addpath(genpath(path_export))
+addpath(genpath(path_RainCloudPlot))
 % data_path='/Users/Thomas/temp_data/WanderIM/behavonly/';
 data_path=[root_path filesep 'behav/'];
 files=dir([data_path filesep 'wanderIM_behavres_s3*.mat']);
@@ -54,8 +55,9 @@ for n=1:length(files)
     
     %%% cleaning too fast RTs
     RTs=[test_res(:,10)-test_res(:,8)];
-    %     findFalseStarts=find(test_res(:,10)-test_res(:,8)<0.1);
-    %     test_res(findFalseStarts,[10 11 12])=NaN;
+%         findFalseStarts=find(test_res(:,10)-test_res(:,8)<0.1);
+%         test_res(findFalseStarts,[10 11 12])=NaN;
+% test_res(RTs<0.3,:)=[];
     %     warning('correcting for false starts')
     for nbt=1:2
         tp_nogos=test_res(test_res(:,2)==nbt & ~isnan(test_res(:,11)),11);
@@ -158,9 +160,9 @@ for n=1:length(files)
             num_go=sum(~isnan(temp_testres(:,12)));
             num_nogo=sum(~isnan(temp_testres(:,11)));
             rt_go=(temp_testres(~isnan(temp_testres(:,12)),10)-temp_testres(~isnan(temp_testres(:,12)),8));
-            rt_go=nanmean(rt_go(rt_go>0.0));
+            rt_go=nanmean(rt_go(rt_go>0.3));
             rt_nogo=(temp_testres(~isnan(temp_testres(:,11)),10)-temp_testres(~isnan(temp_testres(:,11)),8));
-            rt_nogo=nanmean(rt_nogo(rt_nogo>0.0));
+            rt_nogo=nanmean(rt_nogo(rt_nogo>0.3));
             
             tdp=calc_dprime2((temp_testres(~isnan(temp_testres(:,12)),12)==1),(temp_testres(~isnan(temp_testres(:,11)),11)==0));
             all_probes_mat=[all_probes_mat ; [nSc nbl these_probes(npr,5) these_probes(npr,32) npr tcorr_go tcorr_nogo num_go num_nogo tdp (these_probes(npr,37)) rt_go rt_nogo]];
@@ -236,8 +238,8 @@ for nPlot=1 %:3
         format_fig;
     end
 end
-export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_perProbeAndState.fig'])
-export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_perProbeAndState.eps'],'-r 300')
+%export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_perProbeAndState.fig'])
+%export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_perProbeAndState.eps'],'-r 300')
 
 %% RT by probe
 plotNames={'RT'};
@@ -259,8 +261,21 @@ for nPlot=1 %:3
             end
             data{i, j} = tempbyS;
             data_n{i, j} = tempbyS_n;
+            
+            myS=unique(thismat(:,1));
+            datattest_n{i, j}=nan(1,length(myS)); 
+            datattest{i, j}=nan(1,length(myS));
+            for nS=1:length(myS)
+                datattest{i, j}(nS)=nanmean(temp(tempS==myS(nS)));
+                datattest_n{i, j}(nS)=sum((tempS==myS(nS)));
+            end
+           
+            datattest{i, j}(datattest_n{i, j}<3)=NaN;
 %             data{i, j} = temp;
         end
+        
+
+        datattest{i, 3} = nanmean([datattest{i, 1} ; datattest{i, 2}],1);
     end
     
     figure; set(gcf,'Position',[ 440   315   800   360]);
@@ -289,6 +304,14 @@ for nPlot=1 %:3
 end
 export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_perSubjectAndState.fig'])
 export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_perSubjectAndState.eps'],'-r 300')
+
+
+[h, pV, ~, stats]=ttest([datattest{2,3}],[datattest{1,3}]);
+fprintf('post-hoc ttests (av task): MW vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+[h, pV, ~, stats]=ttest([datattest{3,3}],[datattest{1,3}]);
+fprintf('post-hoc ttests (av task): MB vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+[h, pV, ~, stats]=ttest([datattest{3,3}],[datattest{2,3}]);
+fprintf('post-hoc ttests (av task): MB vs MW t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
 %%
 for nTask=1:2
     temp=all_probes_mat2(all_probes_mat2(:,3)==nTask,:);

@@ -164,7 +164,7 @@ clearvars filename delimiter startRow formatSpec fileID dataArray ans;
 %%
 cleanC=[[0 ; isnan(res_table.RT(1:end-1))] res_table.RT [0 ; double(res_table.StimCat(1:end-1))==1]]; 
 % clean RTs
-res_table.RT(res_table.RT<0.3)=NaN;
+res_table(res_table.RT<0.3,:)=[];
 warning('State-focused analysis, discarding trials further from 20s of Probe onset');
 % res_table(cleanC(:,1)==1 & cleanC(:,3)==1,:)=[];
 res_table(res_table.DistProbe<-20,:)=[];
@@ -302,3 +302,5 @@ for nTask=1:2
 end
 export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_percentile.fig'])
 export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_percentile.eps'],'-r 300')
+
+%%

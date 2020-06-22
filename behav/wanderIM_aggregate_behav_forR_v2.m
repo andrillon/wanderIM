@@ -151,8 +151,9 @@ for n=1:length(files)
             tcorr_distPr(tcorr_catTr==0)=-sum(tcorr_catTr==0):1:-1;
             % Colum order:
             all_probes_headers={'SubID','nBlock','nProbe','Task','nTrial','Look','State','Orig','Awa','Int','Eng','Perf','Vig','Corr','RT','TrCat','DistProbe'};
+            all_probes_headers2={'SubID','nBlock','nProbeAll','Task','nTrial','Look','State','Orig','Awa','Int','Eng','Perf','Vig','Corr','RT','TrCat','nProbeWithin'};
             all_probes_mat=[all_probes_mat ; [repmat([str2num(SubID) nbl countpr these_probes(npr,5) this_pr_tridx probe_details],size(temp_testres,1),1) tcorr_perf tcorr_RT tcorr_catTr tcorr_distPr']];
-            all_probes_mat2=[all_probes_mat2 ; [str2num(SubID) nbl countpr these_probes(npr,5) this_pr_tridx probe_details nanmean(tcorr_perf) nanmean(tcorr_RT) nanmean(tcorr_catTr) ]];
+            all_probes_mat2=[all_probes_mat2 ; [str2num(SubID) nbl countpr these_probes(npr,5) this_pr_tridx probe_details nanmean(tcorr_perf) nanmean(tcorr_RT) nanmean(tcorr_catTr) npr]];
         end
     end
 end
@@ -228,3 +229,21 @@ if v.pValue(end)<0.05
 else
     fprintf('Less complex model (%s) wins (pV=%1.6f)\n',lme_full.Formula,v.pValue(end))
 end
+
+%%
+tbl_probe2=array2table(all_probes_mat2,'VariableNames',all_probes_headers2);
+% 'SubID','nBlock','Task','nTrial','Look','State','Orig','Awa','Int','Eng','Perf','Vig','Corr','RT','TrCat','DistProbe'
+tbl_probe2.SubID=categorical(tbl_probe2.SubID);
+tbl_probe2.Task=categorical(tbl_probe2.Task);
+tbl_probe2.Look=categorical(tbl_probe2.Look);
+tbl_probe2.State=categorical(tbl_probe2.State);
+tbl_probe2.Orig=categorical(tbl_probe2.Orig);
+tbl_probe2.TrCat=categorical(tbl_probe2.TrCat);
+
+tbl_probe2.ON=double(tbl_probe2.State=='1');
+tbl_probe2.MW=double(tbl_probe2.State=='2');
+tbl_probe2.MB=double(tbl_probe2.State=='3');
+
+%% Within and Across blocks
+lme_MW= fitlme(tbl_probe2,'MW~1+Task+nBlock+nProbeWithin+(1|SubID)');
+lme_MB= fitlme(tbl_probe2,'MB~1+Task+nBlock+nProbeWithin+(1|SubID)');

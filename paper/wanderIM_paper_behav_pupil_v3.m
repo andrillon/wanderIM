@@ -160,14 +160,15 @@ res_table.stimulus = dataArray{:, 142};
 res_table.response = dataArray{:, 143};
 clearvars filename delimiter startRow formatSpec fileID dataArray ans;
 
+
 %%
-res_table(res_table.SubID==328,:)=[];
+% res_table(res_table.SubID==328,:)=[];
 % clean RTs
 res_table(res_table.RT<0.3,:)=[];
 warning('State-focused analysis, discarding trials further from 20s of Probe onset');
 res_table(res_table.DistProbe<-20,:)=[];
 
-res_table.Vig=abs(res_table.Vig-6); % correct Vig scale
+res_table.Vig=abs(res_table.Vig-5); % correct Vig scale
 res_mat=table2array(res_table);
 
 res_table.State=categorical(res_table.State);
@@ -178,6 +179,23 @@ res_table.Task=categorical(res_table.Task);
 % res_table.pcPup=ordinal(res_table.pcPup);
 res_table.fastRT=double(res_table.pcRT==1);
 res_table.slowRT=double(res_table.pcRT==10);
+
+%%
+uniqueSubID=unique(res_table.SubID);
+res_table2=[];
+for nS=1:length(uniqueSubID)
+    for nP=1:60
+        res_table2=[res_table2 ; mean(res_mat(res_table.SubID==uniqueSubID(nS) & res_table.ProbeN==nP,:),1)];
+    end
+end
+res_table2=array2table(res_table2,'VariableNames',res_table.Properties.VariableNames(1:end-2));
+
+
+res_table2.State=categorical(res_table2.State);
+res_table2.SubID=categorical(res_table2.SubID);
+res_table2.StimCat=categorical(res_table2.StimCat);
+res_table2.Task=categorical(res_table2.Task);
+
 
 %% LME models
 mdl_0c= fitlme(res_table,sprintf('RT~1+(1|SubID)'));
@@ -191,10 +209,16 @@ mdl_1d= fitlme(res_table,sprintf('Vig~1+State+(1|SubID)'));
 mdl_2d= fitlme(res_table,sprintf('Vig~1+State+Task+(1|SubID)'));
 mdl_3d= fitlme(res_table,sprintf('Vig~1+State*Task+(1|SubID)')); %WINING MODEL
 
-mdl_0e= fitlme(res_table,sprintf('pcPup~1+(1|SubID)'));
-mdl_1e= fitlme(res_table,sprintf('pcPup~1+State+(1|SubID)'));
-mdl_2e= fitlme(res_table,sprintf('pcPup~1+State+Task+(1|SubID)'));
-mdl_3e= fitlme(res_table,sprintf('pcPup~1+State*Task+(1|SubID)')); %WINING MODEL
+mdl_0e= fitlme(res_table2,sprintf('pcPup~1+(1|SubID)'));
+mdl_1e= fitlme(res_table2,sprintf('pcPup~1+Task+(1|SubID)'));
+mdl_2e= fitlme(res_table2,sprintf('pcPup~1+State+Task+(1|SubID)'));
+mdl_3e= fitlme(res_table2,sprintf('pcPup~1+State*Task+(1|SubID)')); %WINING MODEL
+
+res_table2.State=reordercats(res_table2.State,[2 1 3]);
+mdl_2eb= fitlme(res_table2,sprintf('pcPup~1+State+Task+(1|SubID)'));
+mdl_2db= fitlme(res_table2,sprintf('Vig~1+State+Task+(1|SubID)'));
+
+
 %%
 res_probe=[];
 mySubs=unique(res_table.SubID);
@@ -213,9 +237,9 @@ var_interest={'Vig','pcPup'};
 Tasks={'F','D'};
 data=[];
 for nvar=1:length(var_interest)
-    for i=1:2
         for j=1:3
-            if strcmp(var_interest{nvar},'RTgo')
+            for i=1:2
+    if strcmp(var_interest{nvar},'RTgo')
                 temp_1=res_probe(res_probe(:,match_str(var_table,'Task'))==(i) & res_probe(:,match_str(var_table,'State'))==(j) & res_probe(:,match_str(var_table,'StimCat'))==0,match_str(var_table,'RT'));
                 temp_2=res_probe(res_probe(:,match_str(var_table,'Task'))==(i) & res_probe(:,match_str(var_table,'State'))==(j) & res_probe(:,match_str(var_table,'StimCat'))==0,match_str(var_table,'SubID'));
             elseif strcmp(var_interest{nvar},'RTnogo')
@@ -239,10 +263,13 @@ for nvar=1:length(var_interest)
                 temp_4(nS)=sum(temp_2==str2num(char(mySubs(nS))) & ~isnan(temp_1));
             end
             data{j,i}=temp_3(~isnan(temp_3)); %
-            ndata{j,i}=temp_4(~isnan(temp_3)); ndata{j,i}=50+100*minmax(ndata{j,i});%
+            ndata{j,i}=temp_4(~isnan(temp_3)); 
+            ndata2{nvar}{j,i}=temp_4; 
             data_perP{nvar}{j,i}=temp_1(~isnan(temp_1));
+            datattest{nvar}{j,i}=temp_3; datattest{nvar}{j,i}(ndata2{1}{j,i}<3)=NaN;
             data_perS{nvar}{j,i}=temp_3(~isnan(temp_3));
             ndata_perS{nvar}{j,i}=ndata{j,i};
+            ndata{j,i}=50+100*minmax(ndata{j,i});%
             if strcmp(var_interest{nvar},'Vig')
                 vig{j,i}=temp_3;
             elseif strcmp(var_interest{nvar},'pcPup')
@@ -250,7 +277,9 @@ for nvar=1:length(var_interest)
             elseif strcmp(var_interest{nvar},'RT')
                 RT{j,i}=temp_3;
             end
-        end
+            end
+        datattest{nvar}{j,3}=nanmean([datattest{nvar}{j,1} datattest{nvar}{j,2}],2);
+%         datattest{nvar}{j,3}(ndata2{j,1}<3 | ndata2{j,2}<3)=NaN;
         %         if strcmp(var_interest{nvar},'RT')
         %             temp_1=res_probe(res_probe(:,match_str(var_table,'Task'))==i,match_str(var_table,var_interest{nvar}));
         %             temp_2=res_probe(res_probe(:,match_str(var_table,'Task'))==i,match_str(var_table,'SubID'));
@@ -349,8 +378,8 @@ end
         end
         title(sprintf('%s - %s','B',var_interest{nvar}))
     end
-    export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_' var_interest{nvar} '_bothTaks_perState.fig'])
-    export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_' var_interest{nvar} '_bothTaks_perState.eps'],'-r 300')
+    %export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_' var_interest{nvar} '_bothTaks_perState.fig'])
+    %export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_' var_interest{nvar} '_bothTaks_perState.eps'],'-r 300')
     
     
     %         for nState=1:3
@@ -363,6 +392,13 @@ end
     %     else
     %         set(gca,'XLim', plotLims(nPlot,:), 'YLim', [-3.5 6],'YTick',''); xlabel(plotNames{nPlot});
     %     end
+    fprintf('%s - %s\n','B',var_interest{nvar})
+    [h, pV, ~, stats]=ttest([datattest{nvar}{2,3}],[datattest{nvar}{1,3}]);
+    fprintf('post-hoc ttests (av task): MW vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+    [h, pV, ~, stats]=ttest([datattest{nvar}{3,3}],[datattest{nvar}{1,3}]);
+    fprintf('post-hoc ttests (av task): MB vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+    [h, pV, ~, stats]=ttest([datattest{nvar}{3,3}],[datattest{nvar}{2,3}]);
+    fprintf('post-hoc ttests (av task): MB vs MW t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
     
 end
 
@@ -398,8 +434,8 @@ for ntask=1:2
 end
 xlim([1 5])
 ylim([1 5])
-export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_VigXPup_bothTaks_perState.fig'])
-export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_VigXPupbothTaks_perState.eps'],'-r 300')
+%export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_VigXPup_bothTaks_perState.fig'])
+%export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_VigXPupbothTaks_perState.eps'],'-r 300')
 
 [rall, pVall]=corr(all(:,1),all(:,2),'Type','Pearson','Rows','Pairwise');
 % %% RT * Corr * pcPup
@@ -496,3 +532,6 @@ export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial
 %         scatter(k,nanmean(mean_pup(k,:)),'MarkerFaceColor',thisC,'MarkerEdgeColor',thisC,'LineWidth',3,'SizeData',2^8);
 %     end
 % end
+
+%%
+mdl_3e= fitlme(res_table2,sprintf('All_Waves~1+Task+ProbeWithin+BlockN+(1|SubID)')); %WINING MODEL

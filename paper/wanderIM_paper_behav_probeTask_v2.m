@@ -30,9 +30,11 @@ all_probes_mat_fullrtnogo=[];
 all_probes_mat2=[];
 all_probes_mat3=[];
 nc=0;
+all_MS=[];
 for n=1:length(files)
     % load
     load([data_path filesep files(n).name]);
+    all_MS=[all_MS ; [n*ones(size(probe_res,1),1) probe_res(:,32)]];
     probe_res(probe_res(:,32)==4,32)=3;
     SubID=SubjectInfo.subID;
     if ~ismember(SubID,GoodSubID)
@@ -215,7 +217,7 @@ for n=1:nc
             %             end
             
             numdata_bysubj_state(n,ntask,nSta,:)=[length(this_sub_go) length(this_sub_nogo)];
-            if length(this_sub_nogo)>=4
+            if length(this_sub_nogo)>=3
                 [dprime_bysubj_state(n,ntask,nSta), crit_bysubj_state(n,ntask,nSta)] = calc_dprime2(this_sub_go,this_sub_nogo==0);
                 go_bysubj_state(n,ntask,nSta)=nanmean(this_sub_go);
                 nogo_bysubj_state(n,ntask,nSta)=nanmean(this_sub_nogo);
@@ -353,7 +355,7 @@ for i=1:3
 end
 format_fig;
 
-export_fig([path_fig filesep 'WanderIM_behav_pption_byStateAndTask.eps'],'-r 300')
+%export_fig([path_fig filesep 'WanderIM_behav_pption_byStateAndTask.eps'],'-r 300')
 
 %% Dynamics across task
 figure;
@@ -372,7 +374,7 @@ format_fig;
 xlim([0.5 6.5])
 ylim([0 75])
 
-export_fig([path_fig filesep 'WanderIM_behav_StatesDyn_AcrossBlock.eps'],'-r 300')
+%export_fig([path_fig filesep 'WanderIM_behav_StatesDyn_AcrossBlock.eps'],'-r 300')
 
 %% Within within block
 figure;
@@ -390,7 +392,7 @@ format_fig;
 xlim([0.5 10.5])
 ylim([0 75])
 
-export_fig([path_fig filesep 'WanderIM_behav_StatesDyn_WithinBlock.eps'],'-r 300')
+%export_fig([path_fig filesep 'WanderIM_behav_StatesDyn_WithinBlock.eps'],'-r 300')
 
 %%
 % myS=unique(all_probes_mat2(:,1));
@@ -421,7 +423,7 @@ for nplot=1:3
     end
 end
 
-export_fig([path_fig filesep 'WanderIM_behav_CorrStatesOccurrence.eps'],'-r 300')
+%export_fig([path_fig filesep 'WanderIM_behav_CorrStatesOccurrence.eps'],'-r 300')
 
 
 %%
@@ -429,13 +431,16 @@ temp=all_probes_mat2(all_probes_mat2(:,4)<4,:);
 tbl=array2table(temp,'VariableNames',{'SubID','nBl','Task','MS','nPr','GO','NOGO','nGO','nNOGO','tdp','vig','rtGO','rtNOGO','dp','crit'});
 tbl.MS=categorical(tbl.MS);
 tbl.Task=categorical(tbl.Task);
-tbl.MS=reordercats(tbl.MS,[2 1 3]);
+tbl.MS=reordercats(tbl.MS,[1 2 3]);
 
 
 mdl6_0= fitlme(tbl,'vig~1+(1|SubID)');
-mdl6_1= fitlme(tbl,'vig~MS+(1|SubID)');
+mdl6_1= fitlme(tbl,'vig~Task+(1|SubID)');
 mdl6_2= fitlme(tbl,'vig~Task+MS+(1|SubID)'); %wining model
 mdl6_3= fitlme(tbl,'vig~Task*MS+(1|SubID)'); %wining model
+
+tbl.MS=reordercats(tbl.MS,[2 1 3]);
+mdl6_2b= fitlme(tbl,'vig~Task+MS+(1|SubID)'); %wining model
 
 %%
 data=[];
@@ -448,7 +453,18 @@ for i = 1:3
             tempbyS(nS)=nanmean(temp(tempS==myS(nS)));
         end
         data{i, j} = tempbyS;
+        
+        myS=unique(all_probes_mat2(:,1));
+        datattest_n{i, j}=nan(1,length(myS));
+        datattest{i, j}=nan(1,length(myS));
+        for nS=1:length(myS)
+            datattest{i, j}(nS)=nanmean(temp(tempS==myS(nS)));
+            datattest_n{i, j}(nS)=sum((tempS==myS(nS)));
+        end
+        datattest{i, j}(datattest_n{i, j}<3)=NaN;
     end
+            datattest{i, 3} = nanmean([datattest{i, 1} ; datattest{i, 2}],1);
+
 end
 
 % make figure
@@ -510,8 +526,14 @@ for i=1:3
     end
 end
 format_fig;
-export_fig([path_fig filesep 'WanderIM_behav_fatigue_byStateAndTask.eps'],'-r 300')
+%export_fig([path_fig filesep 'WanderIM_behav_fatigue_byStateAndTask.eps'],'-r 300')
 
+[h, pV, ~, stats]=ttest([datattest{2,3}],[datattest{1,3}]);
+fprintf('post-hoc ttests (av task): MW vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+[h, pV, ~, stats]=ttest([datattest{3,3}],[datattest{1,3}]);
+fprintf('post-hoc ttests (av task): MB vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+[h, pV, ~, stats]=ttest([datattest{3,3}],[datattest{2,3}]);
+fprintf('post-hoc ttests (av task): MB vs MW t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
 %% FA
 % read into cell array of the appropriate dimensions
 data=[];
@@ -596,7 +618,7 @@ for i=1:3
 end
 format_fig;
 
-export_fig([path_fig filesep 'WanderIM_behav_NOGO_byStateAndTask.eps'],'-r 300')
+%export_fig([path_fig filesep 'WanderIM_behav_NOGO_byStateAndTask.eps'],'-r 300')
 
 
 %% HITS
@@ -605,9 +627,12 @@ for i = 1:3
     for j = 1:2
         data{i, j} = go_bysubj_state(:,j,i);
         data{i, j} = data{i, j} (~isnan(data{i, j}));
+        datattest{i, j} = go_bysubj_state(:,j,i);
     end
 end
-
+for i = 1:3
+        datattest{i, 3} = squeeze(nanmean(go_bysubj_state(:,:,i),2));
+end
 % make figure
 figure;
 set(gcf,'position',[11   513   375   445])
@@ -670,7 +695,22 @@ for i=1:3
 end
 format_fig;
 
-export_fig([path_fig filesep 'WanderIM_behav_GO_byStateAndTask.eps'],'-r 300')
+%export_fig([path_fig filesep 'WanderIM_behav_GO_byStateAndTask.eps'],'-r 300')
+
+%%% post hoc tests
+% [h, pV, ~, stats]=ttest([datattest{2,1} ; datattest{2,2}],[datattest{1,1} ; datattest{1,2}]);
+% fprintf('post-hoc ttests (av task): MW vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+% [h, pV, ~, stats]=ttest([datattest{3,1} ; datattest{3,2}],[datattest{1,1} ; datattest{1,2}]);
+% fprintf('post-hoc ttests (av task): MB vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+% [h, pV, ~, stats]=ttest([datattest{3,1} ; datattest{3,2}],[datattest{2,1} ; datattest{2,2}]);
+% fprintf('post-hoc ttests (av task): MB vs MW t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+
+[h, pV, ~, stats]=ttest([datattest{2,3}],[datattest{1,3}]);
+fprintf('post-hoc ttests (av task): MW vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+[h, pV, ~, stats]=ttest([datattest{3,3}],[datattest{1,3}]);
+fprintf('post-hoc ttests (av task): MB vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+[h, pV, ~, stats]=ttest([datattest{3,3}],[datattest{2,3}]);
+fprintf('post-hoc ttests (av task): MB vs MW t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
 
 %% CRs
 % read into cell array of the appropriate dimensions
@@ -678,10 +718,12 @@ for i = 1:3
     for j = 1:2
         data{i, j} = nogo_bysubj_state(:,j,i);
         data{i, j} = data{i, j} (~isnan(data{i, j}));
+        datattest{i, j} = nogo_bysubj_state(:,j,i);
     end
 end
-
-% make figure
+for i = 1:3
+        datattest{i, 3} = squeeze(nanmean(nogo_bysubj_state(:,:,i),2));
+end% make figure
 figure;
 set(gcf,'position',[11   513   375   445])
 h   = rm_raincloud(data, Colors(1:2,:),0, 'ks', [],100);
@@ -743,4 +785,20 @@ for i=1:3
 end
 format_fig;
 
-export_fig([path_fig filesep 'WanderIM_behav_NOGO2_byStateAndTask.eps'],'-r 300')
+%export_fig([path_fig filesep 'WanderIM_behav_NOGO2_byStateAndTask.eps'],'-r 300')
+
+%%% post hoc tests
+% [h, pV, ~, stats]=ttest([datattest{2,1} ; datattest{2,2}],[datattest{1,1} ; datattest{1,2}]);
+% fprintf('post-hoc ttests (av task): MW vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+% [h, pV, ~, stats]=ttest([datattest{3,1} ; datattest{3,2}],[datattest{1,1} ; datattest{1,2}]);
+% fprintf('post-hoc ttests (av task): MB vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+% [h, pV, ~, stats]=ttest([datattest{3,1} ; datattest{3,2}],[datattest{2,1} ; datattest{2,2}]);
+% fprintf('post-hoc ttests (av task): MB vs MW t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+
+
+[h, pV, ~, stats]=ttest([datattest{2,3}],[datattest{1,3}]);
+fprintf('post-hoc ttests (av task): MW vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+[h, pV, ~, stats]=ttest([datattest{3,3}],[datattest{1,3}]);
+fprintf('post-hoc ttests (av task): MB vs ON t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)
+[h, pV, ~, stats]=ttest([datattest{3,3}],[datattest{2,3}]);
+fprintf('post-hoc ttests (av task): MB vs MW t(%g)=%2.4f (p=%1.5f)\n',stats.df,stats.tstat,pV)

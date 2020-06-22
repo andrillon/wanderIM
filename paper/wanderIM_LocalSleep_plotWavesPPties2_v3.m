@@ -119,9 +119,11 @@ table_all.MBvsON(table_all.State=='1')=0;
 table_all.MWvsMB=nan(size(table_all,1),1);
 table_all.MWvsMB(table_all.State=='2')=1;
 table_all.MWvsMB(table_all.State=='3')=0;
-
-fprintf('E:%2.0f/63\n',0)
+recompute=0;
 totperm=1000;
+
+if recompute==1
+fprintf('E:%2.0f/63\n',0)
 MWvsON_P2P_est=cell(1,2);
 MWvsON_DwS_est=cell(1,2);
 MBvsON_P2P_est=cell(1,2);
@@ -147,7 +149,9 @@ for nE=1:63
 toc;
 end
 save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm.mat','MWvsON_P2P_est','MWvsON_DwS_est','MBvsON_P2P_est','MBvsON_DwS_est')
-
+else
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm.mat')
+end
 %% Compute monte cartlo p
 clus_alpha=0.01;
 montecarlo_alpha=0.05/8;
@@ -188,8 +192,8 @@ for nP=1:2
         end
     end
     title([Titles{nP}])
-    export_fig([path_fig filesep 'LocalSleep_MWvsON_' Titles{nP} '.fig'])
-    export_fig([path_fig filesep 'LocalSleep_MWvsON_' Titles{nP} '.eps'],'-r 300')
+%     %export_fig([path_fig filesep 'LocalSleep_MWvsON_' Titles{nP} '.fig'])
+%     %export_fig([path_fig filesep 'LocalSleep_MWvsON_' Titles{nP} '.eps'],'-r 300')
 
     figure;
    if nP==1
@@ -211,8 +215,8 @@ for nP=1:2
         end
     end
     title([Titles{nP}])
-    export_fig([path_fig filesep 'LocalSleep_MBvsON_' Titles{nP} '.fig'])
-    export_fig([path_fig filesep 'LocalSleep_MBvsON_' Titles{nP} '.eps'],'-r 300')
+%     %export_fig([path_fig filesep 'LocalSleep_MBvsON_' Titles{nP} '.fig'])
+%     %export_fig([path_fig filesep 'LocalSleep_MBvsON_' Titles{nP} '.eps'],'-r 300')
 
 %      subplot(1,3,3)
 %     temp_topo=Model_State_res2{1,1}(:,nP+8);

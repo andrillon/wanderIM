@@ -209,6 +209,8 @@ totperm=1000;
 
 fprintf('E:%2.0f/63\n',0)
 myS=unique(res_table.SubID);
+redo=0;
+if redo==1
 for nE=1:63
     fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
   
@@ -235,6 +237,9 @@ for nE=1:63
 end
 
 save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_RT_Perf_LMEandPerm.mat','perfNOGO_est','rtGO_est','perfGO_est')
+else
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_RT_Perf_LMEandPerm.mat');
+end
 %% Compute monte cartlo p
 clus_alpha=0.01;
 montecarlo_alpha=0.05/3;
@@ -276,8 +281,8 @@ for nP=1:length(Titles)
         end
     end
     title([Titles{nP}])
-    export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.fig'])
-    export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.eps'],'-r 300')
+    %export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.fig'])
+    %export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.eps'],'-r 300')
 end
 
 % %%
