@@ -3,3 +3,4 @@ survey/.Rproj.user/*
 *.out
 *.m~
 .Rproj.user
+.DS_Store

@@ -12,7 +12,8 @@ addpath(genpath(spm12_path))
 addpath(genpath(lscpTools_path))
 
 % select relevant files, here baseline blocks
-eeg_path=[root_path filesep 'preproc_eeg'];
+spec_path='/Volumes/ANDRILLON_HD1/BackUp_WanderIM_data_JULY2020/preproc_eeg/';
+eeg_path=spec_path; %[root_path filesep 'preproc_eeg'];
 behav_path=[root_path filesep 'behav'];
 bsl_files=dir([eeg_path filesep 'trial_nfEEG_S3*.mat']);
 
@@ -90,7 +91,7 @@ for n=1:length(bsl_files)
             these_trialsidx=these_trialsidx(ismember(these_trialsidx,[go_idx ; nogo_idx]));
             temp_data2=temp_data(:,:,these_trialsidx);
             these_trials2=test_res(these_trialsidx,:);
-
+            
             probe_details(1)=these_probes(npr,31); % look
             probe_details(2)=these_probes(npr,32); % look
             probe_details(3)=these_probes(npr,33); % look
@@ -123,7 +124,7 @@ for n=1:length(bsl_files)
             
             %
             EEG_mat=P3_amp';
-           
+            
             temp_testresgo=find(~isnan(these_trials2(:,12)));
             this_ch=match_str(D.chanlabels,'Pz');
             
@@ -133,16 +134,16 @@ for n=1:length(bsl_files)
             all_probes_DEV=[all_probes_DEV ; squeeze(nanmean(temp_data2(this_ch,:,temp_testresnogo),3))];
             all_probes_behav=[all_probes_behav ; [str2num(SubID) nbl npr these_probes(npr,5) probe_details temp_corr_go temp_corr_nogo dprime crit]];
             
-%             myChannelsIdx=match_str(D.chanlabels,{'Fz','Cz','Pz','Oz'});
-%             for nE=1:length(myChannelsIdx)
-%                 all_probes_ERP=[all_probes_ERP ; [Behav_mat2 nE*ones(size(Behav_mat2,1),1) squeeze(temp_data2(myChannelsIdx(nE),:,:))']];
-%             end
+            %             myChannelsIdx=match_str(D.chanlabels,{'Fz','Cz','Pz','Oz'});
+            %             for nE=1:length(myChannelsIdx)
+            %                 all_probes_ERP=[all_probes_ERP ; [Behav_mat2 nE*ones(size(Behav_mat2,1),1) squeeze(temp_data2(myChannelsIdx(nE),:,:))']];
+            %             end
             
             tempP3=squeeze(nanmean(nanmean(temp_data2(this_ch,D.indsample(time_W(1)):D.indsample(time_W(2)),temp_testresgo),2),3))-squeeze(nanmean(nanmean(temp_data2(this_ch,D.indsample(time_W(1)):D.indsample(time_W(2)),temp_testresgo),2),3));
             all_probes_P3amp=[all_probes_P3amp ; tempP3];
             
-                        this_ch2=match_str(D.chanlabels,'Oz');
-if probe_details(2)~=4
+            this_ch2=match_str(D.chanlabels,'Oz');
+            if probe_details(2)~=4
                 temp_ERP_STD{probe_details(2)}=[temp_ERP_STD{probe_details(2)} ; squeeze(temp_data2(this_ch2,:,temp_testresgo))'];
                 temp_ERP_DEV{probe_details(2)}=[temp_ERP_DEV{probe_details(2)} ; squeeze(temp_data2(this_ch2,:,temp_testresnogo))'];
             end
@@ -198,13 +199,13 @@ end
 figure; format_fig; hold on;
 % for ntask=1:2
 %     subplot(2,1,ntask)
-    for nstate=1:3
-%         tempplot=all_probes_ERP(all_probes_ERP(:,size(Behav_mat2,2)+1)==2 & all_probes_ERP(:,4)==ntask & all_probes_ERP(:,7)==nstate & all_probes_ERP(:,13)==1,size(Behav_mat2,2)+2:end);
-        templot=squeeze(all_probes_DEV2(all_probes_DEV2(:,nstate)>0,nstate,:));
-        plot(D.time,nanmean(templot),'Color',Colors(nstate,:),'LineStyle','--')
-        templot=squeeze(all_probes_STD2(all_probes_DEV2(:,nstate)>0,nstate,:));
-        plot(D.time,nanmean(templot),'Color',Colors(nstate,:),'LineWidth',2)
-    end
+for nstate=1:3
+    %         tempplot=all_probes_ERP(all_probes_ERP(:,size(Behav_mat2,2)+1)==2 & all_probes_ERP(:,4)==ntask & all_probes_ERP(:,7)==nstate & all_probes_ERP(:,13)==1,size(Behav_mat2,2)+2:end);
+    templot=squeeze(all_probes_DEV2(all_probes_DEV2(:,nstate)>0,nstate,:));
+    plot(D.time,nanmean(templot),'Color',Colors(nstate,:),'LineStyle','--')
+    templot=squeeze(all_probes_STD2(all_probes_DEV2(:,nstate)>0,nstate,:));
+    plot(D.time,nanmean(templot),'Color',Colors(nstate,:),'LineWidth',2)
+end
 % end
 %%
 tbl_probe=array2table(all_probes_mat2,'VariableNames',all_probes_headers2);
@@ -254,15 +255,15 @@ tbl_allE.State=reordercats(tbl_allE.State,{'1','2','3'});
 %  mdl_P3_allEnotask= fitlme(tbl_allE,'P3~nBlock+Chan*State*TrCond+(1| SubID)');
 %  mdl_P3_allEnoblock= fitlme(tbl_allE,'P3~Task*Chan*State*TrCond+(1| SubID)');
 
- mdl_P3_allE= fitlme(tbl_allE,'P3~nBlock+Task*Chan*State+(1| SubID)');
- mdl_ERN_allE= fitlme(tbl_allE,'ERN~nBlock+Task*Chan*State+(1| SubID)');
+mdl_P3_allE= fitlme(tbl_allE,'P3~nBlock+Task*Chan*State+(1| SubID)');
+mdl_ERN_allE= fitlme(tbl_allE,'ERN~nBlock+Task*Chan*State+(1| SubID)');
 
- tbl_allE2=tbl_allE;
- tbl_allE2.State=reordercats(tbl_allE2.State,{'2','1','3'});
- mdl_P3_allE2= fitlme(tbl_allE2,'P3~nBlock+Task*Chan*State+(1| SubID)');
- mdl_ERN_allE2= fitlme(tbl_allE2,'ERN~nBlock+Task*Chan*State+(1| SubID)');
+tbl_allE2=tbl_allE;
+tbl_allE2.State=reordercats(tbl_allE2.State,{'2','1','3'});
+mdl_P3_allE2= fitlme(tbl_allE2,'P3~nBlock+Task*Chan*State+(1| SubID)');
+mdl_ERN_allE2= fitlme(tbl_allE2,'ERN~nBlock+Task*Chan*State+(1| SubID)');
 
- %% Check main Effects of trial category
+%% Check main Effects of trial category
 figure;
 load(['EasyCap64_layout']);
 stat_thr=0.05;
@@ -413,8 +414,8 @@ colorbar;
 clear P3_* ERN_*
 fprintf('%2.0f/63\n',0)
 for nE=1:63
-       fprintf('\b\b\b\b\b\b%2.0f/63\n',nE)
- mdl= fitlme(tbl_probe,sprintf('P3_Ch%g~nBlock+Task*State*TrCond+(1| SubID)',nE));
+    fprintf('\b\b\b\b\b\b%2.0f/63\n',nE)
+    mdl= fitlme(tbl_probe,sprintf('P3_Ch%g~nBlock+Task*State*TrCond+(1| SubID)',nE));
     P3_tval(1:size(double(mdl.Coefficients(:,4)),1),nE)=double(mdl.Coefficients(:,4));
     P3_pval(1:size(double(mdl.Coefficients(:,4)),1),nE)=double(mdl.Coefficients(:,6));
     P3_varNames=mdl.CoefficientNames;
@@ -457,10 +458,10 @@ addpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));
 varNames={'CorrCond_0','State_2:CorrCond_0','State_3:CorrCond_0','State_3b:CorrCond_0'};
 for nplot=1:length(varNames)
     subplot(1,length(varNames),nplot)
-        tempplot=ERN_tval(match_str(ERN_varNames,varNames{nplot}),:);
-        tempplotpV=ERN_pval(match_str(ERN_varNames,varNames{nplot}),:);
-        topoplot(tempplot, layout.chaninfo,'style','map','electrodes','off','emarker2',{find(tempplotpV<fdr(tempplotpV,0.05)),'.','k',10,2},'whitebk','on');
- caxis([-1 1]*5)
+    tempplot=ERN_tval(match_str(ERN_varNames,varNames{nplot}),:);
+    tempplotpV=ERN_pval(match_str(ERN_varNames,varNames{nplot}),:);
+    topoplot(tempplot, layout.chaninfo,'style','map','electrodes','off','emarker2',{find(tempplotpV<fdr(tempplotpV,0.05)),'.','k',10,2},'whitebk','on');
+    caxis([-1 1]*5)
     title(varNames{nplot})
 end
 rmpath(genpath('/Users/tand0009/Work/local/eeglab14_1_2b/'));

@@ -61,6 +61,9 @@ for i=1:size(LoadedEEG.data,1) % (i) is the number of the channel
     troughs(EEG(troughs)>0)=[]; % Rejects troughs above zero
     
     %% Makes negcross and poscross same size to start
+    if isempty(negcross) || isempty(poscross)
+        continue;
+    end
     if negcross(1)<poscross(1); 
             start=1;
         else
