@@ -37,7 +37,7 @@ redo.epoching.trial=0;
 redo.epoching.baseline=0;
 redo.epoching.hb=0;
 redo.ica=0;
-redo.laplacian=0;
+redo.laplacian=1;
 
 if do.laplacian==1
     filename=files(1).name;
@@ -50,7 +50,7 @@ end
 
 parpool(10);
 parfor n=1:length(files)
-% for n=1:length(files)
+    % for n=1:length(files)
     %%% LOAD
     filename=files(n).name;
     subID=filename(findstr(filename,'_')+2:findstr(filename,'.')-1);
@@ -60,7 +60,7 @@ parfor n=1:length(files)
     Behav=load([behav_path filesep filebehav.name]);
     D=spm_eeg_load([preproc_path filesep filename]);
     
-
+    
     %%% High-pass filter
     if do.hp==1 && (exist([preproc_path filesep 'f' D.fname],'file')==0 || redo.hp==1)
         paramFilt=[];
@@ -94,7 +94,7 @@ parfor n=1:length(files)
         [data] = ft_preprocessing(cfg);
         
         %         %%% retrieve electrode locations and layout
-                elec = ft_read_sens('EasyCap64_PsychBuilding.sfp');
+        elec = ft_read_sens('EasyCap64_PsychBuilding.sfp');
         %         cfg=[];
         %         cfg.elec=elec;
         %         [layout] = ft_prepare_layout(cfg);
@@ -110,7 +110,7 @@ parfor n=1:length(files)
         
         % interpolate channels
         if ~isempty(match_str(ToInterp{1},subID))
-        thesebadch=ToInterp{2}{match_str(ToInterp{1},subID)};
+            thesebadch=ToInterp{2}{match_str(ToInterp{1},subID)};
         else
             thesebadch=[];
         end
@@ -139,7 +139,7 @@ parfor n=1:length(files)
             S.outfile=[preproc_path filesep 'i' D.fname];
             D=spm_eeg_copy(S);
         end
-%   S.updatehistory - update history information [default: true]
+        %   S.updatehistory - update history information [default: true]
     else
         D=spm_eeg_load([preproc_path filesep 'i' D.fname]);
     end
@@ -160,20 +160,20 @@ parfor n=1:length(files)
         paramLap.H=H;
         Dnew=subfun_laplacian(Dold,paramLap);
     end
-     
+    
     %%%%% Epoch probes
     if do.epoching.probe==1 && (exist([preproc_path filesep 'probe_' D.fname],'file')==0 || redo.epoching.probe==1)
         D_probes=subfun_epoch_probe(D,start_probe,probe_window,Behav);
     elseif do.epoching.probe==1
         D_probes=spm_eeg_load([preproc_path filesep 'probe_' D.fname]);
     end
-     if do.laplacian==1 && (exist([preproc_path filesep 'lprobe_' D.fname],'file')==0 || redo.laplacian==1)
+    if do.laplacian==1 && (exist([preproc_path filesep 'lprobe_' D.fname],'file')==0 || redo.laplacian==1)
         Dold=D_probes;
         paramLap=[];
         paramLap.G=G;
         paramLap.H=H;
         Dnew=subfun_laplacian(Dold,paramLap);
-     end
+    end
     
     %%%%% Epoch trials
     if do.epoching.trial==1 && (exist([preproc_path filesep 'trial_' D.fname],'file')==0 || redo.epoching.trial==1)
@@ -193,45 +193,45 @@ parfor n=1:length(files)
     if do.epoching.hb==1 && (exist([preproc_path filesep 'hb_' D.fname],'file')==0 || redo.epoching.hb==1)
         D_hb=subfun_epoch_hb(D,hb_window);
     end
-
-	if do.ica==1    
+    
+    if do.ica==1
         epochFilename=D_baseline.fname;
-    if do.ica==1 && (exist([preproc_path filesep epochFilename(1:end-4) '_ica.set'],'file')==0 || redo.ica==1)
-        paramICA=[];
-        paramICA.data_path=preproc_path;
-        paramICA.file_name=epochFilename;
-        paramICA.ica.icatype='runica';
-        paramICA.name_sensfile=path_locfile_ced;
-        paramICA.type_sensfile='.ced';
-        paramICA.spm12_path=spm12_path;
-        
-        Dica1 = preproc_runICA_eeglab(paramICA);
+        if do.ica==1 && (exist([preproc_path filesep epochFilename(1:end-4) '_ica.set'],'file')==0 || redo.ica==1)
+            paramICA=[];
+            paramICA.data_path=preproc_path;
+            paramICA.file_name=epochFilename;
+            paramICA.ica.icatype='runica';
+            paramICA.name_sensfile=path_locfile_ced;
+            paramICA.type_sensfile='.ced';
+            paramICA.spm12_path=spm12_path;
+            
+            Dica1 = preproc_runICA_eeglab(paramICA);
+        end
+        epochFilename=D_probes.fname;
+        if do.ica==1 && (exist([preproc_path filesep epochFilename(1:end-4) '_ica.set'],'file')==0 || redo.ica==1)
+            paramICA=[];
+            paramICA.data_path=preproc_path;
+            paramICA.file_name=epochFilename;
+            paramICA.ica.icatype='runica';
+            paramICA.name_sensfile=path_locfile_ced;
+            paramICA.type_sensfile='.ced';
+            paramICA.spm12_path=spm12_path;
+            
+            Dica2 = preproc_runICA_eeglab(paramICA);
+        end
+        epochFilename=D_trials.fname;
+        if do.ica==1 && (exist([preproc_path filesep epochFilename(1:end-4) '_ica.set'],'file')==0 || redo.ica==1)
+            paramICA=[];
+            paramICA.data_path=preproc_path;
+            paramICA.file_name=epochFilename;
+            paramICA.ica.icatype='runica';
+            paramICA.name_sensfile=path_locfile_ced;
+            paramICA.type_sensfile='.ced';
+            paramICA.spm12_path=spm12_path;
+            
+            Dica3 = preproc_runICA_eeglab(paramICA);
+        end
     end
-    epochFilename=D_probes.fname;
-    if do.ica==1 && (exist([preproc_path filesep epochFilename(1:end-4) '_ica.set'],'file')==0 || redo.ica==1)
-        paramICA=[];
-        paramICA.data_path=preproc_path;
-        paramICA.file_name=epochFilename;
-        paramICA.ica.icatype='runica';
-        paramICA.name_sensfile=path_locfile_ced;
-        paramICA.type_sensfile='.ced';
-        paramICA.spm12_path=spm12_path;
-
-        Dica2 = preproc_runICA_eeglab(paramICA);
-    end
-    epochFilename=D_trials.fname;
-    if do.ica==1 && (exist([preproc_path filesep epochFilename(1:end-4) '_ica.set'],'file')==0 || redo.ica==1)
-        paramICA=[];
-        paramICA.data_path=preproc_path;
-        paramICA.file_name=epochFilename;
-        paramICA.ica.icatype='runica';
-        paramICA.name_sensfile=path_locfile_ced;
-        paramICA.type_sensfile='.ced';
-                paramICA.spm12_path=spm12_path;
-
-        Dica3 = preproc_runICA_eeglab(paramICA);
-    end
-end
 end
 delete(gcp('nocreate'));
 
@@ -371,7 +371,7 @@ for nT=1:length(idProbes_start)
 end
 fprintf('... ... max lag for probes: start %g (in samples)\n',max(abs(lag_probe)))
 
-    save(saveName,'start_block_baseline', 'start_probe', 'clean_start_trial')
+save(saveName,'start_block_baseline', 'start_probe', 'clean_start_trial')
 
 end
 
