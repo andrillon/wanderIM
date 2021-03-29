@@ -123,38 +123,187 @@ recompute=0;
 totperm=1000;
 
 if recompute==1
-fprintf('E:%2.0f/63\n',0)
-MWvsON_P2P_est=cell(1,2);
-MWvsON_DwS_est=cell(1,2);
-MBvsON_P2P_est=cell(1,2);
-MBvsON_DwS_est=cell(1,2);
-for nE=1:63
+    MWvsON_nWa_est=cell(1,2);
+    MWvsON_P2P_est=cell(1,2);
+    MWvsON_DwS_est=cell(1,2);
+    MWvsON_UpS_est=cell(1,2);
+    
+    MBvsON_nWa_est=cell(1,2);
+    MBvsON_P2P_est=cell(1,2);
+    MBvsON_DwS_est=cell(1,2);
+    MBvsON_UpS_est=cell(1,2);
+    
+    MWvsMB_nWa_est=cell(1,2);
+    MWvsMB_P2P_est=cell(1,2);
+    MWvsMB_DwS_est=cell(1,2);
+    MWvsMB_UpS_est=cell(1,2);
+    
     tic;
-    fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
-    [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'P2P','MWvsON~1+pred+Task+(1|SubID)',totperm);
-    MWvsON_P2P_est{1}=[MWvsON_P2P_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
-    MWvsON_P2P_est{2}=[MWvsON_P2P_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+    fprintf('E:%2.0f/63\n',0)
+    for nE=1:63
+        fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
+        %%%%% MW vs ON
+        [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'nWave','MWvsON~1+pred+Task+(1|SubID)',totperm);
+        MWvsON_nWa_est{1}=[MWvsON_nWa_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+        MWvsON_nWa_est{2}=[MWvsON_nWa_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+    end
+    save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsON_nWa.mat',...
+        'MWvsON_nWa_est')
+    clear MWvsON_nWa_est
+    toc;
+    tic;
+    fprintf('E:%2.0f/63\n',0)
+    for nE=1:63
+              fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
+  [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'P2P','MWvsON~1+pred+Task+(1|SubID)',totperm);
+        MWvsON_P2P_est{1}=[MWvsON_P2P_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+        MWvsON_P2P_est{2}=[MWvsON_P2P_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+    end
+    save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsON_P2P.mat',...
+        'MWvsON_P2P_est')
+    clear MWvsON_P2P_est
+    toc;
+    tic;
+    fprintf('E:%2.0f/63\n',0)
+    for nE=1:63
+               fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
+ [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'DownSlope','MWvsON~1+pred+Task+(1|SubID)',totperm);
+        MWvsON_DwS_est{1}=[MWvsON_DwS_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+        MWvsON_DwS_est{2}=[MWvsON_DwS_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+    end
+    save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsON_DwS.mat',...
+        'MWvsON_DwS_est')
+    clear MWvsON_DwS_est
+    toc;
+    tic;
+    fprintf('E:%2.0f/63\n',0)
+    for nE=1:63
+              fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
+  [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'UpSlope','MWvsON~1+pred+Task+(1|SubID)',totperm);
+        MWvsON_UpS_est{1}=[MWvsON_UpS_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+        MWvsON_UpS_est{2}=[MWvsON_UpS_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+    end
+    save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsON_UpS.mat',...
+        'MWvsON_UpS_est')
+    clear MWvsON_UpS_est
+    toc;
+    tic;
+    fprintf('E:%2.0f/63\n',0)
+    for nE=1:63
+               fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
+ %%%%% MB vs ON
+        [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'nWave','MBvsON~1+pred+Task+(1|SubID)',totperm);
+        MBvsON_nWa_est{1}=[MBvsON_nWa_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+        MBvsON_nWa_est{2}=[MBvsON_nWa_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+    end
+    save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MBvsON_nWa.mat',...
+        'MBvsON_nWa_est')
+    clear MBvsON_nWa_est
+    toc;
+    tic;
+    fprintf('E:%2.0f/63\n',0)
+    for nE=1:63
+                fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
+[real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'P2P','MBvsON~1+pred+Task+(1|SubID)',totperm);
+        MBvsON_P2P_est{1}=[MBvsON_P2P_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+        MBvsON_P2P_est{2}=[MBvsON_P2P_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+    end
+    save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MBvsON_P2P.mat',...
+        'MBvsON_P2P_est')
+    clear MBvsON_P2P_est
+    toc;
+    tic;
+    fprintf('E:%2.0f/63\n',0)
+    for nE=1:63
+               fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
+ [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'DownSlope','MBvsON~1+pred+Task+(1|SubID)',totperm);
+        MBvsON_DwS_est{1}=[MBvsON_DwS_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+        MBvsON_DwS_est{2}=[MBvsON_DwS_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+    end
+    save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MBvsON_DwS.mat',...
+        'MBvsON_DwS_est')
+    clear MBvsON_DwS_est
+    toc;
+    tic;
+    fprintf('E:%2.0f/63\n',0)
+    for nE=1:63
+             fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
+   [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'UpSlope','MBvsON~1+pred+Task+(1|SubID)',totperm);
+        MBvsON_UpS_est{1}=[MBvsON_UpS_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+        MBvsON_UpS_est{2}=[MBvsON_UpS_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+    end
+    save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MBvsON_UpS.mat',...
+        'MBvsON_UpS_est')
+    clear MBvsON_UpS_est
+    toc;
+    tic;
+    fprintf('E:%2.0f/63\n',0)
+    for nE=1:63
+              fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
+  %%%%% MW vs MB
+        [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'nWave','MWvsMB~1+pred+Task+(1|SubID)',totperm);
+        MWvsMB_nWa_est{1}=[MWvsMB_nWa_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+        MWvsMB_nWa_est{2}=[MWvsMB_nWa_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+    end
+    save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsMB_nWa.mat',...
+        'MWvsMB_nWa_est')
+    clear MWvsMB_nWa_est
+    toc;
+    tic;
+    fprintf('E:%2.0f/63\n',0)
+    for nE=1:63
+              fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
+  [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'P2P','MWvsMB~1+pred+Task+(1|SubID)',totperm);
+        MWvsMB_P2P_est{1}=[MWvsMB_P2P_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+        MWvsMB_P2P_est{2}=[MWvsMB_P2P_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+    end
+    save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsMB_P2P.mat',...
+        'MWvsMB_P2P_est')
+    clear MWvsMB_P2P_est
+    toc;
+    tic;
+    fprintf('E:%2.0f/63\n',0)
+    for nE=1:63
+              fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
+  [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'DownSlope','MWvsMB~1+pred+Task+(1|SubID)',totperm);
+        MWvsMB_DwS_est{1}=[MWvsMB_DwS_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+        MWvsMB_DwS_est{2}=[MWvsMB_DwS_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+    end
+    save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsMB_DwS.mat',...
+        'MWvsMB_DwS_est')
+    clear MWvsMB_DwS_est
+    toc;
+    tic;
+    fprintf('E:%2.0f/63\n',0)
+    for nE=1:63
+              fprintf('\b\b\b\b\b\b\b\bE:%2.0f/63\n',nE)
+  [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'UpSlope','MWvsMB~1+pred+Task+(1|SubID)',totperm);
+        MWvsMB_UpS_est{1}=[MWvsMB_UpS_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+        MWvsMB_UpS_est{2}=[MWvsMB_UpS_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
+    end
+    save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsMB_UpS.mat',...
+        'MWvsMB_UpS_est')
+    clear MWvsMB_UpS_est
+    toc;
     
-    [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'DownSlope','MWvsON~1+pred+Task+(1|SubID)',totperm);
-    MWvsON_DwS_est{1}=[MWvsON_DwS_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
-    MWvsON_DwS_est{2}=[MWvsON_DwS_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
     
-    [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'P2P','MBvsON~1+pred+Task+(1|SubID)',totperm);
-    MBvsON_P2P_est{1}=[MBvsON_P2P_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
-    MBvsON_P2P_est{2}=[MBvsON_P2P_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
-    
-    [real_out, perm_out]=lme_perm(table_all(table_all.Elec==nE,:),'DownSlope','MBvsON~1+pred+Task+(1|SubID)',totperm);
-    MBvsON_DwS_est{1}=[MBvsON_DwS_est{1} ; [nE real_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
-    MBvsON_DwS_est{2}=[MBvsON_DwS_est{2} ; [nE*ones(totperm,1) perm_out]];% double(rtGO_mdl.Coefficients(4,2)) double(rtGO_mdl.Coefficients(4,4)) double(rtGO_mdl.Coefficients(4,6))]];
-toc;
-end
-save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm.mat','MWvsON_P2P_est','MWvsON_DwS_est','MBvsON_P2P_est','MBvsON_DwS_est')
 else
-    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm.mat')
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsON_nWa.mat')
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsON_P2P.mat')
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsON_DwS.mat')
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsON_UpS.mat')
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MBvsON_nWa.mat')
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MBvsON_P2P.mat')
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MBvsON_DwS.mat')
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MBvsON_UpS.mat')
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsMB_nWa.mat')
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsMB_P2P.mat')
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsMB_DwS.mat')
+    load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_P2P_Amp_State_LMEandPerm_rev1_MWvsMB_UpS.mat')
 end
 %% Compute monte cartlo p
-clus_alpha=0.01;
-montecarlo_alpha=0.05/8;
+clus_alpha=0.025;
+montecarlo_alpha=0.05/12;
 
 addpath((path_fieldtrip)); ft_defaults;
 cfg_neighb=[];
@@ -162,73 +311,119 @@ cfg_neighb.method = 'tri';
 cfg_neighb.layout=path_PsychFTlayout;
 neighbours = ft_prepare_neighbours(cfg_neighb);
 
+[MWvsON_nWa_clus]=get_clusterperm_lme(MWvsON_nWa_est,clus_alpha,montecarlo_alpha,totperm,neighbours);
 [MWvsON_P2P_clus]=get_clusterperm_lme(MWvsON_P2P_est,clus_alpha,montecarlo_alpha,totperm,neighbours);
 [MWvsON_DwS_clus]=get_clusterperm_lme(MWvsON_DwS_est,clus_alpha,montecarlo_alpha,totperm,neighbours);
+[MWvsON_UpS_clus]=get_clusterperm_lme(MWvsON_UpS_est,clus_alpha,montecarlo_alpha,totperm,neighbours);
+
+[MBvsON_nWa_clus]=get_clusterperm_lme(MBvsON_nWa_est,clus_alpha,montecarlo_alpha,totperm,neighbours);
 [MBvsON_P2P_clus]=get_clusterperm_lme(MBvsON_P2P_est,clus_alpha,montecarlo_alpha,totperm,neighbours);
 [MBvsON_DwS_clus]=get_clusterperm_lme(MBvsON_DwS_est,clus_alpha,montecarlo_alpha,totperm,neighbours);
+[MBvsON_UpS_clus]=get_clusterperm_lme(MBvsON_UpS_est,clus_alpha,montecarlo_alpha,totperm,neighbours);
+
+[MWvsMB_nWa_clus]=get_clusterperm_lme(MWvsMB_nWa_est,clus_alpha,montecarlo_alpha,totperm,neighbours);
+[MWvsMB_P2P_clus]=get_clusterperm_lme(MWvsMB_P2P_est,clus_alpha,montecarlo_alpha,totperm,neighbours);
+[MWvsMB_DwS_clus]=get_clusterperm_lme(MWvsMB_DwS_est,clus_alpha,montecarlo_alpha,totperm,neighbours);
+[MWvsMB_UpS_clus]=get_clusterperm_lme(MWvsMB_UpS_est,clus_alpha,montecarlo_alpha,totperm,neighbours);
 
 %%
 % for nTask=1:2
-Titles={'P2P','DownSlope'};
-AxesLim={[-5 5],[-5 5]};
-for nP=1:2
+Titles={'Density','P2P','DownSlope','UpSlope'};
+AxesLim={[-5 5],[-5 5],[-5 5],[-5 5]};
+cmap=cbrewer('div','RdBu',256); cmap=flipud(cmap);
+for nP=1:4
     figure;
     if nP==1
+        temp_topo=MWvsON_nWa_est{1}(:,3);
+        temp_clus=MWvsON_nWa_clus;
+    elseif nP==2
         temp_topo=MWvsON_P2P_est{1}(:,3);
         temp_clus=MWvsON_P2P_clus;
-    else
+    elseif nP==3
         temp_topo=MWvsON_DwS_est{1}(:,3);
         temp_clus=MWvsON_DwS_clus;
+    elseif nP==4
+        temp_topo=MWvsON_UpS_est{1}(:,3);
+        temp_clus=MWvsON_UpS_clus;
     end
 
     simpleTopoPlot_ft(temp_topo, path_PsychFTlayout,'on',[],0,1);
     colorbar; caxis(AxesLim{nP}); %caxis([-1 1]*max(abs(temp_topo)))
+    colormap(cmap);
     
     load(path_PsychFTlayout);
+    ft_plot_lay_me(layout,'chanindx',1:63,'pointsymbol','.','pointcolor',[1 1 1]*.5,'pointsize',64,'box','no','label','no')
    if ~isempty(temp_clus)
         for nclus=1:length(temp_clus)
-        ft_plot_lay_me(layout, 'chanindx',match_str(layout.label,temp_clus{nclus}{2}),'pointsymbol','o','pointcolor','r','pointsize',64,'box','no','label','no')
+        ft_plot_lay_me(layout, 'chanindx',match_str(layout.label,temp_clus{nclus}{2}),'pointsymbol','o','pointcolor','k','pointsize',64,'box','no','label','no')
         fprintf('... ... found %s cluster (%g) of %g electrodes (tval cluster=%g, Pmc=%g)\n',temp_clus{nclus}{1},nclus,length(temp_clus{nclus}{2}),temp_clus{nclus}{3},temp_clus{nclus}{4})
         end
     end
-    title([Titles{nP}])
-%     %export_fig([path_fig filesep 'LocalSleep_MWvsON_' Titles{nP} '.fig'])
-%     %export_fig([path_fig filesep 'LocalSleep_MWvsON_' Titles{nP} '.eps'],'-r 300')
+    title(['MW vs ON: ' Titles{nP}])
+    export_fig([path_fig filesep 'LocalSleep_MWvsON_' Titles{nP} '.fig'])
+    export_fig([path_fig filesep 'LocalSleep_MWvsON_' Titles{nP} '.eps'],'-r 300')
 
     figure;
    if nP==1
+        temp_topo=MBvsON_nWa_est{1}(:,3);
+        temp_clus=MBvsON_nWa_clus;
+    elseif nP==2
         temp_topo=MBvsON_P2P_est{1}(:,3);
         temp_clus=MBvsON_P2P_clus;
-    else
+    elseif nP==3
         temp_topo=MBvsON_DwS_est{1}(:,3);
         temp_clus=MBvsON_DwS_clus;
+    elseif nP==4
+        temp_topo=MBvsON_UpS_est{1}(:,3);
+        temp_clus=MBvsON_UpS_clus;
     end
     
     simpleTopoPlot_ft(temp_topo, path_PsychFTlayout,'on',[],0,1);
-    colorbar; caxis(AxesLim{nP}); % caxis([-1 1]*max(abs(temp_topo)))
-    
+ colorbar; caxis(AxesLim{nP}); % caxis([-1 1]*max(abs(temp_topo)))
+           colormap(cmap);
+
     load(path_PsychFTlayout);
-    if ~isempty(temp_clus)
+      ft_plot_lay_me(layout,'chanindx',1:63,'pointsymbol','.','pointcolor',[1 1 1]*.5,'pointsize',64,'box','no','label','no')
+  if ~isempty(temp_clus)
         for nclus=1:length(temp_clus)
-        ft_plot_lay_me(layout, 'chanindx',match_str(layout.label,temp_clus{nclus}{2}),'pointsymbol','o','pointcolor','r','pointsize',64,'box','no','label','no')
+        ft_plot_lay_me(layout, 'chanindx',match_str(layout.label,temp_clus{nclus}{2}),'pointsymbol','o','pointcolor','k','pointsize',64,'box','no','label','no')
         fprintf('... ... found %s cluster (%g) of %g electrodes (tval cluster=%g, Pmc=%g)\n',temp_clus{nclus}{1},nclus,length(temp_clus{nclus}{2}),temp_clus{nclus}{3},temp_clus{nclus}{4})
         end
     end
-    title([Titles{nP}])
-%     %export_fig([path_fig filesep 'LocalSleep_MBvsON_' Titles{nP} '.fig'])
-%     %export_fig([path_fig filesep 'LocalSleep_MBvsON_' Titles{nP} '.eps'],'-r 300')
+    title(['MB vs ON: ' Titles{nP}])
+    export_fig([path_fig filesep 'LocalSleep_MBvsON_' Titles{nP} '.fig'])
+    export_fig([path_fig filesep 'LocalSleep_MBvsON_' Titles{nP} '.eps'],'-r 300')
 
-%      subplot(1,3,3)
-%     temp_topo=Model_State_res2{1,1}(:,nP+8);
-%     temp_pV=Model_State_res2{2,1}(:,nP+8);
-%     
-%     simpleTopoPlot_ft(temp_topo, path_PsychFTlayout,'on',[],0,1);
-%     colorbar; caxis([-1 1]*max(abs(temp_topo)))
-%     
-%     load(path_PsychFTlayout);
-%     if ~isempty(find(temp_pV<0.05))
-%         ft_plot_lay_me(layout, 'chanindx',find(temp_pV<0.05),'pointsymbol','o','pointcolor','r','pointsize',64,'box','no','label','no')
-%     end
-%     title([Titles{nP} ' - FDR: ' num2str(fdr(temp_pV,0.05))])
+  figure;
+   if nP==1
+        temp_topo=MWvsMB_nWa_est{1}(:,3);
+        temp_clus=MWvsMB_nWa_clus;
+    elseif nP==2
+        temp_topo=MWvsMB_P2P_est{1}(:,3);
+        temp_clus=MWvsMB_P2P_clus;
+    elseif nP==3
+        temp_topo=MWvsMB_DwS_est{1}(:,3);
+        temp_clus=MWvsMB_DwS_clus;
+    elseif nP==4
+        temp_topo=MWvsMB_UpS_est{1}(:,3);
+        temp_clus=MWvsMB_UpS_clus;
+    end
+    
+    simpleTopoPlot_ft(-temp_topo, path_PsychFTlayout,'on',[],0,1);
+       colormap(cmap);
+ colorbar; caxis(AxesLim{nP}); % caxis([-1 1]*max(abs(temp_topo)))
+    
+    load(path_PsychFTlayout);
+      ft_plot_lay_me(layout,'chanindx',1:63,'pointsymbol','.','pointcolor',[1 1 1]*.5,'pointsize',64,'box','no','label','no')
+  if ~isempty(temp_clus)
+        for nclus=1:length(temp_clus)
+        ft_plot_lay_me(layout, 'chanindx',match_str(layout.label,temp_clus{nclus}{2}),'pointsymbol','o','pointcolor','k','pointsize',64,'box','no','label','no')
+        fprintf('... ... found %s cluster (%g) of %g electrodes (tval cluster=%g, Pmc=%g)\n',temp_clus{nclus}{1},nclus,length(temp_clus{nclus}{2}),temp_clus{nclus}{3},temp_clus{nclus}{4})
+        end
+    end
+    title(['MW vs MB: ' Titles{nP}])
+        export_fig([path_fig filesep 'LocalSleep_MWvsMB_' Titles{nP} '.fig'])
+    export_fig([path_fig filesep 'LocalSleep_MWvsMB_' Titles{nP} '.eps'],'-r 300')
+
 end
 % end

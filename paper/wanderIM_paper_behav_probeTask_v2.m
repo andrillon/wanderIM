@@ -621,23 +621,33 @@ format_fig;
 %export_fig([path_fig filesep 'WanderIM_behav_NOGO_byStateAndTask.eps'],'-r 300')
 
 
-%% HITS
+%% MISSES
 % read into cell array of the appropriate dimensions
+data=[];
+data_n=[];
 for i = 1:3
     for j = 1:2
-        data{i, j} = go_bysubj_state(:,j,i);
-        data{i, j} = data{i, j} (~isnan(data{i, j}));
-        datattest{i, j} = go_bysubj_state(:,j,i);
+%         data{i, j} = 1-nogo_bysubj_state(:,j,i);
+%         data{i, j} = data{i, j} (~isnan(data{i, j}));
+        
+        temp=all_probes_mat2(all_probes_mat2(:,3)==j & all_probes_mat2(:,4)==i,6);
+        tempS=squeeze(all_probes_mat2(all_probes_mat2(:,3)==j & all_probes_mat2(:,4)==i,1));
+        tempbyS=[]; myS=unique(tempS);
+        tempbyS_n=[]; 
+        for nS=1:length(myS)
+            tempbyS(nS)=nanmean(temp(tempS==myS(nS)));
+            tempbyS_n(nS)=sum(~isnan(temp(tempS==myS(nS))));
+        end
+        data{i, j} = 1-tempbyS;
+        data_n{i, j} = 50+100*minmax(tempbyS_n);
     end
 end
-for i = 1:3
-        datattest{i, 3} = squeeze(nanmean(go_bysubj_state(:,:,i),2));
-end
+
 % make figure
 figure;
 set(gcf,'position',[11   513   375   445])
-h   = rm_raincloud(data, Colors(1:2,:),0, 'ks', [],100);
-set(gca, 'XLim', [0 1],'YTick','','Ylim',[-7 25]);
+h   = rm_raincloud(data, Colors(1:2,:),0, 'ks', [],data_n);
+set(gca, 'XLim', [0 0.25],'YTick','','Ylim',[-50 200]);
 % title(['Figure M9' newline 'Repeated measures raincloud plot']);
 
 % change one subset to new colour and alter dot size
@@ -645,7 +655,7 @@ for i=1:3
     % scatter
     h.s{i, 2}.MarkerFaceColor   = Colors(i,:);
     h.s{i, 2}.MarkerEdgeColor   = [1 1 1]*0.5;
-    h.s{i, 2}.SizeData          = 100;
+%     h.s{i, 2}.SizeData          = 100;
     h.s{i, 2}.LineWidth          = 2;
     h.s{i,2}.YData=h.s{i,2}.YData-0.2;
     
@@ -669,7 +679,7 @@ for i=1:3
     h.s{i, 1}.Marker         = 'd';
     h.s{i, 1}.MarkerEdgeColor   = [1 1 1]*0.5;
     h.s{i, 1}.MarkerFaceColor   = Colors(i,:);
-    h.s{i, 1}.SizeData          = 100;
+%     h.s{i, 1}.SizeData          = 100;
     h.s{i, 1}.LineWidth          = 2;
     h.s{i,1}.YData=h.s{i,1}.YData+0.2;
     
@@ -695,7 +705,8 @@ for i=1:3
 end
 format_fig;
 
-%export_fig([path_fig filesep 'WanderIM_behav_GO_byStateAndTask.eps'],'-r 300')
+
+export_fig([path_fig filesep 'WanderIM_behav_GO_byStateAndTask.eps'],'-r 300')
 
 %%% post hoc tests
 % [h, pV, ~, stats]=ttest([datattest{2,1} ; datattest{2,2}],[datattest{1,1} ; datattest{1,2}]);

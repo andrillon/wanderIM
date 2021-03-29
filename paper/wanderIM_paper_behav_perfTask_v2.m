@@ -302,8 +302,8 @@ for nPlot=1 %:3
         format_fig;
     end
 end
-export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_perSubjectAndState.fig'])
-export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Behav_RT_perSubjectAndState.eps'],'-r 300')
+export_fig([path_fig 'Behav_RT_perSubjectAndState.fig'])
+export_fig([path_fig 'Behav_RT_perSubjectAndState.eps'],'-r 300')
 
 
 [h, pV, ~, stats]=ttest([datattest{2,3}],[datattest{1,3}]);
@@ -365,3 +365,5 @@ mdl_B_2_2b= fitlme(tbl,'GO~Task+MS+(1|SubID)');  % winning model
 mdl_B_3_2b= fitlme(tbl,'NOGO~Task+MS+(1|SubID)');   % winning model
 
 % mdl_B_3_3= fitlme(tbl,'NOGO~Task+MS+(1|SubID)');
+
+%%

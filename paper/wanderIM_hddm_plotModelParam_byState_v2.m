@@ -260,11 +260,11 @@ for nTask=1:2
     
     
     if nTask==1
-        export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Model_Param_perState_FACE_v2.fig'])
-        export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Model_Param_perState_FACE_v2.eps'],'-r 300')
+        export_fig([path_fig filesep  'Model_Param_perState_FACE_v2.fig'])
+        export_fig([path_fig filesep  'Model_Param_perState_FACE_v2.eps'],'-r 300')
     else
-        export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Model_Param_perState_DGIT_v2.fig'])
-        export_fig(['/Users/tand0009/Work/Documents/Articles/InPrep/wanderIM/figmaterial/Model_Param_perState_DGIT_v2.eps'],'-r 300')
+        export_fig([path_fig filesep  'Model_Param_perState_DGIT_v2.fig'])
+        export_fig([path_fig filesep  'Model_Param_perState_DGIT_v2.eps'],'-r 300')
     end
 end
 

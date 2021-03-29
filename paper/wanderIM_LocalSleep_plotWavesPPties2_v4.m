@@ -315,6 +315,19 @@ format_fig;
 export_fig([path_fig filesep 'LocalSleep_SWppties_DownSlopeTopo.fig'])
 export_fig([path_fig filesep 'LocalSleep_SWppties_DownSlopeTopo.eps'],'-r 300')
 
+
+figure; set(gcf,'Position',[ 562   669   325   316]);
+% subplot(1,3,1)
+temp_topo=grpstats(table_all.UpSlope,table_all.Elec); %in seconds but for all probes (60) so equivalent of in minutes
+temp_topo([10 21])=NaN;
+simpleTopoPlot_ft(temp_topo, path_PsychFTlayout,'on',[],0,1);
+hb=colorbar; caxis([250 530])
+set(hb,'YTick',[]);
+title('Up Slope \muV.s^-^1')
+format_fig;
+export_fig([path_fig filesep 'LocalSleep_SWppties_UpSlopeTopo.fig'])
+export_fig([path_fig filesep 'LocalSleep_SWppties_UpSlopeTopo.eps'],'-r 300')
+
 %%
 fprintf('E:%2.0f/63\n',0)
 for nE=1:63
@@ -467,15 +480,18 @@ mdlall0= fitlme(table_av,sprintf('Vig~1+Task+(1|SubID)'));%,GO_table.Properties.
 nWav_mdlall1= fitlme(table_av,sprintf('Vig~1+Task+nWave+(1|SubID)'));%,GO_table.Properties.VariableNames{10+nE}));
 nP2P_mdlall1= fitlme(table_av,sprintf('Vig~1+Task+P2P+(1|SubID)'));%,GO_table.Properties.VariableNames{10+nE}));
 nDSl_mdlall1= fitlme(table_av,sprintf('Vig~1+Task+DownSlope+(1|SubID)'));%,GO_table.Properties.VariableNames{10+nE}));
+nUSl_mdlall1= fitlme(table_av,sprintf('Vig~1+Task+UpSlope+(1|SubID)'));%,GO_table.Properties.VariableNames{10+nE}));
 
 
 nWav_mdlav0= fitlme(table_av,sprintf('nWave~1+Task+(1|SubID)'));%,GO_table.Properties.VariableNames{10+nE}));
 nP2P_mdlav0= fitlme(table_av,sprintf('P2P~1+Task+(1|SubID)'));%,GO_table.Properties.VariableNames{10+nE}));
 nDSl_mdlav0= fitlme(table_av,sprintf('DownSlope~1+Task+(1|SubID)'));%,GO_table.Properties.VariableNames{10+nE}));
+nUSl_mdlav0= fitlme(table_av,sprintf('UpSlope~1+Task+(1|SubID)'));%,GO_table.Properties.VariableNames{10+nE}));
 
 nWav_mdlav1= fitlme(table_av,sprintf('nWave~1+Task+State+(1|SubID)'));%,GO_table.Properties.VariableNames{10+nE}));
 nP2P_mdlav1= fitlme(table_av,sprintf('P2P~1+Task+State+(1|SubID)'));%,GO_table.Properties.VariableNames{10+nE}));
 nDSl_mdlav1= fitlme(table_av,sprintf('DownSlope~1+Task+State+(1|SubID)'));%,GO_table.Properties.VariableNames{10+nE}));
+nUSl_mdlav1= fitlme(table_av,sprintf('UpSlope~1+Task+State+(1|SubID)'));%,GO_table.Properties.VariableNames{10+nE}));
 
 
 %%
