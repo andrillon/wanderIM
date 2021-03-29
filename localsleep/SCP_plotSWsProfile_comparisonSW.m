@@ -115,7 +115,8 @@ for nS=1:numel(subList)
     %%% Sleep Data
     load([scoringPath filesep saveName]);
     load([scoringSavePath filesep sprintf('byTr_SPandSW_%s',SubID)]);
-    %%% Retrive behavioral data
+      fullDetection= load([scoringSavePath filesep sprintf('byTr_SPandSW_All_%s',SubID)]);
+ %%% Retrive behavioral data
     load([dataPath filesep '..' filesep 'Behav' filesep SubID filesep 'Result_' SubID '.mat'])
     fprintf('... ... behavioral data retrived\n')
     
@@ -127,6 +128,7 @@ for nS=1:numel(subList)
     iteChange = ones(1,4);
     tempSW=[];
     tempKC=[]; nSc2=nSc2+1;
+    tempElecSO=[];
     for nE=13:length(SubjectBehavData.TrialsCaracs)
         if exepts(nE)==1
             nEc=nEc+1;
@@ -137,9 +139,15 @@ for nS=1:numel(subList)
             %%%%% LOAD BROADBAND
             saveName2=sprintf('%s_T%02.0f_filtDataBroad',SubID,nE);
             Broad=load([savePath filesep saveName2]);
-                Broad.filtData.eeg=Broad.filtData.eeg-repmat(mean(Broad.filtData.eeg(:,[62 63]),2),1,65);
-
+            Broad.filtData.eeg=Broad.filtData.eeg-repmat(mean(Broad.filtData.eeg(:,[62 63]),2),1,65);
+            
             %%%
+            for nEl=1:65
+                tempAllSW=fullDetection.new_slowWaves{nEl};
+                if sum(tempAllSW(:,1)==nE & ismember(tempAllSW(:,24),[2 3]))~=0
+                tempElecSO=[tempElecSO ; [nS nE nEl sum(tempAllSW(:,1)==nE & ismember(tempAllSW(:,24),[2 3])) sum(ismember(tempAllSW(:,24),[2 3]))]];
+                end
+            end
             % Keep only the slow-waves in the current trial
             trial_SO = new_slowWaves(find(new_slowWaves(:,1)==nE & ismember(new_slowWaves(:,24),[2 3])),:);
             if isempty(trial_SO)
@@ -166,8 +174,8 @@ for nS=1:numel(subList)
         end
         fprintf('%d/%d ... %g\n',nE,length(SubjectBehavData.TrialsCaracs),size(trial_SO,1));
         SOelecs=new_slowWaves(:,1);SOelecs(SOelecs==0)=[];
-           countSO2(nSc2,:)=hist(SOelecs,1:65);
- end
+        
+    end
     if ~isempty(tempSW) && ~isempty(tempKC)
         nSc=nSc+1;
         allKC(nSc,:,:)=squeeze(nanmean(tempKC,1));
@@ -175,8 +183,9 @@ for nS=1:numel(subList)
         countKC(nSc)=size(tempKC,1);
         countSW(nSc)=size(tempSW,1);
         
-         allSO(nSc,:,:)=squeeze(nanmean(cat(1,tempSW,tempKC),1));
+        allSO(nSc,:,:)=squeeze(nanmean(cat(1,tempSW,tempKC),1));
         countSO(nSc)=size(cat(1,tempSW,tempKC),1);
+        countSObyElec(nSc,:)=hist(tempElecSO(:,3),1:65);
     end
 end
 
@@ -186,7 +195,7 @@ figure; format_fig;
 % simpleTplot(timeP,squeeze(allKC(countKC>16,:,65)),0,[1 1 1]*0.5,0,'-',0.5,1,4);
 simpleTplot(timeP,squeeze(allSO(countSO>16,:,65)),0,'k',0,'-',0.5,1,4);
 % export_fig('/Users/tand0009/Desktop/SW_ERP_fromSCP.eps')
-save('/Users/tand0009/Data/WanderIM/SWsleepComp/ERP_SW_Sleep','allSO','timeP','countSO')
+save('/Users/tand0009/Data/WanderIM/SWsleepComp/ERP_SW_Sleep','allSO','timeP','countSO','countSObyElec')
 
 %%
 addpath(genpath('/Users/tand0009/Work/local/fieldtrip/'))

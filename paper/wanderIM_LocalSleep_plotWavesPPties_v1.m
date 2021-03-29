@@ -31,6 +31,7 @@ frontalElecs=[1 32 33 60];
 WavesAndVig=[];
 nSc=0;
 
+elecs_ERP=[2, 24, 13, 17];
 for n=1:length(bsl_files)
     % load file with spm
     filename=bsl_files(n).name;
@@ -285,3 +286,38 @@ format_fig;
 
  
 
+%%
+temp_topo=squeeze(nanmean(countSObyElec(countSO>16,:),1));
+cfg=[];
+cfg.layout = 'egi64_GSN_HydroCel_vTA.sfp';
+layout=ft_prepare_layout(cfg);
+
+    figure; set(gcf,'Position',[ 562   669   325   316]);
+% subplot(1,3,1)
+simpleTopoPlot_ft(temp_topo', layout,'on',[],0,1);
+title('SW density')
+format_fig;
+
+  hb=colorbar; 
+    set(hb,'YTick',[]);
+    
+export_fig([path_fig filesep 'LocalSleep_SWppties_SleepTopo.fig'])
+export_fig([path_fig filesep 'LocalSleep_SWppties_SleepTopo.eps'],'-r 300')
+
+%%
+
+load('/Users/tand0009/Data/WanderIM/ERPComp/wanderIM_visualERPs');
+
+this_ch=match_str(layout.label,'Cz');
+% this_ch2=match_str(layout.label,'Fz');
+figure; set(gcf,'position',[440   247   958/2   551])
+format_fig;
+my_ERP=squeeze(DGT_erp(:,this_ch,:)); %squeeze(mean(ontrial_erp(:,this_ch,:),2));
+[~,hp(1)]=simpleTplot(xTime,my_ERP,0,[1 1 1]*0.5,0,'-',0.5,1,10,1,1);
+my_ERP=squeeze(FAC_erp(:,this_ch,:)); %squeeze(mean(ontrial_erp(:,this_ch,:),2));
+[~,hp(2)]=simpleTplot(xTime,my_ERP,0,[1 1 1]*0,0,'-',0.5,1,10,1,1);
+
+xlabel('Time from stim (s)')
+ylabel('Amplitude')
+xlim([-0.2 1])
+legend(hp,{'Digit','Face'})

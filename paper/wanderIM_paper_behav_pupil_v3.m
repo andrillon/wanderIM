@@ -535,3 +535,16 @@ ylim([1 5])
 
 %%
 mdl_3e= fitlme(res_table2,sprintf('All_Waves~1+Task+ProbeWithin+BlockN+(1|SubID)')); %WINING MODEL
+
+%%
+figure;
+simpleCorPlotsetbin(res_probe(:,138),res_probe(:,140),1:4,{'o','k',[1 1 1]*0.7,244,5});
+set(gca,'XTick',1:4);
+xlim([0.5 4.5])
+% ylim([0.5 5.5])
+ylabel('Vigilance Score')
+xlabel('Pupil Size')
+format_fig;
+
+res_probe_table=array2table(res_probe(:,[1 2 138 140]
+fitlme(res_table2,sprintf('All_Waves~1+Task+ProbeWithin+BlockN+(1|SubID)'));
