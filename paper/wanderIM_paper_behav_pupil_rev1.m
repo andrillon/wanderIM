@@ -5,6 +5,7 @@ close all
 run ../localdef_wanderIM.m
 addpath(genpath(lscpTools_path))
 addpath(genpath(path_RainCloudPlot))
+addpath(path_export);
 
 %% load data
 filename = '/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_localsleep_amp_pup_thrE90P2P_Dec21_v5.txt';

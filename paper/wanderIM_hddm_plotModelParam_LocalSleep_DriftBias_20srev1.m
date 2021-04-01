@@ -8,12 +8,14 @@ addpath(genpath(path_RainCloudPlot))
 addpath(genpath(lscpTools_path))
 
 %% Initialize variables.
+recompute=0;
 np=0;
 totperm=1000;
 Elec_Labels=layout.label;
 Task_Labels={'Face','Digit'};
 Mat_Param=[];
 vBias_est=cell(1,2);
+if recompute
 
 for nE=1:63
     fprintf('... ... Electrode %s\n',Elec_Labels{nE})
@@ -86,7 +88,9 @@ for nE=1:63
     
 end
 save('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_HDDM_LMEandPerm_vBias_20s.mat','vBias_est')
-
+else
+load('/Users/tand0009/Data/WanderIM/hddm/HDDM_WIM_thrE90P2P_HDDM_LMEandPerm_vBias_20s.mat');
+end
 %% Compute monte cartlo p
 clus_alpha=0.025;
 montecarlo_alpha=0.05/6;
@@ -121,8 +125,8 @@ for nP=1:length(Titles)
         end
     end
     title([Titles{nP}])
-    export_fig([path_fig filesep 'LocalSleep_HDDM_LMEbyTrial_' Titles{nP} '.fig'])
-    export_fig([path_fig filesep 'LocalSleep_HDDM_LMEbyTrial_' Titles{nP} '.eps'],'-r 300')
+%     export_fig([path_fig filesep 'LocalSleep_HDDM_LMEbyTrial_' Titles{nP} '.fig'])
+%     export_fig([path_fig filesep 'LocalSleep_HDDM_LMEbyTrial_' Titles{nP} '.eps'],'-r 300')
 end
 
 %%

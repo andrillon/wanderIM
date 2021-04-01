@@ -360,8 +360,8 @@ for nP=1:4
         end
     end
     title(['MW vs ON: ' Titles{nP}])
-    export_fig([path_fig filesep 'LocalSleep_MWvsON_' Titles{nP} '.fig'])
-    export_fig([path_fig filesep 'LocalSleep_MWvsON_' Titles{nP} '.eps'],'-r 300')
+%     export_fig([path_fig filesep 'LocalSleep_MWvsON_' Titles{nP} '.fig'])
+%     export_fig([path_fig filesep 'LocalSleep_MWvsON_' Titles{nP} '.eps'],'-r 300')
 
     figure;
    if nP==1
@@ -391,8 +391,8 @@ for nP=1:4
         end
     end
     title(['MB vs ON: ' Titles{nP}])
-    export_fig([path_fig filesep 'LocalSleep_MBvsON_' Titles{nP} '.fig'])
-    export_fig([path_fig filesep 'LocalSleep_MBvsON_' Titles{nP} '.eps'],'-r 300')
+%     export_fig([path_fig filesep 'LocalSleep_MBvsON_' Titles{nP} '.fig'])
+%     export_fig([path_fig filesep 'LocalSleep_MBvsON_' Titles{nP} '.eps'],'-r 300')
 
   figure;
    if nP==1
@@ -422,8 +422,8 @@ for nP=1:4
         end
     end
     title(['MW vs MB: ' Titles{nP}])
-        export_fig([path_fig filesep 'LocalSleep_MWvsMB_' Titles{nP} '.fig'])
-    export_fig([path_fig filesep 'LocalSleep_MWvsMB_' Titles{nP} '.eps'],'-r 300')
+%         export_fig([path_fig filesep 'LocalSleep_MWvsMB_' Titles{nP} '.fig'])
+%     export_fig([path_fig filesep 'LocalSleep_MWvsMB_' Titles{nP} '.eps'],'-r 300')
 
 end
 % end
