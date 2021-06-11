@@ -324,9 +324,15 @@ for nBlock=1:6
     title(sprintf('Block %g',nBlock))
 end
 <<<<<<< HEAD
+<<<<<<< HEAD
 % 
 % export_fig([path_fig filesep 'LocalSleep_compERPs_SW_BlockEffect_Topo.fig'])
 % export_fig([path_fig filesep 'LocalSleep_compERPs_SW_BlockEffect_Topo.eps'],'-r 300')
+=======
+
+export_fig([path_fig filesep 'LocalSleep_compERPs_SW_BlockEffect_Topo.fig'])
+export_fig([path_fig filesep 'LocalSleep_compERPs_SW_BlockEffect_Topo.eps'],'-r 300')
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 =======
 
 export_fig([path_fig filesep 'LocalSleep_compERPs_SW_BlockEffect_Topo.fig'])
@@ -359,8 +365,13 @@ ylabel('SW Density (.min^-^1)')
 % end
 % simpleTplot((1:10),SW_TimeEffect_bySubj2',0,'k',0,'-',0.5,1,0,1,1);
 <<<<<<< HEAD
+<<<<<<< HEAD
 % export_fig([path_fig filesep 'LocalSleep_compERPs_SW_BlockEffect.fig'])
 % export_fig([path_fig filesep 'LocalSleep_compERPs_SW_BlockEffect.png'],'-r 300')
+=======
+export_fig([path_fig filesep 'LocalSleep_compERPs_SW_BlockEffect.fig'])
+export_fig([path_fig filesep 'LocalSleep_compERPs_SW_BlockEffect.png'],'-r 300')
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 =======
 export_fig([path_fig filesep 'LocalSleep_compERPs_SW_BlockEffect.fig'])
 export_fig([path_fig filesep 'LocalSleep_compERPs_SW_BlockEffect.png'],'-r 300')

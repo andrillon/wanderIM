@@ -272,7 +272,10 @@ for nP=1:length(Titles)
         temp_clus=perfNOGO_clus; %temp_topo(temp_pV>=fdr(temp_pV,0.05))=0;
     end
 <<<<<<< HEAD
+<<<<<<< HEAD
     all_topo(nP,:)=temp_topo';
+=======
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 =======
 >>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
     % temp_topo(match_str(layout.label,{'TP9','TP10'}))=0;
@@ -289,8 +292,13 @@ for nP=1:length(Titles)
     end
     title([Titles{nP}])
 <<<<<<< HEAD
+<<<<<<< HEAD
 %     export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.fig'])
 %     export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.eps'],'-r 300')
+=======
+    export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.fig'])
+    export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.eps'],'-r 300')
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 =======
     export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.fig'])
     export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.eps'],'-r 300')
@@ -405,6 +413,7 @@ end
 %%
 uniqueS=unique(res_table.SubID);
 <<<<<<< HEAD
+<<<<<<< HEAD
 % WindowsBound=[-30 -25; -24 -19; -18 -13; -12 -7; -6 -1];
 % TimeCourse_SW=cell(3,size(WindowsBound,1));
 % TimeCourse_SW_FCz=cell(3,1);
@@ -435,6 +444,8 @@ uniqueS=unique(res_table.SubID);
 %     end
 % end
 =======
+=======
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 WindowsBound=[-30 -25; -24 -19; -18 -13; -12 -7; -6 -1];
 TimeCourse_SW=cell(3,size(WindowsBound,1));
 TimeCourse_SW_FCz=cell(3,1);
@@ -464,6 +475,9 @@ for nSta=1:3
 %         caxis([0.04 0.12]*10);
     end
 end
+<<<<<<< HEAD
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
+=======
 >>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 
 
@@ -485,8 +499,13 @@ ylim([1 5])
 ylabel('Pupil Size')
 set(gca,'FontSize',26)
 <<<<<<< HEAD
+<<<<<<< HEAD
 % export_fig([path_fig filesep 'LocalSleep_compERPs_Pup_BlockEffect.fig'])
 % export_fig([path_fig filesep 'LocalSleep_compERPs_Pup_BlockEffect.png'],'-r 300')
+=======
+export_fig([path_fig filesep 'LocalSleep_compERPs_Pup_BlockEffect.fig'])
+export_fig([path_fig filesep 'LocalSleep_compERPs_Pup_BlockEffect.png'],'-r 300')
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 =======
 export_fig([path_fig filesep 'LocalSleep_compERPs_Pup_BlockEffect.fig'])
 export_fig([path_fig filesep 'LocalSleep_compERPs_Pup_BlockEffect.png'],'-r 300')
@@ -510,8 +529,13 @@ ylim([1 4])
 ylabel('Vigilance Ratings')
 set(gca,'FontSize',26)
 <<<<<<< HEAD
+<<<<<<< HEAD
 % export_fig([path_fig filesep 'LocalSleep_compERPs_Vig_BlockEffect.fig'])
 % export_fig([path_fig filesep 'LocalSleep_compERPs_Vig_BlockEffect.png'],'-r 300')
+=======
+export_fig([path_fig filesep 'LocalSleep_compERPs_Vig_BlockEffect.fig'])
+export_fig([path_fig filesep 'LocalSleep_compERPs_Vig_BlockEffect.png'],'-r 300')
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 =======
 export_fig([path_fig filesep 'LocalSleep_compERPs_Vig_BlockEffect.fig'])
 export_fig([path_fig filesep 'LocalSleep_compERPs_Vig_BlockEffect.png'],'-r 300')

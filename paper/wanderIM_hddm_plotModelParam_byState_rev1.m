@@ -177,7 +177,11 @@ for nTask=1:2
             end
             
 <<<<<<< HEAD
+<<<<<<< HEAD
             data_toplot{nTask}{ncond,nstate}=temp';
+=======
+            
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 =======
             
 >>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
@@ -234,8 +238,11 @@ for nTask=1:2
             set(h{2},'SizeData',144,'MarkerFaceAlpha',0.7)
            
 <<<<<<< HEAD
+<<<<<<< HEAD
                         data_toplot{nTask}{ncond+3,nstate}=temp';
 
+=======
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 =======
 >>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
         end
