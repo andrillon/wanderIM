@@ -456,9 +456,21 @@ set(gca,'XTick',1:4);
 
 % cmap=cbrewer('seq','YlOrRd',64);
 % colormap(cmap);
+<<<<<<< HEAD
+<<<<<<< HEAD
 % 
 % export_fig([path_fig filesep 'LocalSleep_SWppties_linkFatigue_Topo.fig'])
 % export_fig([path_fig filesep 'LocalSleep_SWppties_linkFatigue_Topo.png'],'-r 300')
+=======
+
+export_fig([path_fig filesep 'LocalSleep_SWppties_linkFatigue_Topo.fig'])
+export_fig([path_fig filesep 'LocalSleep_SWppties_linkFatigue_Topo.png'],'-r 300')
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
+=======
+
+export_fig([path_fig filesep 'LocalSleep_SWppties_linkFatigue_Topo.fig'])
+export_fig([path_fig filesep 'LocalSleep_SWppties_linkFatigue_Topo.png'],'-r 300')
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 
 %%
 
@@ -700,5 +712,15 @@ format_fig;
 % ylabel('u-Slope')
 set(gca,'XTick',1:5);
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 % export_fig([path_fig filesep 'LocalSleep_SWppties_linkPupil_Topo.fig'])
 % export_fig([path_fig filesep 'LocalSleep_SWppties_linkPupil_Topo.png'],'-r 300')
+=======
+export_fig([path_fig filesep 'LocalSleep_SWppties_linkPupil_Topo.fig'])
+export_fig([path_fig filesep 'LocalSleep_SWppties_linkPupil_Topo.png'],'-r 300')
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
+=======
+export_fig([path_fig filesep 'LocalSleep_SWppties_linkPupil_Topo.fig'])
+export_fig([path_fig filesep 'LocalSleep_SWppties_linkPupil_Topo.png'],'-r 300')
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d

@@ -7,7 +7,15 @@ addpath(genpath(path_export))
 addpath(genpath(path_RainCloudPlot))
 addpath(genpath(lscpTools_path))
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 recompute=0;
+=======
+recompute=1;
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
+=======
+recompute=1;
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 %% Initialize variables.
 np=0;
 totperm=1000;
