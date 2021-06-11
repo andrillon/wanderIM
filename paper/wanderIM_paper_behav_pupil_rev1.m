@@ -6,7 +6,10 @@ run ../localdef_wanderIM.m
 addpath(genpath(lscpTools_path))
 addpath(genpath(path_RainCloudPlot))
 <<<<<<< HEAD
+<<<<<<< HEAD
 addpath(path_export);
+=======
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 =======
 >>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 
