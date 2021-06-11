@@ -7,7 +7,10 @@ run ../localdef_wanderIM
 addpath(genpath(lscpTools_path))
 addpath(genpath(path_export))
 addpath(genpath(path_RainCloudPlot))
+<<<<<<< HEAD
 addpath(path_export);
+=======
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 % data_path='/Users/Thomas/temp_data/WanderIM/behavonly/';
 data_path=[root_path filesep 'behav/'];
 files=dir([data_path filesep 'wanderIM_behavres_s3*.mat']);

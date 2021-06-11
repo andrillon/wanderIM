@@ -176,7 +176,11 @@ for nTask=1:2
                 
             end
             
+<<<<<<< HEAD
             data_toplot{nTask}{ncond,nstate}=temp';
+=======
+            
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
             h = raincloud_plot(temp, 'band_width',0.25, 'box_on', 1, 'color', Colors(nstate,:), 'alpha', 0.5,...
                 'box_dodge', 1, 'box_dodge_amount', 0.4*(nstate-1)+0.1, 'dot_dodge_amount',  0.4*(nstate-1)+0.3,...
                 'box_col_match', 1);
@@ -229,8 +233,11 @@ for nTask=1:2
             h{2}.Marker=MarkerT{nTask};
             set(h{2},'SizeData',144,'MarkerFaceAlpha',0.7)
            
+<<<<<<< HEAD
                         data_toplot{nTask}{ncond+3,nstate}=temp';
 
+=======
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
         end
         % legend([h1{1} h2{1} h3{1}], {'ON', 'MW', 'MB'});
         % h   = rm_raincloud(rcp_data, state_colours);

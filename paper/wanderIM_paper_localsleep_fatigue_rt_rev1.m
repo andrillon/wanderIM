@@ -271,7 +271,10 @@ for nP=1:length(Titles)
         temp_topo=perfNOGO_est{1}(:,3);
         temp_clus=perfNOGO_clus; %temp_topo(temp_pV>=fdr(temp_pV,0.05))=0;
     end
+<<<<<<< HEAD
     all_topo(nP,:)=temp_topo';
+=======
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
     % temp_topo(match_str(layout.label,{'TP9','TP10'}))=0;
     simpleTopoPlot_ft(temp_topo, path_PsychFTlayout,'on',[],0,1);
     colormap(cmap);
@@ -285,8 +288,13 @@ for nP=1:length(Titles)
         end
     end
     title([Titles{nP}])
+<<<<<<< HEAD
 %     export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.fig'])
 %     export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.eps'],'-r 300')
+=======
+    export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.fig'])
+    export_fig([path_fig filesep 'LocalSleep_LMEbyTrial_' Titles{nP} '.eps'],'-r 300')
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 end
 
 % %%
@@ -396,6 +404,7 @@ end
 %
 %%
 uniqueS=unique(res_table.SubID);
+<<<<<<< HEAD
 % WindowsBound=[-30 -25; -24 -19; -18 -13; -12 -7; -6 -1];
 % TimeCourse_SW=cell(3,size(WindowsBound,1));
 % TimeCourse_SW_FCz=cell(3,1);
@@ -425,6 +434,37 @@ uniqueS=unique(res_table.SubID);
 % %         caxis([0.04 0.12]*10);
 %     end
 % end
+=======
+WindowsBound=[-30 -25; -24 -19; -18 -13; -12 -7; -6 -1];
+TimeCourse_SW=cell(3,size(WindowsBound,1));
+TimeCourse_SW_FCz=cell(3,1);
+TimeCourse_SW_Pz=cell(3,1);
+for nS=1:length(uniqueS)
+    for nSta=1:3
+        temp_FCz=[]; temp_Pz=[];
+        for nWin=1:size(WindowsBound,1)
+            temp=table2array(res_table(res_table.SubID==uniqueS(nS) & res_table.State==num2str(nSta) & res_table.DistProbe>=WindowsBound(nWin,1) & res_table.DistProbe<=WindowsBound(nWin,2),74:136));
+            if ~isempty(temp)
+                TimeCourse_SW{nSta,nWin}=[TimeCourse_SW{nSta,nWin} ; nanmean(temp,1)];
+            end
+            temp_FCz(nWin)=nanmean(res_table.W_FCz(res_table.SubID==uniqueS(nS) & res_table.State==num2str(nSta) & res_table.DistProbe>=WindowsBound(nWin,1) & res_table.DistProbe<=WindowsBound(nWin,2)));
+            temp_Pz(nWin)=nanmean(res_table.W_Pz(res_table.SubID==uniqueS(nS) & res_table.State==num2str(nSta) & res_table.DistProbe>=WindowsBound(nWin,1) & res_table.DistProbe<=WindowsBound(nWin,2)));
+        end
+            TimeCourse_SW_FCz{nSta}=[TimeCourse_SW_FCz{nSta} ; temp_FCz];
+            TimeCourse_SW_Pz{nSta}=[TimeCourse_SW_Pz{nSta} ; temp_Pz];
+    end
+end
+
+
+figure;
+for nSta=1:3
+    for nWin=1:size(WindowsBound,1)
+        subplot(3,size(WindowsBound,1),(nSta-1)*size(WindowsBound,1)+nWin);
+        simpleTopoPlot_ft(nanmean(TimeCourse_SW{nSta,nWin},1)'*10, path_PsychFTlayout,'on',[],0,1);
+%         caxis([0.04 0.12]*10);
+    end
+end
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 
 
 %% Pupil by Effect
@@ -444,8 +484,13 @@ xlim([0.5 6.5])
 ylim([1 5])
 ylabel('Pupil Size')
 set(gca,'FontSize',26)
+<<<<<<< HEAD
 % export_fig([path_fig filesep 'LocalSleep_compERPs_Pup_BlockEffect.fig'])
 % export_fig([path_fig filesep 'LocalSleep_compERPs_Pup_BlockEffect.png'],'-r 300')
+=======
+export_fig([path_fig filesep 'LocalSleep_compERPs_Pup_BlockEffect.fig'])
+export_fig([path_fig filesep 'LocalSleep_compERPs_Pup_BlockEffect.png'],'-r 300')
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
 
 %% Vig by Effect
 figure; set(gcf,'Position',[1241         151         387         663]);
@@ -464,5 +509,10 @@ xlim([0.5 6.5])
 ylim([1 4])
 ylabel('Vigilance Ratings')
 set(gca,'FontSize',26)
+<<<<<<< HEAD
 % export_fig([path_fig filesep 'LocalSleep_compERPs_Vig_BlockEffect.fig'])
 % export_fig([path_fig filesep 'LocalSleep_compERPs_Vig_BlockEffect.png'],'-r 300')
+=======
+export_fig([path_fig filesep 'LocalSleep_compERPs_Vig_BlockEffect.fig'])
+export_fig([path_fig filesep 'LocalSleep_compERPs_Vig_BlockEffect.png'],'-r 300')
+>>>>>>> a6f52afce47f471b424cdbfe1c1da28e9133484d
